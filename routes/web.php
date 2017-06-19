@@ -12,16 +12,23 @@
 */
 
 Route::get('/', function() {
+  return view('login');
+}) -> name('login');
 
-/*  if(DB::connection()->getDatabaseName())
-   {
-     echo "conncted sucessfully to database ".DB::connection()->getDatabaseName();
-   }
- */
+Route::post('/login', [
+    'uses' => 'UserController@postLogin',
+    'as' => 'login',
+]);
 
-  return view('welcome');
+Route::post('/signup', [
+    'uses' => 'UserController@postSignUp',
+    'as' => 'signup'
+]);
 
-});
+Route::get('/logout', [
+    'uses' => 'UserController@getLogout',
+    'as' => 'signup'
+]);
 
 Route::get('new-post', 'PostController@create');
 
