@@ -27,6 +27,7 @@ class CreateRelationshipsTable extends Migration
             $table->foreign('relation_type')
               ->references('id')->on('relations')
               ->onDelete('cascade');
+            $table->boolean('status');
         });
     }
 
