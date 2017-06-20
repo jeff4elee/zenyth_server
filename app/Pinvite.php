@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 class Pinvite extends Model
 {
     protected $fillable = ['title', 'description', 'latitude', 'longitude',
-                            'thumbnail', 'entity_id', 'user_id', 'event_time'];
+                            'thumbnail', 'event_time'];
 
     public function entity() {
         return $this->belongsTo('App\Entity', 'entity_id');

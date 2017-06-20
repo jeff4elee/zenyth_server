@@ -8,14 +8,14 @@ use Illuminate\Database\Eloquent\Model;
 
 class Relationship extends Model
 {
-    protected $fillable = ['user_one_id', 'user_two_id', 'relation_type', 'status'];
+    protected $fillable = ['requester', 'requestee', 'relation_type', 'status'];
 
-    public function userOne() {
-        return $this->belongsTo('App\User', 'user_one_id');
+    public function requester() {
+        return $this->belongsTo('App\User', 'requester');
     }
 
-    public function userTwo() {
-        return $this->belongsTo('App\User', 'user_two_id');
+    public function requestee() {
+        return $this->belongsTo('App\User', 'requestee');
     }
 
     public function relation_type() {

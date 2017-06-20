@@ -17,7 +17,7 @@ class User extends Model implements Authenticatable
      * @var array
      */
     protected $fillable = [
-        'name', 'email', 'password', 'created_on', 'api_token'
+        'name', 'email'
     ];
 
     /**
@@ -26,7 +26,7 @@ class User extends Model implements Authenticatable
      * @var array
      */
     protected $hidden = [
-        'password', 'remember_token'
+        'password', 'api_token', 'remember_token', 'created_on'
     ];
 
     public function pinpost()
