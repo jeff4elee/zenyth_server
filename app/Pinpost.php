@@ -7,5 +7,13 @@ use Illuminate\Database\Eloquent\Model;
 class Pinpost extends Model
 {
     protected $fillable = ['title', 'description', 'latitude', 'longitude',
-                            'thumbnail', 'user_id'];
+                            'thumbnail', 'entity_id', 'user_id', 'updated_on'];
+
+    public function entity() {
+        return $this->belongsTo('App\Entity', 'entity_id');
+    }
+
+    public function user() {
+        return $this->belongsTo('App\User', 'user_id');
+    }
 }

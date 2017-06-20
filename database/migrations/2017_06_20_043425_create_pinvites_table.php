@@ -16,7 +16,9 @@ class CreatePinvitesTable extends Migration
         Schema::create('pinvites', function (Blueprint $table) {
             $table->increments('id');
             $table->unsignedInteger('entity_id');
-            $table->foreign('entity_id')->references('id')->on('entities');
+            $table->foreign('entity_id')
+                ->references('id')->on('entities')
+                ->onDelete('cascade');
             $table->unique('entity_id');
             $table->string('title');
             $table->double('latitude');
@@ -24,7 +26,9 @@ class CreatePinvitesTable extends Migration
             $table->text('description');
             $table->binary('thumbnail');
             $table->unsignedInteger('user_id');
-            $table->foreign('user_id')->references('id')->on('users');
+            $table->foreign('user_id')
+                ->references('id')->on('users')
+                ->onDelete('cascade');
             $table->dateTime('event_time');
         });
     }

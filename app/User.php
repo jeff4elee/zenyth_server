@@ -17,7 +17,7 @@ class User extends Model implements Authenticatable
      * @var array
      */
     protected $fillable = [
-        'email', 'password',
+        'name', 'email', 'password', 'created_on', 'api_token'
     ];
 
     /**
@@ -26,12 +26,24 @@ class User extends Model implements Authenticatable
      * @var array
      */
     protected $hidden = [
-        'password', 'remember_token',
+        'password', 'remember_token'
     ];
 
-    public function posts()
+    public function pinpost()
     {
-      return $this->hasMany('App\Post', 'author_id');
+      return $this->hasMany('App\Pinpost', 'user_id');
     }
 
+    public function pinvite() {
+        return $this->hasMany('App\Pinvite', 'user_id');
+    }
+
+    public function likable_entity() {
+        return $this->hasMany('App\Likable_entity', 'user_id');
+    }
+
+    public function commentable_entity() {
+        return $this->hasMany('App\Commentable_entity', 'user_id');
+    }
 }
+

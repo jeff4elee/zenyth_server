@@ -4,10 +4,9 @@ namespace App;
 
 use Illuminate\Database\Eloquent\Model;
 
-class Pinvite extends Model
+class Likable_entity extends Model
 {
-    protected $fillable = ['title', 'description', 'latitude', 'longitude',
-                            'thumbnail', 'entity_id', 'user_id', 'event_time'];
+    protected $fillable = ['entity_id', 'user_id'];
 
     public function entity() {
         return $this->belongsTo('App\Entity', 'entity_id');

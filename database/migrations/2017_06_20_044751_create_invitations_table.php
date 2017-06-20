@@ -16,9 +16,11 @@ class CreateInvitationsTable extends Migration
         Schema::create('invitations', function (Blueprint $table) {
             $table->increments('id');
             $table->unsignedInteger('pinvite_id');
-            $table->foreign('pinvite_id')->references('id')->on('pinvites');
+            $table->foreign('pinvite_id')
+                ->references('id')->on('pinvites')
+                ->onDelete('cascade');
             $table->unsignedInteger('invitee_id');
-            $table->timestamps();
+            $table->timestamps('invited_on');
         });
     }
 
