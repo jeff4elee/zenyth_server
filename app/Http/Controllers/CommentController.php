@@ -69,17 +69,10 @@ class CommentController extends Controller
 
     }
 
-
     public function count($entity_id)
     {
 
-        $comments = Comment::where('entity_id', '=', $entity_id);
-
-        if ($comments == null) {
-            return 0;
-        }
-
-        return $comments->count();
+        return Entity::commentsCount();
 
     }
 

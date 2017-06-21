@@ -22,16 +22,10 @@ class LikeController extends Controller
 
     }
 
-    public function count($like_id)
+    public function count($entity_id)
     {
 
-        $entities = Like::find($like_id);
-
-        if ($entities == null) {
-            return 0;
-        }
-
-        return $entities->count();
+        return Entity::likesCount();
 
     }
 
