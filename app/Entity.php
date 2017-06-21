@@ -15,10 +15,10 @@ class Entity extends Model
     }
 
     public function likable_entity() {
-        return $this->hasMany('App\Likable_entity', 'entity_id');
+        return $this->hasMany('App\Like', 'entity_id');
     }
 
-    public function commentable_entity() {
-        return $this->hasMany('App\Commentable_entity', 'entity_id');
+    public function comment() {
+        return $this->hasMany('App\Comment', 'entity_id');
     }
 }

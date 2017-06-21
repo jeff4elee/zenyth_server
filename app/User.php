@@ -38,12 +38,12 @@ class User extends Model implements Authenticatable
         return $this->hasMany('App\Pinvite', 'user_id');
     }
 
-    public function likable_entity() {
-        return $this->hasMany('App\Likable_entity', 'user_id');
+    public function like() {
+        return $this->hasMany('App\Like', 'user_id');
     }
 
-    public function commentable_entity() {
-        return $this->hasMany('App\Commentable_entity', 'user_id');
+    public function comment() {
+        return $this->hasMany('App\Comment', 'user_id');
     }
 }
 

@@ -4,7 +4,7 @@ namespace App;
 
 use Illuminate\Database\Eloquent\Model;
 
-class Likable_entity extends Model
+class Like extends Model
 {
     public function entity() {
         return $this->belongsTo('App\Entity', 'entity_id');
