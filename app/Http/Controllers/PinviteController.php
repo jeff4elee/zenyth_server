@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use App\Pinvite;
 
 class PinviteController extends Controller
 {
@@ -31,7 +32,7 @@ class PinviteController extends Controller
     public function read($entity_id)
     {
 
-        $pin = Pinvite::where('entity_id', '=', 'entity_id')->first();
+        $pin = Entity::find($entity_id)->first()->pinvite;
 
         if ($pin == null) {
             return 0;
@@ -44,7 +45,7 @@ class PinviteController extends Controller
     public function update(Request $request, $entity_id)
     {
 
-        $pin = Pinvite::where('entity_id', '=', $entity_id)->first();
+        $pin = Entity::find($entity_id)->first()->pinvite;
 
         if ($pin == null) {
             return 0;
@@ -77,7 +78,7 @@ class PinviteController extends Controller
     public function delete($entity_id)
     {
 
-        $pin = Pinvite::where('entity_id', '=', $entity_id)->first();
+        $pin = Entity::find($entity_id)->first()->pinvite;
 
         if ($pin == null) {
             return 0;

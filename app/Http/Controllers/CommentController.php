@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use App\Comment;
 
 class CommentController extends Controller
 {
@@ -56,7 +57,7 @@ class CommentController extends Controller
     public function delete($comment_id)
     {
 
-        $comment = Like::find($comment_id);
+        $comment = Comment::find($comment_id);
 
         if ($comment == null) {
             return 0;
