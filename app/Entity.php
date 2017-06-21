@@ -7,18 +7,18 @@ use Illuminate\Database\Eloquent\Model;
 class Entity extends Model
 {
     public function pinvite() {
-        return $this->hasMany('App\Pinvite', 'entity_id');
+        return $this->hasOne('App\Pinvite', 'entity_id');
     }
 
     public function pinpost() {
-        return $this->hasMany('App\Pinpost', 'entity_id');
+        return $this->hasOne('App\Pinpost', 'entity_id');
     }
 
-    public function likable_entity() {
+    public function likes() {
         return $this->hasMany('App\Like', 'entity_id');
     }
 
-    public function comment() {
+    public function comments() {
         return $this->hasMany('App\Comment', 'entity_id');
     }
 }
