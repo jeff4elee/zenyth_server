@@ -29,7 +29,16 @@ class LoginController extends Controller
     public function login(Request $request)
     {
 
-        if (Auth::attempt(['email' => $email, 'password' => $password])) {
+        $email = $request->input('email');
+        $password = $request->input('password');
+
+	$user = User::where('email', '=', $email);
+	
+	if($user == null){
+	  return 0;
+	}
+
+	if(password_verify($password, $user->password)){
 
           // Authentication passed...
           do{
