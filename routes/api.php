@@ -35,8 +35,8 @@ Route::post('comment', 'CommentController@create');
 Route::get('comment/{comment_id}', 'CommentController@read');
 Route::patch('comment/{comment_id}', 'CommentController@update');
 Route::delete('comment/{comment_id}', 'CommentController@delete');
-Route::get('comment/{comment_id}', 'CommentController@count');
+Route::get('comment/{comment_id}/count', 'CommentController@count');
 
-Route::post('like/{like_id}', 'LikeController@create');
-Route::delete('like', 'LikeController@delete');
+Route::post('like', 'LikeController@create');
+Route::delete('like/{like_id}/count', 'LikeController@delete');
 Route::get('like/{like_id}', 'LikeController@count');
