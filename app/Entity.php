@@ -6,14 +6,6 @@ use Illuminate\Database\Eloquent\Model;
 
 class Entity extends Model
 {
-    public function pinvite() {
-        return $this->hasOne('App\Pinvite', 'entity_id');
-    }
-
-    public function pinpost() {
-        return $this->hasOne('App\Pinpost', 'entity_id');
-    }
-
     public function likes() {
         return $this->hasMany('App\Like', 'entity_id');
     }
