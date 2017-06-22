@@ -15,18 +15,19 @@ class CreateRelationshipsTable extends Migration
     {
         Schema::create('relationships', function (Blueprint $table) {
             $table->increments('id');
-            $table->integer('requestor_id')->unsigned();
-            $table->foreign('requestor_id')
+            $table->unsignedInteger('requester');
+            $table->foreign('requester')
               ->references('id')->on('users')
               ->onDelete('cascade');
-            $table->integer('requestee_id')->unsigned();
-            $table->foreign('requestee_id')
+            $table->unsignedInteger('requestee');
+            $table->foreign('requestee')
               ->references('id')->on('users')
               ->onDelete('cascade');
-            $table->integer('relation_type')->unsigned();
+            $table->unsignedInteger('relation_type');
             $table->foreign('relation_type')
               ->references('id')->on('relations')
               ->onDelete('cascade');
+            $table->boolean('status');
         });
     }
 
