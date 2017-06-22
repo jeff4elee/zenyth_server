@@ -72,7 +72,7 @@ class CommentController extends Controller
     public function count($entity_id)
     {
 
-        return Entity::commentsCount();
+        return Entity::find($entity_id)->commentsCount();
 
     }
 
