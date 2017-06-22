@@ -31,7 +31,7 @@ class PinpostController extends Controller
     public function read($entity_id)
     {
 
-        $pin = Entity::find($entity_id)->first()->pinpost;
+        $pin = Pinpost::where('entity_id', '=', $entity_id)->first();
 
         if ($pin == null) {
             return 0;
@@ -44,7 +44,7 @@ class PinpostController extends Controller
     public function update(Request $request, $entity_id)
     {
 
-        $pin = Entity::find($entity_id)->first()->pinpost;
+        $pin = Pinpost::where('entity_id', '=', $entity_id)->first();
 
         if ($pin == null) {
             return 0;
@@ -74,7 +74,7 @@ class PinpostController extends Controller
     public function delete($entity_id)
     {
 
-        $pin = Entity::find($entity_id)->first()->pinpost;
+        $pin = Pinpost::where('entity_id', '=', $entity_id)->first();
 
         if ($pin == null) {
             return 0;
