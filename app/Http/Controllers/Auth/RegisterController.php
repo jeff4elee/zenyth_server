@@ -64,7 +64,7 @@ class RegisterController extends Controller
      * @param  array  $data
      * @return User
      */
-    protected function create(array $request)
+    protected function create(array $data)
     {
 
       $data = $request->all();
@@ -79,7 +79,7 @@ class RegisterController extends Controller
       
       return User::create([
           'email' => $data['email'],
-          'password' => password_hash($data['password'], PASSWORD_BCRYPT),
+          'password' => bcrypt($data['password']),
           'api_token' => str_random(60),
       ]);
 
