@@ -11,24 +11,6 @@
 |
 */
 
-Route::get('/', function() {
-  return view('login');
-}) -> name('login');
-
-Route::post('/login', [
-    'uses' => 'UserController@postLogin',
-    'as' => 'login',
-]);
-
-Route::post('/signup', [
-    'uses' => 'UserController@postSignUp',
-    'as' => 'signup'
-]);
-
-Route::get('/logout', [
-    'uses' => 'UserController@getLogout',
-    'as' => 'signup'
-]);
 
 Route::get('new-post', 'PostController@create');
 
