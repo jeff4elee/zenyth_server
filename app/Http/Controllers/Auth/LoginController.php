@@ -32,7 +32,13 @@ class LoginController extends Controller
         $email = $request->input('email');
         $password = $request->input('password');
 
-        if (Auth::attempt(['email' => $email, 'password' => $password])) {
+	$user = User::where('email', '=', $email);
+	
+	if($user == null){
+	  return 0;
+	}
+
+	if(password_verify($password, $user->password)){
 
           // Authentication passed...
           do{
