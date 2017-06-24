@@ -19,7 +19,7 @@ Route::middleware('auth:api')->get('/user', function (Request $request) {
 
 Route::post('register', 'Auth\RegisterController@register');
 Route::post('login', 'Auth\LoginController@login');
-Route::get('logout', 'Auth\AuthController@logout');
+Route::get('logout', 'Auth\LogoutController@logout');
 
 Route::group(['middleware' => 'authenticated'], function() {
     Route::post('pinpost', 'PinpostController@create');
