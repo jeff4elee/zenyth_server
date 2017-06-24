@@ -25,7 +25,8 @@ class RegisterController extends Controller
     use RegistersUsers;
 
     public function register(Request $request) {
-      return $this->create($request);
+
+        return $this->create($request);
 
     }
 
@@ -55,8 +56,9 @@ class RegisterController extends Controller
     protected function validator(array $data)
     {
         return Validator::make($data, [
+            'name' => 'required',
             'email' => 'required|email|max:255|unique:users',
-            'password' => 'required|min:6',
+            'password' => 'required|min:8|max:16|confirmed',
         ]);
     }
 

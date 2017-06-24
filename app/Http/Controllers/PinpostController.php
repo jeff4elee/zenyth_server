@@ -14,6 +14,11 @@ class PinpostController extends Controller
     public function create(Request $request)
     {
 
+        $validator = $this->validator($request);
+        if($validator->fails()) {
+            return $validator->errors()->all();
+        }
+
         $pin = new Pinpost();
 
         $pin->title = $request->input('title');
@@ -48,6 +53,11 @@ class PinpostController extends Controller
 
     public function update(Request $request, $pinpost_id)
     {
+
+        $validator = $this->validator($request);
+        if($validator->fails()) {
+            return $validator->errors()->all();
+        }
 
         /* Checks if pinpost is there */
         $pin = Pinpost::find($pinpost_id);
@@ -123,6 +133,17 @@ class PinpostController extends Controller
     {
 
         return Pinpost::find($pinpost_id)->entity->commentsCount();
+
+    }
+
+    protected function validator(Request $request) {
+
+        return Validator::make($request, [
+            'title' => 'required',
+            'description' => 'required',
+            'latitude' => 'required',
+            'longitude' => 'required'
+        ]);
 
     }
 

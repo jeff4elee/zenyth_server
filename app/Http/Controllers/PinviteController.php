@@ -11,6 +11,11 @@ class PinviteController extends Controller
     public function create(Request $request)
     {
 
+        $validator = $this->validator($request);
+        if($validator->fails()) {
+            return $validator->errors()->all();
+        }
+
         $pin = new Pinvite();
 
         $pin->title = $request->input('title');
@@ -46,6 +51,11 @@ class PinviteController extends Controller
 
     public function update(Request $request, $pinvite_id)
     {
+
+        $validator = $this->validator($request);
+        if($validator->fails()) {
+            return $validator->errors()->all();
+        }
 
         /* Checks if pinvite is there */
         $pin = Pinvite::find($pinvite_id);
@@ -124,6 +134,17 @@ class PinviteController extends Controller
     {
 
         return Pinvite::find($pinvite_id)->entity->commentsCount();
+
+    }
+
+    protected function validator(Request $request) {
+
+        return Validator::make($request, [
+            'title' => 'required',
+            'description' => 'required',
+            'latitude' => 'required',
+            'longitude' => 'required'
+        ]);
 
     }
     

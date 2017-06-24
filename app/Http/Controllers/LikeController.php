@@ -10,11 +10,17 @@ class LikeController extends Controller
 
     public function create(Request $request)
     {
+        $this->validate($request, [
+            'entity_id' => 'required'
+        ]);
 
         $like = new Like();
 
         $like->entity_id = $request->input('entity_id');
-        $like->user_id = $request->input('user_id');
+
+        $api_token = $request->header('Authorization');
+        $user_id = User::where('api_token', $api_token)->first()->id;
+        $like->user_id = $user_id;
 
         $like->save();
 

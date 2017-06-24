@@ -12,6 +12,15 @@ class CommentController extends Controller
     public function create(Request $request)
     {
 
+        $validator = $this->validate($request, [
+            'comment' => 'required|min:1',
+            'entity_id' => 'required'
+        ]);
+
+        if($validator->fails()) {
+            return $validator->errors()->all();
+        }
+
         $comment = new Comment();
 
         $comment->entity_id = $request->input('entity_id');
@@ -41,6 +50,14 @@ class CommentController extends Controller
 
     public function update(Request $request, $comment_id)
     {
+
+        $validator = $this->validate($request, [
+            'comment' => 'required|min:1'
+        ]);
+
+        if($validator->fails()) {
+            return $validator->errors()->all();
+        }
 
         $comment = Comment::find($comment_id);
 

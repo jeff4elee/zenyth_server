@@ -30,11 +30,19 @@ class LoginController extends Controller
      */
     public function login(Request $request)
     {
+        $validator = $this->validate($request, [
+            'email' => 'required',
+            'password' => 'required'
+        ]);
 
-        $email = $request['email'];
-        $password = $request['password'];
+        if($validator->fails()) {
+            return $validator->errors()->all();
+        }
 
-        $user = User::where('email', '=', $email)->first();
+        $email = $request->input('email');
+        $password = $request->input('password');
+
+        $user = User::where('email', $email)->first();
 
         if($user == null){
           return 0;
@@ -48,7 +56,7 @@ class LoginController extends Controller
 
                 $api_token = str_random(60);
 
-                $dup_token_user = User::where('api_token', '=', $api_token)
+                $dup_token_user = User::where('api_token', $api_token)
                     ->first();
 
             } while( $dup_token_user != null );

@@ -31,7 +31,8 @@ class LogoutController extends Controller
     public function logout(Request $request)
     {
 
-        $user = User::where('api_token', '=', $request['api_token'])->first();
+        $user = User::where('api_token', '=',
+                            $request->header('Authorization'))->first();
         $user->api_token = null;
 
         return response(json_encode(['user status' => 'logged out'])
