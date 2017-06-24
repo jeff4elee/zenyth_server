@@ -3,6 +3,7 @@
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Carbon\Carbon;
 
 class CreateUsersTable extends Migration
 {
@@ -20,7 +21,11 @@ class CreateUsersTable extends Migration
             $table->string('password');
             $table->string('api_token', 60)->unique()
                                                             ->nullable();
-            $table->dateTime('token_expired_on')->nullable();
+
+            $token_expired_on = Carbon::now()->addDays(30);
+            $table->dateTime('token_expired_on')
+                    ->default($token_expired_on);
+
             $table->rememberToken();
 
             $table->timestamps();

@@ -13,13 +13,15 @@ class CommentController extends Controller
 
         $comment = new Comment();
 
-        $comment->entity_id = $request->get('entity_id');
-        $comment->comment = $request->get('comment');
-        $comment->user_id = $request->get('user_id');
+        $comment->entity_id = $request->input('entity_id');
+        $comment->comment = $request->input('comment');
 
+        $api_token = $request->header('Authorization');
+
+        $comment->user_id = User::where('api_token', $api_token)->first()->id;
         $comment->save();
 
-        return 1;
+        return $comment;
 
     }
 
@@ -29,7 +31,7 @@ class CommentController extends Controller
         $comment = Comment::find($comment_id);
 
         if ($comment == null) {
-            return 0;
+            return response()->json(['error' => 'not found'], 404);
         }
 
         return $comment;
@@ -42,15 +44,15 @@ class CommentController extends Controller
         $comment = Comment::find($comment_id);
 
         if ($comment == null) {
-            return 0;
+            return response()->json(['error' => 'not found'], 404);
         }
 
         if ($request->has('comment'))
-            $comment->title = $request->get('comment');
+            $comment->comment = $request->input('comment');
 
         $comment->update();
 
-        return 1;
+        return $comment;
 
     }
 
@@ -60,21 +62,13 @@ class CommentController extends Controller
         $comment = Comment::find($comment_id);
 
         if ($comment == null) {
-            return 0;
+            return response()->json(['error' => 'not found'], 404);
         }
 
         $comment->delete();
 
-        return 1;
+        return response()->json(['comment status' => 'deleted'], 200);
 
     }
-
-    public function count($entity_id)
-    {
-
-        return Entity::find($entity_id)->commentsCount();
-
-    }
-
 
 }

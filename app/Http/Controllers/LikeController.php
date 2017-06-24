@@ -13,19 +13,12 @@ class LikeController extends Controller
 
         $like = new Like();
 
-        $like->entity_id = $request->get('entity_id');
-        $like->user_id = $request->get('user_id');
+        $like->entity_id = $request->input('entity_id');
+        $like->user_id = $request->input('user_id');
 
         $like->save();
 
-        return 1;
-
-    }
-
-    public function count($entity_id)
-    {
-
-        return Entity::find($entity_id)->likesCount();
+        return $like;
 
     }
 
@@ -35,12 +28,12 @@ class LikeController extends Controller
         $like = Like::find($like_id);
 
         if ($like == null) {
-            return 0;
+            return response()->json(['error' => 'not found'], 404);
         }
 
         $like->delete();
 
-        return 1;
+        return response()->json(['like status' => 'deleted'], 200);
 
     }
 

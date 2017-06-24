@@ -5,7 +5,6 @@ namespace App\Http\Middleware;
 use Closure;
 use App\User;
 use App;
-use DB;
 
 
 class AuthenticatedMiddleware
@@ -27,7 +26,7 @@ class AuthenticatedMiddleware
             return $next($request);
         }
 
-        return App::abort(401, 'Unauthenticated');
+        return response(json_encode(['error' => 'Unauthenticated']), 401);
 
     }
 }

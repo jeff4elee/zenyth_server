@@ -15,16 +15,15 @@ class PinpostController extends Controller
 
         $pin = new Pinpost();
 
-        $pin->title = $request->get('title');
-        $pin->description = $request->get('description');
-        $pin->thumbnail = $request->get('thumbnail');
-        $pin->latitude = $request->get('latitude');
-        $pin->longitude = $request->get('longitude');
+        $pin->title = $request->input('title');
+        $pin->description = $request->input('description');
+        $pin->thumbnail = $request->input('thumbnail');
+        $pin->latitude = $request->input('latitude');
+        $pin->longitude = $request->input('longitude');
 
         $pin->entity_id = Entity::create([])->id;
 
         $api_token = $request->header('Authorization');
-        //return response(json_encode(['api_token' => $api_token]), 200);
         $pin->user_id = User::where('api_token', $api_token)->first()->id;
 
         $pin->save();
@@ -33,43 +32,51 @@ class PinpostController extends Controller
 
     }
 
-    public function read($entity_id)
+    public function read($pinpost_id)
     {
 
-        $pin = Pinpost::where('entity_id', '=', $entity_id)->first();
+        $pin = Pinpost::find($pinpost_id);
 
         if ($pin == null) {
-            return 0;
+            return response()->json(['error' => 'not found'], 404);
         }
 
         return $pin;
 
     }
 
-    public function update(Request $request, $entity_id)
+    public function update(Request $request, $pinpost_id)
     {
 
-        //return $request->getContent();
-        $pin = Pinpost::where('entity_id', '=', $entity_id)->first();
+        /* Checks if pinpost is there */
+        $pin = Pinpost::find($pinpost_id);
 
         if ($pin == null) {
-            return 0;
+            return response()->json(['error' => 'not found'], 404);
+        }
+
+        /* Checks if pinpost being updated belongs to the user making the
+            request */
+        $api_token = $pin->user->api_token;
+
+        if($api_token != $request->header('Authorization')) {
+            return repsonse()->json(['error' => 'Unauthenticated'], 401);
         }
 
         if ($request->has('title'))
-            $pin->title = $request->get('title');
+            $pin->title = $request->input('title');
 
         if ($request->has('description'))
             $pin->description = $request->input('description');
 
         if ($request->has('thumbnail'))
-            $pin->thumbnail = $request->get('thumbnail');
+            $pin->thumbnail = $request->input('thumbnail');
 
         if ($request->has('latitude'))
-            $pin->latitude = $request->get('latitude');
+            $pin->latitude = $request->input('latitude');
 
         if ($request->has('longitude'))
-            $pin->longitude = $request->get('longitude');
+            $pin->longitude = $request->input('longitude');
 
         $pin->update();
 
@@ -77,18 +84,41 @@ class PinpostController extends Controller
 
     }
 
-    public function delete($entity_id)
+    public function delete(Request $request, $pinpost_id)
     {
 
-        $pin = Pinpost::where('entity_id', '=', $entity_id)->first();
+        /* Checks if pinpost is there */
+        $pin = Pinpost::find($pinpost_id);
 
         if ($pin == null) {
-            return 0;
+            return response()->json(['error' => 'not found'], 404);
+        }
+
+        /* Checks if pinpost being updated belongs to the user making the
+            request */
+        $api_token = $pin->user->api_token;
+
+        if($api_token != $request->header('Authorization')) {
+            return repsonse()->json(['error' => 'Unauthenticated'], 401);
         }
 
         $pin->delete();
 
-        return 1;
+        return response()->json(['pinpost status' => 'deleted'], 200);
+
+    }
+
+    public function likesCount($pinpost_id)
+    {
+
+        return Pinpost::find($pinpost_id)->entity->likesCount();
+
+    }
+
+    public function commentsCount($pinpost_id)
+    {
+
+        return Pinpost::find($pinpost_id)->entity->commentsCount();
 
     }
 
