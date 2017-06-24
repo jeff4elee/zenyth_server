@@ -7,6 +7,7 @@ use App\Pinpost;
 use App\User;
 use App\Entity;
 use App\Http\Controllers\Response;
+use Illuminate\Support\Facades\Validator;
 
 class PinpostController extends Controller
 {
@@ -115,7 +116,7 @@ class PinpostController extends Controller
                             , 401);
         }
 
-        $pin->delete();
+        $pin->entity->delete();
 
         return response(json_encode(['pinpost status' => 'deleted'])
                         , 200);
@@ -138,7 +139,7 @@ class PinpostController extends Controller
 
     protected function validator(Request $request) {
 
-        return Validator::make($request, [
+        return Validator::make($request->all(), [
             'title' => 'required',
             'description' => 'required',
             'latitude' => 'required',

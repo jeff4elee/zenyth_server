@@ -4,6 +4,9 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Pinvite;
+use Illuminate\Support\Facades\Validator;
+use App\Entity;
+use App\User;
 
 class PinviteController extends Controller
 {
@@ -116,7 +119,7 @@ class PinviteController extends Controller
                             , 401);
         }
 
-        $pin->delete();
+        $pin->entity->delete();
 
         return response(json_encode(['pinvite status' => 'deleted'])
                         , 200);
@@ -139,7 +142,7 @@ class PinviteController extends Controller
 
     protected function validator(Request $request) {
 
-        return Validator::make($request, [
+        return Validator::make($request->all(), [
             'title' => 'required',
             'description' => 'required',
             'latitude' => 'required',

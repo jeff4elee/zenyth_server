@@ -18,8 +18,7 @@ class CreateLikesTable extends Migration
             $table->foreign('entity_id')
                 ->references('id')->on('entities')
                 ->onDelete('cascade');
-            $table->unique('entity_id');
-            $table->integer('user_id')->unsigned();
+            $table->unsignedInteger('user_id');
             $table->foreign('user_id')
                 ->references('id')->on('users')
                 ->onDelete('cascade');
