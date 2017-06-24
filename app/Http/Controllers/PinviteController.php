@@ -37,7 +37,7 @@ class PinviteController extends Controller
         $pin = Pinvite::find($pinvite_id);
 
         if ($pin == null) {
-            return response()->json(['error' => 'not found'], 404);
+            return response(json_encode(['error' => 'not found']), 404);
         }
 
         return $pin;
@@ -51,7 +51,7 @@ class PinviteController extends Controller
         $pin = Pinvite::find($pinvite_id);
 
         if ($pin == null) {
-            return response()->json(['error' => 'not found'], 404);
+            return response(json_encode(['error' => 'not found']), 404);
         }
 
         /* Checks if pinvite being updated belongs to the user making the
@@ -59,7 +59,8 @@ class PinviteController extends Controller
         $api_token = $pin->user->api_token;
 
         if($api_token != $request->header('Authorization')) {
-            return repsonse()->json(['error' => 'Unauthenticated'], 401);
+            return response(json_encode(['error' => 'Unauthenticated'])
+                            , 401);
         }
 
         if ($request->has('title'))
@@ -93,7 +94,7 @@ class PinviteController extends Controller
         $pin = Pinpost::find($pinvite_id);
 
         if ($pin == null) {
-            return response()->json(['error' => 'not found'], 404);
+            return response(json_encode(['error' => 'not found']), 404);
         }
 
         /* Checks if pinvite being updated belongs to the user making the
@@ -101,12 +102,14 @@ class PinviteController extends Controller
         $api_token = $pin->user->api_token;
 
         if($api_token != $request->header('Authorization')) {
-            return repsonse()->json(['error' => 'Unauthenticated'], 401);
+            return response(json_encode(['error' => 'Unauthenticated'])
+                            , 401);
         }
 
         $pin->delete();
 
-        return response()->json(['pinvite status' => 'deleted'], 200);
+        return response(json_encode(['pinvite status' => 'deleted'])
+                        , 200);
 
     }
 

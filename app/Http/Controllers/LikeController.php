@@ -28,12 +28,12 @@ class LikeController extends Controller
         $like = Like::find($like_id);
 
         if ($like == null) {
-            return response()->json(['error' => 'not found'], 404);
+            return response(json_encode(['error' => 'not found']), 404);
         }
 
         $like->delete();
 
-        return response()->json(['like status' => 'deleted'], 200);
+        return response(json_encode(['like status' => 'deleted']), 200);
 
     }
 

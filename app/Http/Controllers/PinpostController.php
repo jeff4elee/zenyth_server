@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use App\Pinpost;
 use App\User;
 use App\Entity;
+use App\Http\Controllers\Response;
 
 class PinpostController extends Controller
 {
@@ -38,7 +39,7 @@ class PinpostController extends Controller
         $pin = Pinpost::find($pinpost_id);
 
         if ($pin == null) {
-            return response()->json(['error' => 'not found'], 404);
+            return response(json_encode(['error' => 'not found']), 404);
         }
 
         return $pin;
@@ -52,7 +53,7 @@ class PinpostController extends Controller
         $pin = Pinpost::find($pinpost_id);
 
         if ($pin == null) {
-            return response()->json(['error' => 'not found'], 404);
+            return response(json_encode(['error' => 'not found']), 404);
         }
 
         /* Checks if pinpost being updated belongs to the user making the
@@ -60,7 +61,8 @@ class PinpostController extends Controller
         $api_token = $pin->user->api_token;
 
         if($api_token != $request->header('Authorization')) {
-            return repsonse()->json(['error' => 'Unauthenticated'], 401);
+            return response(json_encode(['error' => 'Unauthenticated'])
+                            , 401);
         }
 
         if ($request->has('title'))
@@ -91,7 +93,7 @@ class PinpostController extends Controller
         $pin = Pinpost::find($pinpost_id);
 
         if ($pin == null) {
-            return response()->json(['error' => 'not found'], 404);
+            return response(json_encode(['error' => 'not found']), 404);
         }
 
         /* Checks if pinpost being updated belongs to the user making the
@@ -99,12 +101,14 @@ class PinpostController extends Controller
         $api_token = $pin->user->api_token;
 
         if($api_token != $request->header('Authorization')) {
-            return repsonse()->json(['error' => 'Unauthenticated'], 401);
+            return response(json_encode(['error' => 'Unauthenticated'])
+                            , 401);
         }
 
         $pin->delete();
 
-        return response()->json(['pinpost status' => 'deleted'], 200);
+        return response(json_encode(['pinpost status' => 'deleted'])
+                        , 200);
 
     }
 

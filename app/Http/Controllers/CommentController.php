@@ -31,7 +31,7 @@ class CommentController extends Controller
         $comment = Comment::find($comment_id);
 
         if ($comment == null) {
-            return response()->json(['error' => 'not found'], 404);
+            return response(json_encode(['error' => 'not found']), 404);
         }
 
         return $comment;
@@ -44,7 +44,7 @@ class CommentController extends Controller
         $comment = Comment::find($comment_id);
 
         if ($comment == null) {
-            return response()->json(['error' => 'not found'], 404);
+            return response(json_encode(['error' => 'not found']), 404);
         }
 
         if ($request->has('comment'))
@@ -62,12 +62,12 @@ class CommentController extends Controller
         $comment = Comment::find($comment_id);
 
         if ($comment == null) {
-            return response()->json(['error' => 'not found'], 404);
+            return response(json_encode(['error' => 'not found']), 404);
         }
 
         $comment->delete();
 
-        return response()->json(['comment status' => 'deleted'], 200);
+        return response(json_encode(['comment status' => 'deleted']), 200);
 
     }
 
