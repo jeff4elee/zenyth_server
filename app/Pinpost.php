@@ -9,6 +9,9 @@ class Pinpost extends Model
     protected $fillable = ['title', 'description', 'latitude', 'longitude',
                             'thumbnail', 'updated_on'];
 
+    protected $table = 'pinposts';
+    public $timestamps = false;
+
     public function entity() {
         return $this->belongsTo('App\Entity', 'entity_id');
     }

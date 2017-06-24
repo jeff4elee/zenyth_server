@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Pinpost;
+use App\User;
+use App\Entity;
 
 class PinpostController extends Controller
 {
@@ -20,11 +22,14 @@ class PinpostController extends Controller
         $pin->longitude = $request->get('longitude');
 
         $pin->entity_id = Entity::create([])->id;
-        $pin->user_id = User::where('api_token', '=', $request->get('api_token'))->first()->id;
+
+        $api_token = $request->header('Authorization');
+        //return response(json_encode(['api_token' => $api_token]), 200);
+        $pin->user_id = User::where('api_token', $api_token)->first()->id;
 
         $pin->save();
 
-        return 1;
+        return $pin;
 
     }
 
@@ -44,6 +49,7 @@ class PinpostController extends Controller
     public function update(Request $request, $entity_id)
     {
 
+        //return $request->getContent();
         $pin = Pinpost::where('entity_id', '=', $entity_id)->first();
 
         if ($pin == null) {
@@ -54,7 +60,7 @@ class PinpostController extends Controller
             $pin->title = $request->get('title');
 
         if ($request->has('description'))
-            $pin->description = $request->get('description');
+            $pin->description = $request->input('description');
 
         if ($request->has('thumbnail'))
             $pin->thumbnail = $request->get('thumbnail');
@@ -67,7 +73,7 @@ class PinpostController extends Controller
 
         $pin->update();
 
-        return 1;
+        return $pin;
 
     }
 

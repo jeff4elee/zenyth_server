@@ -5,6 +5,8 @@ namespace App\Http\Controllers\Auth;
 use App\Http\Controllers\Controller;
 use Illuminate\Foundation\Auth\AuthenticatesUsers;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Hash;
+use App\User;
 
 class LoginController extends Controller
 {
@@ -38,7 +40,8 @@ class LoginController extends Controller
           return 0;
         }
 
-        if(password_verify($password, $user->password)){
+        if(Hash::check($password, $user->password)){   // checks password
+                                                       // against hashed pw
 
             // Authentication passed...
             do{

@@ -13,10 +13,6 @@ use Illuminate\Http\Request;
 |
 */
 
-Route::middleware('auth:api')->get('/user', function (Request $request) {
-    return $request->user();
-});
-
 Route::post('register', 'Auth\RegisterController@register');
 Route::post('login', 'Auth\LoginController@login');
 Route::get('logout', 'Auth\LogoutController@logout');
@@ -24,7 +20,7 @@ Route::get('logout', 'Auth\LogoutController@logout');
 Route::group(['middleware' => 'authenticated'], function() {
     Route::post('pinpost', 'PinpostController@create');
     Route::get('pinpost/{entity_id}', 'PinpostController@read');
-    Route::patch('pinpost/{entity_id}', 'PinpostController@update');
+    Route::post('pinpost/{entity_id}', 'PinpostController@update');
     Route::delete('pinpost/{entity_id}', 'PinpostController@delete');
 
     Route::post('pinvite', 'PinviteController@create');

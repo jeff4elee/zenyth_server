@@ -3,6 +3,9 @@
 namespace App\Http\Middleware;
 
 use Closure;
+use App\User;
+use App;
+use DB;
 
 
 class AuthenticatedMiddleware
@@ -16,11 +19,15 @@ class AuthenticatedMiddleware
      */
     public function handle($request, Closure $next)
     {
-        $api_token = $request['api_token'];
-        $user = User::where('api_token', '=', $api_token)->first();
+
+        $api_token = $request->header('Authorization');
+
+        $user = User::where('api_token', $api_token)->first();
         if($user != null) {
             return $next($request);
         }
+
         return App::abort(401, 'Unauthenticated');
+
     }
 }

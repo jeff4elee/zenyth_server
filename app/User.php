@@ -17,17 +17,10 @@ class User extends Model implements Authenticatable
      * @var array
      */
     protected $fillable = [
-        'name', 'email', 'api_token', 'token_expired_on'
+        'name', 'password', 'email', 'api_token', 'token_expired_on'
     ];
 
-    /**
-     * The attributes that should be hidden for arrays.
-     *
-     * @var array
-     */
-    protected $hidden = [
-        'password', 'api_token', 'remember_token', 'created_on'
-    ];
+    public $timestamps = false;
 
     public function pinposts()
     {
