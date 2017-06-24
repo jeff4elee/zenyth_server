@@ -6,6 +6,9 @@ use Illuminate\Database\Eloquent\Model;
 
 class Like extends Model
 {
+
+    public $timestamps = false;
+
     public function entity() {
         return $this->belongsTo('App\Entity', 'entity_id');
     }
