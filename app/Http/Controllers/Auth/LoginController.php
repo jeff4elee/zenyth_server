@@ -32,7 +32,7 @@ class LoginController extends Controller
         $email = $request['email'];
         $password = $request['password'];
 
-        $user = User::where('email', '=', $email);
+        $user = User::where('email', '=', $email)->first();
 
         if($user == null){
           return 0;
@@ -45,12 +45,13 @@ class LoginController extends Controller
 
                 $api_token = str_random(60);
 
-                $user2 = User::where('api_token', '=', $api_token)->first();
+                $dup_token_user = User::where('api_token', '=', $api_token)
+                    ->first();
 
-            } while( $user2 != null );
+            } while( $dup_token_user != null );
 
             //found unique api token
-            //$user = User::where('email', '=', $email)->first();
+
             $user->api_token = $api_token;
             $user->update();
 
