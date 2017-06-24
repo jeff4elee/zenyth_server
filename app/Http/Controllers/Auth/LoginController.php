@@ -29,37 +29,37 @@ class LoginController extends Controller
     public function login(Request $request)
     {
 
-        $email = $request->input('email');
-        $password = $request->input('password');
+        $email = $request['email'];
+        $password = $request['password'];
 
-	$user = User::where('email', '=', $email);
-	
-	if($user == null){
-	  return 0;
-	}
+        $user = User::where('email', '=', $email);
 
-	if(password_verify($password, $user->password)){
+        if($user == null){
+          return 0;
+        }
 
-          // Authentication passed...
-          do{
+        if(password_verify($password, $user->password)){
 
-            $api_token = str_random(60);
+            // Authentication passed...
+            do{
 
-            $user = User::where('api_token', '=', $api_token)->first();
+                $api_token = str_random(60);
 
-          } while( $user != null );
+                $user2 = User::where('api_token', '=', $api_token)->first();
 
-          //found unique api token
-          $user = User::where('email', '=', $email)->first();
-          $user->api_token = $apiToken;
-          $user->update();
+            } while( $user2 != null );
 
-          return json_encode(['api_token' => $api_token]);
+            //found unique api token
+            //$user = User::where('email', '=', $email)->first();
+            $user->api_token = $api_token;
+            $user->update();
+
+            return json_encode(['api_token' => $api_token]);
 
         }
 
-        return 0;
+            return 0;
 
-    }
+        }
 
 }
