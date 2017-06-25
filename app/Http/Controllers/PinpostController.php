@@ -10,6 +10,7 @@ use App\Image;
 use App\Http\Controllers\Response;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\File;
 use Illuminate\Http\UploadedFile;
 
 class PinpostController extends Controller
@@ -30,13 +31,13 @@ class PinpostController extends Controller
         $pin->latitude = $request->input('latitude');
         $pin->longitude = $request->input('longitude');
 
-        if($request->has('thumbnail')) {
-            $image = new Image();
+        $image = new Image();
+        if($request->file('thumbnail') != null) {
             $this->storeThumbnail($request->file('thumbnail'), $image);
             $image->save();
         }
 
-        $pin->thumbnail = $image->id;
+        $pin->thumbnail_id = $image->id;
 
         $pin->entity_id = Entity::create([])->id;
 
@@ -65,7 +66,9 @@ class PinpostController extends Controller
     public function update(Request $request, $pinpost_id)
     {
 
-        $validator = $this->validator($request);
+        $validator = Validator::make($request->all(), [
+            'thumbnail' => 'image'
+        ]);
         if($validator->fails()) {
             return $validator->errors()->all();
         }
@@ -92,8 +95,8 @@ class PinpostController extends Controller
         if ($request->has('description'))
             $pin->description = $request->input('description');
 
-        if ($request->has('thumbnail')) {
-            $image = $pin->thumbnail;
+        if ($request->file('thumbnail') != null) {
+            $image = Image::find($pin->thumbnail_id);
             $old_filename = $image->filename;
             $this->storeThumbnail($request->file('thumbnail'), $image);
 
@@ -160,7 +163,7 @@ class PinpostController extends Controller
 
         do {
 
-            $filename = str_random(60) . "." . $extension;
+            $filename = str_random(45) . "." . $extension;
             // Checks if filename is already taken
             $dup_filename = Image::where('filename', $filename)->first();
 
