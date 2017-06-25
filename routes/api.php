@@ -22,6 +22,10 @@ Route::group(['middleware' => 'authenticated'], function() {
                 'EntityController@likesCount');
     Route::get('entity/{entity_id}/commentsCount',
                 'EntityController@commentsCount');
+    Route::get('entity/{entity_id}/likes_from_users',
+                'EntityController@likesUsers');
+    Route::get('entity/{entity_id}/comments',
+                'EntityController@comments');
 
     Route::post('pinpost', 'PinpostController@create');
     Route::get('pinpost/{pinpost_id}', 'PinpostController@read');

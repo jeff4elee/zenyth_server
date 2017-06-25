@@ -132,7 +132,8 @@ class PinviteController extends Controller
             'title' => 'required',
             'description' => 'required',
             'latitude' => 'required',
-            'longitude' => 'required'
+            'longitude' => 'required',
+            'event_time' => 'required'
         ]);
 
     }

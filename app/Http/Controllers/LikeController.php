@@ -5,15 +5,20 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Like;
 use App\User;
+use Illuminate\Support\Facades\Validator;
 
 class LikeController extends Controller
 {
 
     public function create(Request $request)
     {
-        $this->validate($request, [
+        $validator = Validator::make($request->all(), [
             'entity_id' => 'required'
         ]);
+
+        if($validator->fails()) {
+            return $validator->errors()->all();
+        }
 
         $like = new Like();
 

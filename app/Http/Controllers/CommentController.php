@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Comment;
 use App\User;
+use Illuminate\Support\Facades\Validator;
 
 class CommentController extends Controller
 {
@@ -12,7 +13,7 @@ class CommentController extends Controller
     public function create(Request $request)
     {
 
-        $validator = $this->validate($request, [
+        $validator = Validator::make($request->all(), [
             'comment' => 'required|min:1',
             'entity_id' => 'required'
         ]);
@@ -51,7 +52,7 @@ class CommentController extends Controller
     public function update(Request $request, $comment_id)
     {
 
-        $validator = $this->validate($request, [
+        $validator = Validator::make($request->all(), [
             'comment' => 'required|min:1'
         ]);
 

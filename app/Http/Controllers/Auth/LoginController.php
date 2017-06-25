@@ -7,6 +7,7 @@ use Illuminate\Foundation\Auth\AuthenticatesUsers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use App\User;
+use Illuminate\Support\Facades\Validator;
 
 class LoginController extends Controller
 {
@@ -30,7 +31,7 @@ class LoginController extends Controller
      */
     public function login(Request $request)
     {
-        $validator = $this->validate($request, [
+        $validator = Validator::make($request->all(), [
             'email' => 'required',
             'password' => 'required'
         ]);
@@ -70,8 +71,8 @@ class LoginController extends Controller
 
         }
 
-            return 0;
+        return 0;
 
-        }
+    }
 
 }
