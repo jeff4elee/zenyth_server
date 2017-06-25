@@ -19,4 +19,8 @@ class Pinpost extends Model
     public function user() {
         return $this->belongsTo('App\User', 'user_id');
     }
+
+    public function thumbnail() {
+        return $this->hasOne('App\Image', 'thumbnail_id');
+    }
 }

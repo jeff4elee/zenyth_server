@@ -6,8 +6,11 @@ use Illuminate\Http\Request;
 use App\Pinpost;
 use App\User;
 use App\Entity;
+use App\Image;
 use App\Http\Controllers\Response;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Http\UploadedFile;
 
 class PinpostController extends Controller
 {
@@ -24,9 +27,16 @@ class PinpostController extends Controller
 
         $pin->title = $request->input('title');
         $pin->description = $request->input('description');
-        $pin->thumbnail = $request->input('thumbnail');
         $pin->latitude = $request->input('latitude');
         $pin->longitude = $request->input('longitude');
+
+        if($request->has('thumbnail')) {
+            $image = new Image();
+            $this->storeThumbnail($request->file('thumbnail'), $image);
+            $image->save();
+        }
+
+        $pin->thumbnail = $image->id;
 
         $pin->entity_id = Entity::create([])->id;
 
@@ -82,8 +92,15 @@ class PinpostController extends Controller
         if ($request->has('description'))
             $pin->description = $request->input('description');
 
-        if ($request->has('thumbnail'))
-            $pin->thumbnail = $request->input('thumbnail');
+        if ($request->has('thumbnail')) {
+            $image = $pin->thumbnail;
+            $old_filename = $image->filename;
+            $this->storeThumbnail($request->file('thumbnail'), $image);
+
+            Storage::disk('images')->delete($old_filename);
+            $image->update();
+
+        }
 
         if ($request->has('latitude'))
             $pin->latitude = $request->input('latitude');
@@ -116,6 +133,7 @@ class PinpostController extends Controller
                             , 401);
         }
 
+        $pin->thumbnail->delete();
         $pin->entity->delete();
 
         return response(json_encode(['pinpost status' => 'deleted'])
@@ -129,8 +147,28 @@ class PinpostController extends Controller
             'title' => 'required',
             'description' => 'required',
             'latitude' => 'required',
-            'longitude' => 'required'
+            'longitude' => 'required',
+            'thumbnail' => 'image'
         ]);
+
+    }
+
+    protected function storeThumbnail(UploadedFile $file, Image $image)
+    {
+
+        $extension = $file->extension();
+
+        do {
+
+            $filename = str_random(60) . "." . $extension;
+            // Checks if filename is already taken
+            $dup_filename = Image::where('filename', $filename)->first();
+
+        } while($dup_filename != null);
+
+        Storage::disk('images')->put($filename, File::get($file));
+        $image->filename = $filename;
+        $image->path = Storage::disk('images')->url($filename);
 
     }
 

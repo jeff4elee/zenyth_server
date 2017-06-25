@@ -24,11 +24,15 @@ class CreatePinpostsTable extends Migration
             $table->text('description');
             $table->double('latitude');
             $table->double('longitude');
-            $table->binary('thumbnail');
+            $table->unsignedInteger('thumbnail_id')
+                ->nullable()->default(null);
+            $table->foreign('thumbnail_id')
+                ->references('id')->on('images')
+                ->onDelete('set null');
             $table->unsignedInteger('user_id');
             $table->foreign('user_id')
-              ->references('id')->on('users')
-              ->onDelete('cascade');
+                ->references('id')->on('users')
+                ->onDelete('cascade');
             $table->timestamp('updated_on');
         });
     }
