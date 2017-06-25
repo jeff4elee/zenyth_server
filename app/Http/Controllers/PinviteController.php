@@ -126,20 +126,6 @@ class PinviteController extends Controller
 
     }
 
-    public function likesCount($pinvite_id)
-    {
-
-        return Pinvite::find($pinvite_id)->entity->likesCount();
-
-    }
-
-    public function commentsCount($pinvite_id)
-    {
-
-        return Pinvite::find($pinvite_id)->entity->commentsCount();
-
-    }
-
     protected function validator(Request $request) {
 
         return Validator::make($request->all(), [

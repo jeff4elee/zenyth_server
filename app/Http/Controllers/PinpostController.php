@@ -123,20 +123,6 @@ class PinpostController extends Controller
 
     }
 
-    public function likesCount($pinpost_id)
-    {
-
-        return Pinpost::find($pinpost_id)->entity->likesCount();
-
-    }
-
-    public function commentsCount($pinpost_id)
-    {
-
-        return Pinpost::find($pinpost_id)->entity->commentsCount();
-
-    }
-
     protected function validator(Request $request) {
 
         return Validator::make($request->all(), [
