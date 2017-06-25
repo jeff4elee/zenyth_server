@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class CreateInvitationsTable extends Migration
+class CreatePinvitePicturesTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,17 +13,15 @@ class CreateInvitationsTable extends Migration
      */
     public function up()
     {
-        Schema::create('invitations', function (Blueprint $table) {
+        Schema::create('pinvite_pictures', function (Blueprint $table) {
             $table->increments('id');
-            $table->unsignedInteger('pinvite_id');
-            $table->foreign('pinvite_id')
+            $table->unsignedInteger('pinvite_id')
                 ->references('id')->on('pinvites')
                 ->onDelete('cascade');
-            $table->boolean('status')->default(false);
-            $table->unsignedInteger('invitee_id')
-                ->references('id')->on('users')
+            $table->unsignedInteger('image_id')
+                ->references('id')->on('images')
                 ->onDelete('cascade');
-            $table->timestamp('invited_on');
+            $table->timestamp('posted_on');
         });
     }
 
@@ -34,6 +32,6 @@ class CreateInvitationsTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('invitations');
+        Schema::dropIfExists('pinvite_pictures');
     }
 }

@@ -4,28 +4,33 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Like;
+use App\User;
+use Illuminate\Support\Facades\Validator;
 
 class LikeController extends Controller
 {
 
     public function create(Request $request)
     {
+        $validator = Validator::make($request->all(), [
+            'entity_id' => 'required'
+        ]);
+
+        if($validator->fails()) {
+            return $validator->errors()->all();
+        }
 
         $like = new Like();
 
-        $like->entity_id = $request->get('entity_id');
-        $like->user_id = $request->get('user_id');
+        $like->entity_id = $request->input('entity_id');
+
+        $api_token = $request->header('Authorization');
+        $user_id = User::where('api_token', $api_token)->first()->id;
+        $like->user_id = $user_id;
 
         $like->save();
 
-        return 1;
-
-    }
-
-    public function count($entity_id)
-    {
-
-        return Entity::find($entity_id)->likesCount();
+        return $like;
 
     }
 
@@ -35,12 +40,12 @@ class LikeController extends Controller
         $like = Like::find($like_id);
 
         if ($like == null) {
-            return 0;
+            return response(json_encode(['error' => 'not found']), 404);
         }
 
         $like->delete();
 
-        return 1;
+        return response(json_encode(['like status' => 'deleted']), 200);
 
     }
 

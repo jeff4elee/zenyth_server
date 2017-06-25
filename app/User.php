@@ -17,17 +17,10 @@ class User extends Model implements Authenticatable
      * @var array
      */
     protected $fillable = [
-        'name', 'email'
+        'name', 'password', 'email', 'api_token', 'token_expired_on'
     ];
 
-    /**
-     * The attributes that should be hidden for arrays.
-     *
-     * @var array
-     */
-    protected $hidden = [
-        'password', 'api_token', 'remember_token', 'created_on'
-    ];
+    public $timestamps = false;
 
     public function pinposts()
     {
@@ -35,7 +28,7 @@ class User extends Model implements Authenticatable
     }
 
     public function pinvites() {
-        return $this->hasMany('App\Pinvite', 'user_id');
+        return $this->hasMany('App\Pinvite', 'creator_id');
     }
 
     public function likes() {
@@ -45,5 +38,6 @@ class User extends Model implements Authenticatable
     public function comments() {
         return $this->hasMany('App\Comment', 'user_id');
     }
+
 }
 

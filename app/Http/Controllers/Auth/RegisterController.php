@@ -5,7 +5,10 @@ namespace App\Http\Controllers\Auth;
 use App\User;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Foundation\Auth\RegistersUsers;
+use Illuminate\Http\Request;
+use App\Http\Controllers\Response;
 
 class RegisterController extends Controller
 {
@@ -22,9 +25,11 @@ class RegisterController extends Controller
 
     use RegistersUsers;
 
-    public function register($email, $password){
-      $data = array($email, $password);
-      create($data);
+    public function register(Request $request)
+    {
+
+        return response(json_encode(['register' => 'successful']), 200);
+
     }
 
     /**
@@ -53,18 +58,19 @@ class RegisterController extends Controller
     protected function validator(array $data)
     {
         return Validator::make($data, [
+            'name' => 'required',
             'email' => 'required|email|max:255|unique:users',
-            'password' => 'required|min:6',
+            'password' => 'required|AlphaNum|min:8|max:16|confirmed',
         ]);
     }
 
     /**
      * Create a new user instance after a valid registration.
      *
-     * @param  array  $data
+     * @param  Request $request
      * @return User
      */
-    protected function create(array $request)
+    protected function create(Request $request)
     {
 
       $data = $request->all();
@@ -76,12 +82,13 @@ class RegisterController extends Controller
         return $validator->errors()->all();
 
       }
-      
+
       return User::create([
-          'email' => $data['email'],
-          'password' => password_hash($data['password'], PASSWORD_BCRYPT),
-          'api_token' => str_random(60),
-      ]);
+            'name' => $data['name'],
+            'email' => $data['email'],
+            'password' => Hash::make($data['password']),
+            'api_token' => str_random(60)
+            ]);
 
     }
 
