@@ -39,6 +39,7 @@ class PinviteController extends Controller
             $image->save();
         }
 
+        $pin->thumbnail_id = $image->id;
         $pin->entity_id = Entity::create([])->id;
 
         $api_token = $request->header('Authorization');
@@ -152,15 +153,16 @@ class PinviteController extends Controller
     {
 
         $validator = Validator::make($request->all(), [
-            'files' => 'image'
+            'file' => 'image'
         ]);
 
         if($validator->fails()) {
             return $validator->errors()->all();
         }
 
-        $files = $request->file('files');
-        foreach($files as $file) {
+        $file = $request->file('image');
+
+        if($file != null) {
             $image = new Image();
             $this->storeImage($file, $image);
             $image->save();
@@ -168,9 +170,9 @@ class PinviteController extends Controller
             $picture->pinvite_id = $pinvite_id;
             $picture->image_id = $image->id;
             $picture->save();
+            return response(json_encode(['pinvite_pictures' => 'uploaded'])
+                , 200);
         }
-        return response(json_encode(['pinvite_pictures' => 'uploaded'])
-            , 200);
 
     }
 
@@ -188,7 +190,7 @@ class PinviteController extends Controller
             'description' => 'required',
             'latitude' => 'required',
             'longitude' => 'required',
-            'thumbnail' => 'image',
+            'thumbnail' => 'image|size:15000',
             'event_time' => 'required'
         ]);
 

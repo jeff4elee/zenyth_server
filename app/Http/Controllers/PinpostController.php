@@ -150,7 +150,7 @@ class PinpostController extends Controller
             'description' => 'required',
             'latitude' => 'required',
             'longitude' => 'required',
-            'thumbnail' => 'image'
+            'thumbnail' => 'image|size:15000'
         ]);
 
     }
