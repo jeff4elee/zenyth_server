@@ -1,0 +1,69 @@
+<?php
+
+namespace Tests\Feature;
+
+use Tests\TestCase;
+use Illuminate\Foundation\Testing\WithoutMiddleware;
+use Illuminate\Foundation\Testing\DatabaseMigrations;
+use Illuminate\Foundation\Testing\DatabaseTransactions;
+use Illuminate\Support\Facades\User;
+
+
+class AuthTest extends TestCase
+{
+    /**
+     * A basic test example.
+     *
+     * @return void
+     */
+    public function testWrongMethodRequests()
+    {
+
+        $response = $this->get('/api/register');
+        $response->assertStatus(405);
+
+        $response = $this->get('/api/login');
+        $response->assertStatus(405);
+
+        $response = $this->delete('/api/register');
+        $response->assertStatus(405);
+
+        $response = $this->delete('/api/login');
+        $response->assertStatus(405);
+
+    }
+
+    public function testRegistration()
+    {
+
+        $response = $this->json('POST', '/api/register', ['name' => 'testman', 'email' => 'test@email.com', 'password' => 'password']);
+
+        $response
+            ->assertStatus(200)
+            ->assertJson([
+                'created' => true
+            ]);
+
+    }
+
+    public function testLoginFailure(){
+
+        $response = $this->json('POST', '/api/login', ['email' => 'test@email.com', 'password' => 'password']);
+
+        $response->assertSee('0');
+
+    }
+
+    public function testLogin(){
+
+        $response = $this->json('POST', '/api/login', ['email' => 'test@email.com', 'password' => 'password']);
+
+        $response->assertStatus(200);
+
+        $array = json_decode($response);
+
+        $this->assertArrayHasKey("api_token", $array);
+
+    }
+
+}
