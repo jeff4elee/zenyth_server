@@ -23,11 +23,7 @@ class CreateRelationshipsTable extends Migration
             $table->foreign('requestee')
               ->references('id')->on('users')
               ->onDelete('cascade');
-            $table->unsignedInteger('relation_type');
-            $table->foreign('relation_type')
-              ->references('id')->on('relations')
-              ->onDelete('cascade');
-            $table->boolean('status');
+            $table->boolean('status')->default(false);
         });
     }
 

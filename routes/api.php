@@ -18,6 +18,15 @@ Route::post('login', 'Auth\LoginController@login');
 Route::get('logout', 'Auth\LogoutController@logout');
 
 Route::group(['middleware' => 'authenticated'], function() {
+    Route::get('user/get_friends', 'UserController@getFriends');
+
+    Route::post('relationship/friend_request',
+                'RelationshipController@friendRequest');
+    Route::post('relationship/{relationship_id}/response',
+                'RelationshipController@respondToRequest');
+    Route::delete('relationship/{relationship_id}/delete',
+                'RelationshipController@deleteFriend');
+
     Route::get('entity/{entity_id}/likesCount',
                 'EntityController@likesCount');
     Route::get('entity/{entity_id}/commentsCount',
@@ -32,10 +41,15 @@ Route::group(['middleware' => 'authenticated'], function() {
     Route::post('pinpost/{pinpost_id}', 'PinpostController@update');
     Route::delete('pinpost/{pinpost_id}', 'PinpostController@delete');
 
+
     Route::post('pinvite', 'PinviteController@create');
     Route::get('pinvite/{pinvite_id}', 'PinviteController@read');
     Route::post('pinvite/{pinvite_id}', 'PinviteController@update');
     Route::delete('pinvite/{pinvite_id}', 'PinviteController@delete');
+    Route::post('pinvite/{pinvite_id}/uploadPicture',
+                    'PinviteController@uploadPicture');
+    Route::delete('pinvite/{pinvite_id}/deletePicture',
+                    'PinviteController@deletePicture');
 
     Route::post('comment', 'CommentController@create');
     Route::get('comment/{comment_id}', 'CommentController@read');

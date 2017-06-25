@@ -21,6 +21,6 @@ class Pinpost extends Model
     }
 
     public function thumbnail() {
-        return $this->hasOne('App\Image', 'thumbnail_id');
+        return $this->belongsTo('App\Image', 'thumbnail_id');
     }
 }

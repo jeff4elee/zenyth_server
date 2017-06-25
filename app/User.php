@@ -28,7 +28,7 @@ class User extends Model implements Authenticatable
     }
 
     public function pinvites() {
-        return $this->hasMany('App\Pinvite', 'user_id');
+        return $this->hasMany('App\Pinvite', 'creator_id');
     }
 
     public function likes() {
@@ -38,5 +38,6 @@ class User extends Model implements Authenticatable
     public function comments() {
         return $this->hasMany('App\Comment', 'user_id');
     }
+
 }
 

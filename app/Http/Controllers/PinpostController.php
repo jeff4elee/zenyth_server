@@ -102,7 +102,6 @@ class PinpostController extends Controller
 
             Storage::disk('images')->delete($old_filename);
             $image->update();
-
         }
 
         if ($request->has('latitude'))
