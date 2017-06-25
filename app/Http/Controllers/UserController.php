@@ -11,11 +11,9 @@ use App\User;
 class UserController extends Controller
 {
 
-    public function getFriends(Request $request)
+    public function getFriends($user_id)
     {
-        $api_token = $request->header('Authorization');
-        $user_id = User::where('api_token', $api_token)->first()->id;
-
+        
         $friends_arr = [];
 
         $relationship1 = Relationship::where('requester', $user_id)->all();

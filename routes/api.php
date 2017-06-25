@@ -18,7 +18,7 @@ Route::post('login', 'Auth\LoginController@login');
 Route::get('logout', 'Auth\LogoutController@logout');
 
 Route::group(['middleware' => 'authenticated'], function() {
-    Route::get('user/get_friends', 'UserController@getFriends');
+    Route::get('user/{user_id}/get_friends', 'UserController@getFriends');
 
     Route::post('relationship/friend_request',
                 'RelationshipController@friendRequest');
