@@ -13,7 +13,7 @@ class UserController extends Controller
 
     public function getFriends($user_id)
     {
-        
+
         $friends_arr = [];
 
         $relationship1 = Relationship::where('requester', $user_id)->all();

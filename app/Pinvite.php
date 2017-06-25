@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 class Pinvite extends Model
 {
     protected $fillable = ['title', 'description', 'latitude', 'longitude',
-                            'thumbnail', 'event_time'];
+                            'thumbnail_id', 'event_time'];
 
     public $timestamps = false;
 

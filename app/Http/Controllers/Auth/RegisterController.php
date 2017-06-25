@@ -25,10 +25,10 @@ class RegisterController extends Controller
 
     use RegistersUsers;
 
-    public function register(Request $request)
-    {
+    public function register(Request $request) {
 
-        return response(json_encode(['register' => 'successful']), 200);
+        if($this->create($request) != null)
+            return response(json_encode(['register' => 'successful']), 200);
 
     }
 

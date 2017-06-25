@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\Model;
 class Relationship extends Model
 {
 
+    public $timestamps = false;
     protected $fillable = ['requester', 'requestee', 'status'];
 
     public function requester() {

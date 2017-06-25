@@ -30,8 +30,8 @@ class RelationshipController extends Controller
             return response(json_encode(['relationship' => friends]), 200);
 
         $relationship = Relationship::create([
-            'requester_id' => $user_id,
-            'requestee_id' => $request->input('requestee_id')
+            'requester' => $user_id,
+            'requestee' => $request->input('requestee_id')
         ]);
 
         return $relationship;
@@ -59,6 +59,7 @@ class RelationshipController extends Controller
 
         if($request->input('status')) {
             $relationship->status = true;
+            $relationship->update();
             return $relationship;
         } else {
             $relationship->delete();
@@ -86,14 +87,18 @@ class RelationshipController extends Controller
     protected function friended($user1_id, $user2_id)
     {
 
-        $relationship1 = Relationship::where('requester', $user1_id)
-                        ->andWhere('requestee', $user2_id)->first();
+        $relationship1 = Relationship::where([
+            ['requester', '=' ,$user1_id],
+            ['requestee', '=' ,$user2_id]
+        ])->first();
         if($relationship1 != null) {
             return $relationship1;
         }
 
-        $relationship2 = Relationship::where('requester', $user2_id)
-                        ->andWhere('requestee', $user1_id)->first();
+        $relationship2 = Relationship::where([
+            ['requester', '=' ,$user2_id],
+            ['requestee', '=' ,$user1_id]
+        ])->first();
         if($relationship2 != null) {
             return $relationship2;
         }
