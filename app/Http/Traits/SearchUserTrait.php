@@ -77,6 +77,8 @@ trait SearchUserTrait
      */
     public function searchUserId($user_id, $name)
     {
+        $name = str_replace(' ', '%', $name);
+
         /* Gets all the user id where names are similar */
         $similar_names_id = $this->similarTo($user_id, $name)->toArray();
 

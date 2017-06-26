@@ -97,6 +97,9 @@ class UserController extends Controller
 
         $result_id = $this->searchUserId($user_id, $name);
 
+        if (count($result_id) == 0)
+            return array();
+
         $result_id_string = implode(",", $result_id);
         $searchResult = User::select('*')
             ->whereIn('id', $result_id)
