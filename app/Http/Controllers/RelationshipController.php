@@ -81,7 +81,7 @@ class RelationshipController extends Controller
             ['requestee', $requestee_id]
         ])->first();
 
-        if ($relationship == null)
+        if ($relationship == null || $relationship->status == true)
             return response(json_encode(['error' => 'No pending request']),
                 404);
 
