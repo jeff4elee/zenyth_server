@@ -7,8 +7,9 @@ use Illuminate\Http\UploadedFile;
 use App\Image;
 
 class ImageController extends Controller {
+    static $IMAGE_PATH = "storage/app/images/";
 
-    public function storeImage(UploadedFile $file, Image $image)
+    static public function storeImage(UploadedFile $file, Image $image)
     {
 
         $extension = $file->extension();
@@ -23,7 +24,7 @@ class ImageController extends Controller {
 
         Storage::disk('images')->put($filename, File::get($file));
         $image->filename = $filename;
-        $image->path = Storage::disk('images')->url($filename);
+        $image->path = Storage::url($filename);
 
     }
 
