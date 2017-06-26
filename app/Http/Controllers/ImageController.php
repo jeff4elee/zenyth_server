@@ -4,10 +4,10 @@ namespace App\Http\Controllers;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\File;
 use Illuminate\Http\UploadedFile;
+use Intervention\Image\Facades\Image as InterventionImage;
 use App\Image;
 
 class ImageController extends Controller {
-    static $IMAGE_PATH = "storage/app/images/";
 
     static public function storeImage(UploadedFile $file, Image $image)
     {
@@ -24,8 +24,14 @@ class ImageController extends Controller {
 
         Storage::disk('images')->put($filename, File::get($file));
         $image->filename = $filename;
-        $image->path = Storage::url($filename);
 
     }
+
+    public function showImage($filename)
+    {
+        return InterventionImage::make(storage_path('app/images/' . $filename))
+            ->response();
+    }
+
 
 }
