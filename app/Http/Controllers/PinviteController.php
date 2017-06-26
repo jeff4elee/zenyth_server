@@ -10,9 +10,8 @@ use App\User;
 use App\Image;
 use App\Pinvite_picture;
 use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Facades\File;
-use Illuminate\Http\UploadedFile;
 use App\Http\Controllers\Response;
+use App\Http\Controllers\ImageController;
 
 class PinviteController extends Controller
 {
@@ -35,7 +34,7 @@ class PinviteController extends Controller
 
         $image = new Image();
         if($request->file('thumbnail') != null) {
-            $this->storeImage($request->file('thumbnail'), $image);
+            ImageController::storeImage($request->file('thumbnail'), $image);
             $image->save();
         }
 
@@ -97,7 +96,7 @@ class PinviteController extends Controller
         if ($request->file('thumbnail') != null) {
             $image = Image::find($pin->thumbnail_id);
             $old_filename = $image->filename;
-            $this->storeImage($request->file('thumbnail'), $image);
+            ImageController::storeImage($request->file('thumbnail'), $image);
 
             Storage::disk('images')->delete($old_filename);
             $image->update();
@@ -164,7 +163,7 @@ class PinviteController extends Controller
 
         if($file != null) {
             $image = new Image();
-            $this->storeImage($file, $image);
+            ImageController::storeImage($file, $image);
             $image->save();
             $picture = new Pinvite_picture();
             $picture->pinvite_id = $pinvite_id;
@@ -190,28 +189,9 @@ class PinviteController extends Controller
             'description' => 'required',
             'latitude' => 'required',
             'longitude' => 'required',
-            'thumbnail' => 'image|size:15000',
+            'thumbnail' => 'image',
             'event_time' => 'required'
         ]);
-
-    }
-
-    protected function storeImage(UploadedFile $file, Image $image)
-    {
-
-        $extension = $file->extension();
-
-        do {
-
-            $filename = str_random(45) . "." . $extension;
-            // Checks if filename is already taken
-            $dup_filename = Image::where('filename', $filename)->first();
-
-        } while($dup_filename != null);
-
-        Storage::disk('images')->put($filename, File::get($file));
-        $image->filename = $filename;
-        $image->path = Storage::disk('images')->url($filename);
 
     }
     

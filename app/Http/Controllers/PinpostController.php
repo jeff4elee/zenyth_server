@@ -8,10 +8,9 @@ use App\User;
 use App\Entity;
 use App\Image;
 use App\Http\Controllers\Response;
+use App\Http\Controllers\ImageController;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Facades\File;
-use Illuminate\Http\UploadedFile;
 
 class PinpostController extends Controller
 {
@@ -33,7 +32,7 @@ class PinpostController extends Controller
 
         $image = new Image();
         if($request->file('thumbnail') != null) {
-            $this->storeThumbnail($request->file('thumbnail'), $image);
+            ImageController::storeImage($request->file('thumbnail'), $image);
             $image->save();
         }
 
@@ -98,7 +97,7 @@ class PinpostController extends Controller
         if ($request->file('thumbnail') != null) {
             $image = Image::find($pin->thumbnail_id);
             $old_filename = $image->filename;
-            $this->storeThumbnail($request->file('thumbnail'), $image);
+            ImageController::storeImage($request->file('thumbnail'), $image);
 
             Storage::disk('images')->delete($old_filename);
             $image->update();
@@ -150,27 +149,8 @@ class PinpostController extends Controller
             'description' => 'required',
             'latitude' => 'required',
             'longitude' => 'required',
-            'thumbnail' => 'image|size:15000'
+            'thumbnail' => 'image'
         ]);
-
-    }
-
-    protected function storeThumbnail(UploadedFile $file, Image $image)
-    {
-
-        $extension = $file->extension();
-
-        do {
-
-            $filename = str_random(45) . "." . $extension;
-            // Checks if filename is already taken
-            $dup_filename = Image::where('filename', $filename)->first();
-
-        } while($dup_filename != null);
-
-        Storage::disk('images')->put($filename, File::get($file));
-        $image->filename = $filename;
-        $image->path = Storage::disk('images')->url($filename);
 
     }
 
