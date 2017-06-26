@@ -181,6 +181,11 @@ class PinviteController extends Controller
         $picture->image->delete();
     }
 
+    public function getThumbnail($pinvite_id)
+    {
+        $thumbnail = Pinvite::find($pinvite_id)->thumbnail;
+    }
+
     protected function validator(Request $request)
     {
 
