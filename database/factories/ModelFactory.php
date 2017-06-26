@@ -12,16 +12,7 @@
 */
 
 /** @var \Illuminate\Database\Eloquent\Factory $factory */
-$factory->define(App\User::class, function (Faker\Generator $faker) {
-    static $password;
-
-    return [
-        'name' => $faker->name,
-        'email' => $faker->unique()->safeEmail,
-        'password' => $password ?: $password = bcrypt('secret'),
-        'remember_token' => str_random(10),
-    ];
-});
+use Illuminate\Support\Facades\Storage;
 
 $factory->define(App\User::class, function (Faker\Generator $faker) {
     static $password;
@@ -44,10 +35,27 @@ $factory->define(App\Entity::class, function (Faker\Generator $faker) {
 $factory->define(App\Pinpost::class, function (Faker\Generator $faker) {
 
     return [
+        'user_id' => factory('App\User')->create()->id,
         'title' => $faker->city,
         'description' => $faker->text(200),
         'latitude' => $faker->latitude,
         'longitude' => $faker->longitude,
+        'entity_id' => factory('App\Entity')->create()->id,
+        'thumbnail_id' => factory('App\Image')->create()->id
+    ];
+
+});
+
+$factory->define(App\Image::class, function (Faker\Generator $faker) {
+
+    Storage::disk('images');
+
+    $filename = str_random(45) . '.jpg';
+
+    $faker->image(Storage::url('app/images/' . $filename));
+
+    return [
+        'filename' => $filename
     ];
 
 });

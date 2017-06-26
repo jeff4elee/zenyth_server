@@ -11,6 +11,9 @@ use Illuminate\Support\Facades\User;
 
 class AuthTest extends TestCase
 {
+
+    use DatabaseTransactions;
+
     /**
      * A basic test example.
      *
@@ -41,7 +44,7 @@ class AuthTest extends TestCase
         $response
             ->assertStatus(200)
             ->assertJson([
-                'created' => true
+                'register' => true
             ]);
 
     }
@@ -56,11 +59,13 @@ class AuthTest extends TestCase
 
     public function testLogin(){
 
+        factory('App\User')->create(['name' => 'testman', 'email' => 'test@email.com', 'password' => bcrypt('password')]);
+
         $response = $this->json('POST', '/api/login', ['email' => 'test@email.com', 'password' => 'password']);
 
         $response->assertStatus(200);
 
-        $array = json_decode($response);
+        $array = $response->decodeResponseJson();
 
         $this->assertArrayHasKey("api_token", $array);
 

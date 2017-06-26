@@ -3,6 +3,7 @@
 namespace Tests\Feature;
 
 use Illuminate\Http\UploadedFile;
+use Illuminate\Http\Testing;
 use Illuminate\Support\Facades\Storage;
 use Tests\TestCase;
 use Illuminate\Foundation\Testing\WithoutMiddleware;
@@ -11,6 +12,9 @@ use Illuminate\Foundation\Testing\DatabaseTransactions;
 
 class PinpostTest extends TestCase
 {
+
+    use DatabaseTransactions;
+
     /**
      * A basic test example.
      *
@@ -18,22 +22,24 @@ class PinpostTest extends TestCase
      */
     public function testPinpostCreation()
     {
-        Storage::fake('images');
+        Storage::disk('images');
 
-        $response = $this->json('POST', '/api/pinpost', ['title' => 'testpin',
+        $this->json('POST', '/api/pinpost', [
+            'title' => 'updatedpin',
             'description' => 'fake description for fake pins',
-            'latitude' => 42.420,
-            'longitude' => 66.6, UploadedFile::fake()->image('pinimage.jpg')]);
+            'latitude' => 33.33,
+            'longitude' => 69.69,
+            'thumbnail' => UploadedFile::fake()->image('pinimage.png')
+        ]);
 
         Storage::disk('images')->assertExists('pinimage.jpg');
-        $this->seeInDatabase('pinposts', ['title' => 'testpin', 'latitude' => 42.420, 'longitude' => 66.6]);
+        $this->assertDatabaseHas('pinposts', ['title' => 'testpin', 'latitude' => 42.420, 'longitude' => 66.6]);
     }
 
     public function testPinpostRead()
     {
         //create a pinpost, with the title 'pintoupdate' and no image
-        $pinpost = factory('App\Pinpost')->create(['title' => 'pintoupdate']);
-        $pinpost->relatedItems()->save(factory('App\Image')->create());
+        $pinpost = factory('App\Pinpost')->create(['title' => 'pintoread']);
 
         $response = $this->json('GET', '/api/pinpost/' . $pinpost->id );
         $response = $response->decodeResponseJson();
@@ -48,23 +54,25 @@ class PinpostTest extends TestCase
 
     public function testPinpostUpdate()
     {
-        Storage::fake('images');
+        Storage::disk('images');
 
         //create a pinpost, with the title 'pintoupdate' and no image
         $pinpost = factory('App\Pinpost')->create(['title' => 'pintoupdate']);
 
         //post request to update the created pin with new values
-        $this->json('POST', '/api/pinpost/' . $pinpost->id, ['title' => 'updatedpin',
+        $this->json('POST', '/api/pinpost/' . $pinpost->id, [
+            'title' => 'updatedpin',
             'description' => 'fake description for fake pins',
             'latitude' => 33.33,
             'longitude' => 69.69,
-            'image' => UploadedFile::fake()->image('pinimage.jpg')]);
+            'thumbnail' => UploadedFile::fake()->image('pinimage.png')
+        ]);
 
         //check the disk if the image has been saved
         Storage::disk('images')->assertExists('pinimage.jpg');
 
         //update once more, this time replacing the image
-        $this->json('POST', '/api/pinpost',
+        $this->json('POST', '/api/pinpost' . $pinpost->id,
             ['image' => UploadedFile::fake()->image('newimage.jpg')]);
 
         //check for the new image, and check if the old one is removed
