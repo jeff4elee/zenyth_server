@@ -2,6 +2,7 @@
 
 use Illuminate\Http\Request;
 
+
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -58,4 +59,7 @@ Route::group(['middleware' => 'authenticated'], function() {
 
     Route::post('like', 'LikeController@create');
     Route::delete('like/{like_id}', 'LikeController@delete');
+
+    Route::get('storage/{filename}', 'ImageController@showImage');
 });
+

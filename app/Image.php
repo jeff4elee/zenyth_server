@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 class Image extends Model
 {
 
-    protected $fillable = ['filename', 'path'];
+    protected $fillable = ['filename'];
 
     protected $table = 'images';
     public $timestamps = false;
