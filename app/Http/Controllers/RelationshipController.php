@@ -26,7 +26,7 @@ class RelationshipController extends Controller
         }
 
         /* Verifies if they are already friends */
-        if($this->friended($user_id, $request->input('requestee_id')) != null)
+        if(self::friended($user_id, $request->input('requestee_id')) != null)
             return response(json_encode(['relationship' => friends]), 200);
 
         $relationship = Relationship::create([
@@ -68,28 +68,54 @@ class RelationshipController extends Controller
 
     }
 
-    public function deleteFriend(Request $request, $relationship_id)
+    public function deleteFriend(Request $request, $user_id)
     {
 
         $api_token = $request->header('Authorization');
-        $user_id = User::where('api_token', $api_token)->first()->id;
-        $relationship = Relationship::find($relationship_id);
-        if($user_id != $relationship->requester ||
-            $user_id != $relationship->requestee) {
-            return response(json_encode(['error' => 'Unauthenticated']), 401);
-        }
+        $requester_id = User::where('api_token', $api_token)->first()->id;
+
+        $relationship = self::friended($requester_id, $user_id);
+
+        if($relationship == null)
+            return response(json_encode(['relationship' => 'not friends']),
+                404);
 
         $relationship->delete();
         return response(json_encode(['relationship' => 'unfriended']), 200);
 
     }
 
-    protected function friended($user1_id, $user2_id)
+    public function blockUser(Request $request, $user_id)
+    {
+
+        $api_token = $request->header('Authorization');
+        $requester_id = User::where('api_token', $api_token)->first()->id;
+
+        $relationship = self::friended($requester_id, $user_id);
+        if($relationship != null) {
+            $relationship->blocked = true;
+            $relationship->requester = $requester_id;
+            $relationship->requestee = $user_id;
+            $relationship->status = false;
+            $relationship->update();
+        }
+        else {
+            Relationship::create([
+                'requester' => $requester_id,
+                'requestee' => $user_id,
+                'blocked' => true
+            ]);
+        }
+        return response(json_encode(['blocked' => true]), 200);
+    }
+
+    static public function friended($user1_id, $user2_id)
     {
 
         $relationship1 = Relationship::where([
             ['requester', '=' ,$user1_id],
-            ['requestee', '=' ,$user2_id]
+            ['requestee', '=' ,$user2_id],
+            ['status', '=', true]
         ])->first();
         if($relationship1 != null) {
             return $relationship1;
@@ -97,7 +123,8 @@ class RelationshipController extends Controller
 
         $relationship2 = Relationship::where([
             ['requester', '=' ,$user2_id],
-            ['requestee', '=' ,$user1_id]
+            ['requestee', '=' ,$user1_id],
+            ['status', '=', true]
         ])->first();
         if($relationship2 != null) {
             return $relationship2;

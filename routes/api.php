@@ -20,13 +20,20 @@ Route::get('logout', 'Auth\LogoutController@logout');
 
 Route::group(['middleware' => 'authenticated'], function() {
     Route::get('user/{user_id}/get_friends', 'UserController@getFriends');
+    Route::get('user/get_blocked_users', 'UserController@blockedUsers');
+    Route::get('user/get_friend_requests', 'UserController@getFriendRequests');
+    Route::get('user/search_user/{name}', 'UserController@searchUser');
 
     Route::post('relationship/friend_request',
                 'RelationshipController@friendRequest');
     Route::post('relationship/{relationship_id}/response',
                 'RelationshipController@respondToRequest');
-    Route::delete('relationship/{relationship_id}/delete',
+    Route::delete('relationship/{user_id}/delete',
                 'RelationshipController@deleteFriend');
+    Route::get('relationship/{user_id}/block',
+                'RelationshipController@blockUser');
+    Route::get('relationship/{user1_id}/{user2_id}',
+                'RelationshipController@friended');
 
     Route::get('entity/{entity_id}/likesCount',
                 'EntityController@likesCount');

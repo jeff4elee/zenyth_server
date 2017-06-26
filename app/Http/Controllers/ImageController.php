@@ -16,7 +16,7 @@ class ImageController extends Controller {
 
         do {
 
-            $filename = str_random(45) . "." . $extension;
+            $filename = str_random(32) . "." . $extension;
             // Checks if filename is already taken
             $dup_filename = Image::where('filename', $filename)->first();
 
@@ -32,6 +32,5 @@ class ImageController extends Controller {
         return InterventionImage::make(storage_path('app/images/' . $filename))
             ->response();
     }
-
 
 }

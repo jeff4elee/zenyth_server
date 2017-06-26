@@ -24,6 +24,7 @@ class CreateRelationshipsTable extends Migration
               ->references('id')->on('users')
               ->onDelete('cascade');
             $table->boolean('status')->default(false);
+            $table->boolean('blocked')->default(false);
         });
     }
 
