@@ -23,6 +23,8 @@ class CreateRelationshipsTable extends Migration
             $table->foreign('requestee')
               ->references('id')->on('users')
               ->onDelete('cascade');
+
+            $table->unique(['requester', 'requestee'], 'id');
             $table->boolean('status')->default(false);
             $table->boolean('blocked')->default(false);
         });

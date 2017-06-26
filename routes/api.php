@@ -26,7 +26,7 @@ Route::group(['middleware' => 'authenticated'], function() {
 
     Route::post('relationship/friend_request',
                 'RelationshipController@friendRequest');
-    Route::post('relationship/{relationship_id}/response',
+    Route::post('relationship/{requester_id}/response',
                 'RelationshipController@respondToRequest');
     Route::delete('relationship/{user_id}/delete',
                 'RelationshipController@deleteFriend');

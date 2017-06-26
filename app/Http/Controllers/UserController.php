@@ -14,24 +14,20 @@ class UserController extends Controller
 
     public function getFriends($user_id)
     {
-        $friends_arr = [];
-        $relationship1 = Relationship::where([
-            ['requester', $user_id],
-            ['status', true]
-        ])->get();
-        foreach($relationship1 as $relationship) {
-            array_push($friends_arr, $relationship->getRequestee);
-        }
 
-        $relationship2 = Relationship::where([
-            ['requestee', $user_id],
-            ['status', true]
-        ])->get();
-        foreach($relationship2 as $relationship) {
-            array_push($friends_arr, $relationship->getRequester);
-        }
+        $searchResult = User::
+            select('users.*')
+            ->leftJoin('relationships', function($join) use ($user_id)
+            {
+                $join->on('users.id', '=', 'relationships.requestee')
+                    ->where('relationships.requester','=', $user_id)
+                    ->orOn('users.id', '=', 'relationships.requester')
+                    ->where('relationships.requestee', '=', $user_id);
+            })
+            ->where('relationships.status', '=', true)
+            ->get();
 
-        return $friends_arr;
+        return $searchResult;
 
     }
 
@@ -54,31 +50,38 @@ class UserController extends Controller
         $api_token = $request->header('Authorization');
         $user_id = User::where('api_token', $api_token)->first()->id;
 
-        return Relationship::where([
-            ['requestee', $user_id],
-            ['status', false]
-        ])->get();
+        return User::
+            select('users.*')
+            ->leftJoin('relationships', function($join) use ($user_id)
+            {
+                $join->on('users.id', '=', 'relationships.requester')
+                    ->where('relationships.requestee', '=', $user_id);
+            })
+            ->where('relationships.status', false)
+            ->get();
 
     }
 
     public function searchUser(Request $request, $name)
     {
+
         $api_token = $request->header('Authorization');
         $user_id = User::where('api_token', $api_token)->first()->id;
 
-        $searchResult = DB::table('users')
-            ->where([
-                ['name', 'like', '%'.$name.'%'],
-                ['users.id', '!=', $user_id]
-            ]);
-
-        $searchResult = $searchResult
+        $searchResult = User::
+            select(['users.*', 'relationships.status'])
             ->leftJoin('relationships', function($join)
             {
-                $join->on('users.id', '=', 'relationships.requestee');
-                $join->orOn('users.id', '=', 'relationships.requester');
-            })->select('*')
-            ->orderBy('relationships.status', 'desc')->get();
+                $join->on('users.id', '=', 'relationships.requestee')
+                    ->orOn('users.id', '=', 'relationships.requester');
+            })
+            ->where([
+                ['users.name', 'like', '%'.$name.'%'],
+                ['users.id', '!=', $user_id]
+            ])
+            ->orderBy('relationships.status', 'desc')
+            ->distinct('users.id')
+            ->get();
 
         return $searchResult;
 

@@ -20,6 +20,10 @@ class User extends Model implements Authenticatable
         'name', 'password', 'email', 'api_token', 'token_expired_on'
     ];
 
+    protected $hidden = [
+        'password', 'api_token', 'token_expired_on'
+    ];
+
     public $timestamps = false;
 
     public function pinposts()

@@ -25,9 +25,18 @@ class RelationshipController extends Controller
             return $validator->errors()->all();
         }
 
-        /* Verifies if they are already friends */
-        if(self::friended($user_id, $request->input('requestee_id')) != null)
-            return response(json_encode(['relationship' => friends]), 200);
+        /* Verifies if they are already friends or if there is no pending
+            request */
+        $check = Relationship::where([
+            ['requester', '=', $user_id],
+            ['requestee', '=', $request->input('requestee_id')]
+        ])->orWhere([
+            ['requestee', '=', $user_id],
+            ['requester', '=', $request->input('requestee_id')]
+        ])->first();
+        if($check != null)
+            return response(json_encode(['error' => 'friends or pending 
+                            request']), 400);
 
         $relationship = Relationship::create([
             'requester' => $user_id,
@@ -38,16 +47,20 @@ class RelationshipController extends Controller
 
     }
 
-    public function respondToRequest(Request $request, $relationship_id)
+    public function respondToRequest(Request $request, $requester_id)
     {
 
         $api_token = $request->header('Authorization');
-        $user_id = User::where('api_token', $api_token)->first()->id;
+        $requestee_id = User::where('api_token', $api_token)->first()->id;
 
-        $relationship = Relationship::find($relationship_id);
-        $requestee_id = User::find($relationship->requestee)->id;
-        if($user_id != $requestee_id)
-            return response(json_encode(['error' => 'Unauthenticated']), 401);
+        $relationship = Relationship::where([
+            ['requester', $requester_id],
+            ['requestee', $requestee_id]
+        ])->first();
+
+        if($relationship == null)
+            return response(json_encode(['error' => 'No pending request']),
+                404);
 
         $validator = Validator::make($request->all(), [
             'status' => 'required'
@@ -58,12 +71,11 @@ class RelationshipController extends Controller
         }
 
         if($request->input('status')) {
-            $relationship->status = true;
-            $relationship->update();
+            $relationship->update(['status' => true]);
             return $relationship;
         } else {
             $relationship->delete();
-            return response(json_encode(['relationship' => 'denied']), 200);
+            return response(json_encode(['relationship' => 'deleted']), 200);
         }
 
     }
@@ -112,24 +124,17 @@ class RelationshipController extends Controller
     static public function friended($user1_id, $user2_id)
     {
 
-        $relationship1 = Relationship::where([
+        $relationship = Relationship::where([
             ['requester', '=' ,$user1_id],
             ['requestee', '=' ,$user2_id],
             ['status', '=', true]
-        ])->first();
-        if($relationship1 != null) {
-            return $relationship1;
-        }
-
-        $relationship2 = Relationship::where([
+        ])->orWhere([
             ['requester', '=' ,$user2_id],
             ['requestee', '=' ,$user1_id],
             ['status', '=', true]
         ])->first();
-        if($relationship2 != null) {
-            return $relationship2;
-        }
-        return null;
+
+        return $relationship;
 
     }
 
