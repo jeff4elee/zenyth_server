@@ -23,10 +23,10 @@ class LogoutController extends Controller
     use AuthenticatesUsers;
 
     /**
-     * Handle an authentication attempt.
+     * Handle a logout attempt.
      *
-     * @param $request
-     * @return Response
+     * @param Request $request, get request
+     * @return Response json response indicating user is logged out
      */
     public function logout(Request $request)
     {
@@ -36,8 +36,8 @@ class LogoutController extends Controller
         $user->api_token = null;
         $user->update();
 
-        return response(json_encode(['user status' => 'logged out'])
-                        , 200);
+        return response(json_encode(['logged out' => true])
+                        , 202);
 
     }
 

@@ -28,18 +28,21 @@ class User extends Model implements Authenticatable
 
     public function pinposts()
     {
-      return $this->hasMany('App\Pinpost', 'user_id');
+        return $this->hasMany('App\Pinpost', 'user_id');
     }
 
-    public function pinvites() {
+    public function pinvites()
+    {
         return $this->hasMany('App\Pinvite', 'creator_id');
     }
 
-    public function likes() {
+    public function likes()
+    {
         return $this->hasMany('App\Like', 'user_id');
     }
 
-    public function comments() {
+    public function comments()
+    {
         return $this->hasMany('App\Comment', 'user_id');
     }
 

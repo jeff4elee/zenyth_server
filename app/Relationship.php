@@ -12,11 +12,13 @@ class Relationship extends Model
     public $timestamps = false;
     protected $fillable = ['requester', 'requestee', 'status'];
 
-    public function getRequester() {
+    public function getRequester()
+    {
         return $this->belongsTo('App\User', 'requester');
     }
 
-    public function getRequestee() {
+    public function getRequestee()
+    {
         return $this->belongsTo('App\User', 'requestee');
     }
 

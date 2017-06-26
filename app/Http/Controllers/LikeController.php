@@ -7,9 +7,20 @@ use App\Like;
 use App\User;
 use Illuminate\Support\Facades\Validator;
 
+/**
+ * Class LikeController
+ * @package App\Http\Controllers
+ */
 class LikeController extends Controller
 {
 
+    /**
+     * Creates a Like
+     *
+     * @param Request $request, post request
+     *        rules: requires entity_id
+     * @return Like information
+     */
     public function create(Request $request)
     {
         $validator = Validator::make($request->all(), [
@@ -34,6 +45,13 @@ class LikeController extends Controller
 
     }
 
+    /**
+     * Deletes a like
+     *
+     * @param $like_id, like to be deleted
+     * @return json response if like is not found or if like is successfully
+     *         deleted
+     */
     public function delete($like_id)
     {
 
@@ -45,7 +63,7 @@ class LikeController extends Controller
 
         $like->delete();
 
-        return response(json_encode(['like status' => 'deleted']), 200);
+        return response(json_encode(['like status' => 'deleted']), 202);
 
     }
 
