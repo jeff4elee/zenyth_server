@@ -3,9 +3,9 @@
 namespace Tests\Feature;
 
 use Illuminate\Http\UploadedFile;
-use Illuminate\Http\Testing;
 use Illuminate\Support\Facades\Storage;
 use Tests\TestCase;
+use App\Image;
 use Illuminate\Foundation\Testing\WithoutMiddleware;
 use Illuminate\Foundation\Testing\DatabaseMigrations;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
@@ -22,26 +22,39 @@ class PinpostTest extends TestCase
      */
     public function testPinpostCreation()
     {
+        //create pesudouser
+        $api_token = factory('App\User')->create()->api_token;
+
+        //use images disk
         Storage::disk('images');
 
-        $this->json('POST', '/api/pinpost', [
-            'title' => 'updatedpin',
+        //perform the json request
+        $response = $this->json('POST', '/api/pinpost', [
+            'title' => 'testpin',
             'description' => 'fake description for fake pins',
             'latitude' => 33.33,
             'longitude' => 69.69,
-            'thumbnail' => UploadedFile::fake()->image('pinimage.png')
-        ]);
+            'thumbnail' => UploadedFile::fake()->image('pinimage.jpg')
+        ],
+            ['Authorization' => $api_token]);
 
-        Storage::disk('images')->assertExists('pinimage.jpg');
-        $this->assertDatabaseHas('pinposts', ['title' => 'testpin', 'latitude' => 42.420, 'longitude' => 66.6]);
+        //get the id of the newly created post
+        $id = $response->decodeResponseJson()['thumbnail_id'];
+
+        //check if the id exists
+        if($this->assertDatabaseHas('images', ['id' => $id]))
+            Storage::disk('images')->assertExists(basename(Image::find($id)->filename));
+
+        $this->assertDatabaseHas('pinposts', ['title' => 'testpin', 'latitude' => 33.33, 'longitude' => 69.69]);
     }
 
     public function testPinpostRead()
     {
+
         //create a pinpost, with the title 'pintoupdate' and no image
         $pinpost = factory('App\Pinpost')->create(['title' => 'pintoread']);
 
-        $response = $this->json('GET', '/api/pinpost/' . $pinpost->id );
+        $response = $this->json('GET', '/api/pinpost/' . $pinpost->id, [], ['Authorization' => 'token']);
         $response = $response->decodeResponseJson();
 
         $this->assertArrayHasKey('id', $response);
@@ -54,10 +67,13 @@ class PinpostTest extends TestCase
 
     public function testPinpostUpdate()
     {
+
         Storage::disk('images');
 
         //create a pinpost, with the title 'pintoupdate' and no image
         $pinpost = factory('App\Pinpost')->create(['title' => 'pintoupdate']);
+
+        $filename = Image::find($pinpost->thumbnail_id)->filename;
 
         //post request to update the created pin with new values
         $this->json('POST', '/api/pinpost/' . $pinpost->id, [
@@ -65,22 +81,18 @@ class PinpostTest extends TestCase
             'description' => 'fake description for fake pins',
             'latitude' => 33.33,
             'longitude' => 69.69,
-            'thumbnail' => UploadedFile::fake()->image('pinimage.png')
+            'thumbnail' => UploadedFile::fake()->image('pinimage.jpg')
         ]);
 
-        //check the disk if the image has been saved
-        Storage::disk('images')->assertExists('pinimage.jpg');
-
-        //update once more, this time replacing the image
-        $this->json('POST', '/api/pinpost' . $pinpost->id,
-            ['image' => UploadedFile::fake()->image('newimage.jpg')]);
-
-        //check for the new image, and check if the old one is removed
-        Storage::disk('images')->assertExists('newimage.jpg');
-        Storage::disk('images')->assertMissing('pinimage.jpg');
+        Storage::disk('images')->assertMissing(basename($filename));
 
         //check if pin title has been changed
-        $this->assertDatabaseHas('pinposts', ['title' => 'updatedpin']);
+        $this->assertDatabaseHas('pinposts', [
+            'title' => 'updatedpin',
+            'latitude' => 33.33,
+            'longitude' => 69.69
+        ]);
+
     }
 
     public function testPinpostDelete()

@@ -35,7 +35,7 @@ $factory->define(App\Entity::class, function (Faker\Generator $faker) {
 $factory->define(App\Pinpost::class, function (Faker\Generator $faker) {
 
     return [
-        'user_id' => factory('App\User')->create()->id,
+        'creator_id' => factory('App\User')->create()->id,
         'title' => $faker->city,
         'description' => $faker->text(200),
         'latitude' => $faker->latitude,
@@ -50,12 +50,22 @@ $factory->define(App\Image::class, function (Faker\Generator $faker) {
 
     Storage::disk('images');
 
-    $filename = str_random(45) . '.jpg';
-
-    $faker->image(Storage::url('app/images/' . $filename));
+    $filename = $faker->image(public_path().'/../storage/app/images');
 
     return [
-        'filename' => $filename
+        'filename' => basename($filename)
+    ];
+
+});
+
+$factory->define(App\Relationship::class, function (Faker\Generator $faker) {
+
+    $user1 = factory('App\User')->create();
+    $user2 = factory('App\User')->create();
+
+    return [
+        'requester' => $user1->id,
+        'requestee' => $user2->id
     ];
 
 });
