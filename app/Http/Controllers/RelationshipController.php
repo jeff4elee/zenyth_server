@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\DataValidator;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Response;
 use Illuminate\Support\Facades\Validator;
@@ -26,16 +27,12 @@ class RelationshipController extends Controller
     public function friendRequest(Request $request)
     {
 
+        $validator = DataValidator::validateFriendRequest($request);
+        if ($validator->fails())
+            return $validator->errors()->all();
+
         $api_token = $request->header('Authorization');
         $user_id = User::where('api_token', $api_token)->first()->id;
-
-        $validator = Validator::make($request->all(), [
-            'requestee_id' => 'required|exists:users,id'
-        ]);
-
-        if ($validator->fails()) {
-            return $validator->errors()->all();
-        }
 
         /* Verifies if they are already friends or if there is no pending
             request */
@@ -124,7 +121,7 @@ class RelationshipController extends Controller
                 404);
 
         $relationship->delete();
-        return response(json_encode(['relationship' => 'unfriended']), 200);
+        return response(json_encode(['relationship' => 'Unfriended']), 200);
 
     }
 

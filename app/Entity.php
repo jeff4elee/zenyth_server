@@ -19,6 +19,11 @@ class Entity extends Model
         return $this->hasMany('App\Comment', 'entity_id');
     }
 
+    public function pictures()
+    {
+        return $this->hasMany('App\EntitysPicture', 'entity_id');
+    }
+
     public function commentsCount()
     {
         return $this->comments()->count();

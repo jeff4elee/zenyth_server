@@ -61,26 +61,5 @@ class EntityController extends Controller
 
     }
 
-    /**
-     * Returns comments on the entity
-     *
-     * @param $entity_id
-     * @return array of comments
-     */
-    public function comments($entity_id)
-    {
-
-        $entity = Entity::find($entity_id);
-
-        $comments_arr = [];
-        $comments = $entity->comments;
-
-        foreach ($comments as $comment) {
-            array_push($comments_arr, $comment);
-        }
-
-        return $comments_arr;
-
-    }
 
 }

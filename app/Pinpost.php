@@ -17,7 +17,7 @@ class Pinpost extends Model
         return $this->belongsTo('App\Entity', 'entity_id');
     }
 
-    public function user()
+    public function creator()
     {
         return $this->belongsTo('App\User', 'creator_id');
     }

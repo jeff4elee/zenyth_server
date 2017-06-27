@@ -2,16 +2,16 @@
 
 namespace App\Http\Controllers;
 
+use App\EntitysPicture;
 use Illuminate\Http\Request;
 use App\Pinvite;
-use Illuminate\Support\Facades\Validator;
 use App\Entity;
 use App\User;
 use App\Image;
-use App\Pinvite_picture;
-use Illuminate\Support\Facades\Storage;
-use App\Http\Controllers\Response;
 use App\Http\Controllers\ImageController;
+use App\Http\Requests\DataValidator;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Validator;
 
 /**
  * Class PinviteController
@@ -31,12 +31,12 @@ class PinviteController extends Controller
     public function create(Request $request)
     {
 
-        $validator = $this->validator($request);
-        if ($validator->fails()) {
+        $validator = DataValidator::validatePinvite($request);
+        if ($validator->fails())
             return $validator->errors()->all();
-        }
 
         $pin = new Pinvite();
+        $entity = Entity::create([]);
 
         $pin->title = $request->input('title');
         $pin->description = $request->input('description');
@@ -44,14 +44,18 @@ class PinviteController extends Controller
         $pin->longitude = $request->input('longitude');
         $pin->event_time = $request->input('event_time');
 
-        $image = new Image();
         if ($request->file('thumbnail') != null) {
+            $image = new Image();
+            $entitys_picture = new EntitysPicture();
             ImageController::storeImage($request->file('thumbnail'), $image);
             $image->save();
+            $pin->thumbnail_id = $image->id;
+            $entitys_picture->entity_id = $entity->id;
+            $entitys_picture->image_id = $image->id;
+            $entitys_picture->save();
         }
 
-        $pin->thumbnail_id = $image->id;
-        $pin->entity_id = Entity::create([])->id;
+        $pin->entity_id = $entity->id;
 
         $api_token = $request->header('Authorization');
         $pin->creator_id = User::where('api_token', $api_token)->first()->id;
@@ -91,10 +95,11 @@ class PinviteController extends Controller
     public function update(Request $request, $pinvite_id)
     {
 
-        $validator = $this->validator($request);
-        if ($validator->fails()) {
+        $validator = Validator::make($request->all(), [
+            'thumbnail' => 'image'
+        ]);
+        if ($validator->fails())
             return $validator->errors()->all();
-        }
 
         /* Checks if pinvite is there */
         $pin = Pinvite::find($pinvite_id);
@@ -159,7 +164,7 @@ class PinviteController extends Controller
             return response(json_encode(['error' => 'not found']), 404);
         }
 
-        /* Checks if pinvite being updated belongs to the user making the
+        /* Checks if pinvite being deleted belongs to the user making the
             request */
         $api_token = $pin->creator->api_token;
 
@@ -168,12 +173,13 @@ class PinviteController extends Controller
                 , 401);
         }
 
-        $pin->entity->delete();
-        $pin->thumbnail->delete();
-        $pictures = $pin->pinvite_pictures;
+
+        $pictures = $pin->entity->pictures;
         foreach ($pictures as $picture) {
             $picture->image->delete();
         }
+        $pin->entity->delete();
+
 
         return response(json_encode(['pinvite' => 'deleted'])
             , 200);
@@ -191,25 +197,22 @@ class PinviteController extends Controller
     public function uploadPicture(Request $request, $pinvite_id)
     {
 
-        $validator = Validator::make($request->all(), [
-            'file' => 'image'
-        ]);
-
-        if ($validator->fails()) {
+        $validator = DataValidator::validatePicture($request);
+        if ($validator->fails())
             return $validator->errors()->all();
-        }
 
         $file = $request->file('image');
+        $pin = Pinvite::find($pinvite_id)->id;
 
         if ($file != null) {
             $image = new Image();
             ImageController::storeImage($file, $image);
             $image->save();
-            $picture = new Pinvite_picture();
-            $picture->pinvite_id = $pinvite_id;
+            $picture = new EntitysPicture();
+            $picture->entity_id = $pin->entity_id;
             $picture->image_id = $image->id;
             $picture->save();
-            return response(json_encode(['pinvite_pictures' => 'uploaded'])
+            return response(json_encode(['pictures' => 'uploaded'])
                 , 200);
         }
 
@@ -220,32 +223,20 @@ class PinviteController extends Controller
      *
      * @param $pinvite_picture_id
      */
-    public function deletePicture($pinvite_picture_id)
+    public function deletePicture($image_id)
     {
-        $picture = Pinvite_picture::find($pinvite_picture_id);
+
+        $picture = EntitysPicture::find($image_id);
         $picture->image->delete();
+        return response(['picture' => 'deleted'], 202);
+
     }
 
-    /**
-     * Validates request
-     *
-     * @param Request $request
-     *        rules: requires title, description, latitude, longitude,
-     *               event_time
-     *               thumbnail must be an image
-     * @return mixed Validator
-     */
-    protected function validator(Request $request)
+    public function pinvitePictures($pinvite_id)
     {
 
-        return Validator::make($request->all(), [
-            'title' => 'required',
-            'description' => 'required',
-            'latitude' => 'required',
-            'longitude' => 'required',
-            'thumbnail' => 'image',
-            'event_time' => 'required'
-        ]);
+        $pin = Pinvite::find($pinvite_id);
+        return $pin->entity->pictures;
 
     }
 

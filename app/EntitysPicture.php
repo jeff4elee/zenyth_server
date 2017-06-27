@@ -4,13 +4,13 @@ namespace App;
 
 use Illuminate\Database\Eloquent\Model;
 
-class Pinvite_picture extends Model
+class EntitysPicture extends Model
 {
     public $timestamps = false;
 
-    public function pinvite()
+    public function entity()
     {
-        return $this->belongsTo('App\Pinvite', 'pinvite_id');
+        return $this->belongsTo('App\Entity', 'entity_id');
     }
 
     public function image()

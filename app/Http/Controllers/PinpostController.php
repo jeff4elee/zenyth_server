@@ -2,12 +2,13 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\DataValidator;
 use Illuminate\Http\Request;
 use App\Pinpost;
 use App\User;
 use App\Entity;
+use App\EntitysPicture;
 use App\Image;
-use App\Http\Controllers\Response;
 use App\Http\Controllers\ImageController;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Storage;
@@ -30,12 +31,12 @@ class PinpostController extends Controller
     public function create(Request $request)
     {
 
-        $validator = $this->validator($request);
-        if ($validator->fails()) {
+        $validator = DataValidator::validatePinpost($request);
+        if ($validator->fails())
             return $validator->errors()->all();
-        }
 
         $pin = new Pinpost();
+        $entity = Entity::create([]);
 
         $pin->title = $request->input('title');
         $pin->description = $request->input('description');
@@ -43,14 +44,18 @@ class PinpostController extends Controller
         $pin->longitude = $request->input('longitude');
 
         /* Checks if a thumbnail was provided */
-        $image = new Image();
         if ($request->file('thumbnail') != null) {
+            $image = new Image();
+            $entitys_picture = new EntitysPicture();
             ImageController::storeImage($request->file('thumbnail'), $image);
             $image->save();
             $pin->thumbnail_id = $image->id;
+            $entitys_picture->entity_id = $entity->id;
+            $entitys_picture->image_id = $image->id;
+            $entitys_picture->save();
         }
 
-        $pin->entity_id = Entity::create([])->id;
+        $pin->entity_id = $entity->id;
 
         /* Sets creator id */
         $api_token = $request->header('Authorization');
@@ -94,9 +99,8 @@ class PinpostController extends Controller
         $validator = Validator::make($request->all(), [
             'thumbnail' => 'image'
         ]);
-        if ($validator->fails()) {
+        if ($validator->fails())
             return $validator->errors()->all();
-        }
 
         /* Checks if pinpost is there */
         $pin = Pinpost::find($pinpost_id);
@@ -107,7 +111,7 @@ class PinpostController extends Controller
 
         /* Checks if pinpost being updated belongs to the user making the
             request */
-        $api_token = $pin->user->api_token;
+        $api_token = $pin->creator->api_token;
 
         if ($api_token != $request->header('Authorization')) {
             return response(json_encode(['error' => 'Unauthenticated'])
@@ -163,9 +167,9 @@ class PinpostController extends Controller
             return response(json_encode(['error' => 'not found']), 404);
         }
 
-        /* Checks if pinpost being updated belongs to the user making the
+        /* Checks if pinpost being deleted belongs to the user making the
             request */
-        $api_token = $pin->user->api_token;
+        $api_token = $pin->creator->api_token;
         if ($api_token != $request->header('Authorization')) {
             return response(json_encode(['error' => 'Unauthenticated'])
                 , 401);
@@ -174,29 +178,7 @@ class PinpostController extends Controller
         $pin->thumbnail->delete();
         $pin->entity->delete();
 
-        return response(json_encode(['pinpost' => 'deleted'])
-            , 200);
-
-    }
-
-    /**
-     * Validates request
-     *
-     * @param Request $request
-     *        rules: requires title, description, latitude, longitude,
-     *               thumbnail must be an image
-     * @return mixed Validator
-     */
-    protected function validator(Request $request)
-    {
-
-        return Validator::make($request->all(), [
-            'title' => 'required',
-            'description' => 'required',
-            'latitude' => 'required',
-            'longitude' => 'required',
-            'thumbnail' => 'image'
-        ]);
+        return response(json_encode(['pinpost' => 'deleted']), 200);
 
     }
 

@@ -5,7 +5,7 @@ namespace App\Http\Controllers\Auth;
 use App\User;
 use App\Profile;
 use App\Http\Controllers\Controller;
-use Illuminate\Support\Facades\Validator;
+use App\Http\Requests\DataValidator;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Foundation\Auth\RegistersUsers;
 use Illuminate\Http\Request;
@@ -50,23 +50,6 @@ class RegisterController extends Controller
     }
 
     /**
-     * Get a validator for an incoming registration request.
-     *
-     * @param  array  $data
-     * @return \Illuminate\Contracts\Validation\Validator
-     */
-    protected function validator(array $data)
-    {
-        return Validator::make($data, [
-            'first_name' => 'required|alpha',
-            'last_name' => 'required|alpha',
-            'email' => 'required|email|max:255|unique:users',
-            'password' => 'required|AlphaNum|min:8|max:16|confirmed',
-            'gender' => 'required'
-        ]);
-    }
-
-    /**
      * Create a new user instance after a valid registration.
      *
      * @param  Request $request
@@ -75,27 +58,21 @@ class RegisterController extends Controller
     protected function create(Request $request)
     {
 
-        $data = $request->all();
-
-        $validator = $this->validator($data);
-
-        if ($validator->fails()){
-
+        $validator = DataValidator::validateRegister($request);
+        if($validator->fails())
             return $validator->errors()->all();
 
-        }
-
         $user = User::create([
-                'email' => $data['email'],
-                'password' => Hash::make($data['password']),
+                'email' => $request['email'],
+                'password' => Hash::make($request['password']),
                 'api_token' => str_random(60)
                 ]);
 
         $profile = new Profile();
         $profile->user_id = $user->id;
-        $profile->first_name = $data['first_name'];
-        $profile->last_name = $data['last_name'];
-        $profile->gender = $data['gender'];
+        $profile->first_name = $request['first_name'];
+        $profile->last_name = $request['last_name'];
+        $profile->gender = $request['gender'];
         $profile->save();
 
         return $user;

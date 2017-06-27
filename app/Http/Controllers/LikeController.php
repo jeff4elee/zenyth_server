@@ -2,10 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\DataValidator;
 use Illuminate\Http\Request;
 use App\Like;
 use App\User;
-use Illuminate\Support\Facades\Validator;
 
 /**
  * Class LikeController
@@ -23,13 +23,9 @@ class LikeController extends Controller
      */
     public function create(Request $request)
     {
-        $validator = Validator::make($request->all(), [
-            'entity_id' => 'required'
-        ]);
-
-        if($validator->fails()) {
+        $validator = DataValidator::validateLike($request);
+        if($validator->fails())
             return $validator->errors()->all();
-        }
 
         $like = new Like();
 

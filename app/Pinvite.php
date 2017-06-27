@@ -41,8 +41,4 @@ class Pinvite extends Model
         return $this->belongsTo('App\Image', 'thumbnail_id');
     }
 
-    public function pinvite_pictures()
-    {
-        return $this->hasMany('App\Pinvite_picture', 'pinvite_id');
-    }
 }

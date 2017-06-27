@@ -56,7 +56,7 @@ Route::group(['middleware' => 'authenticated'], function() {
     Route::delete('pinvite/{pinvite_id}', 'PinviteController@delete');
     Route::post('pinvite/{pinvite_id}/uploadPicture',
                     'PinviteController@uploadPicture');
-    Route::delete('pinvite/{pinvite_id}/deletePicture',
+    Route::delete('pinvite/{image_id}/deletePicture',
                     'PinviteController@deletePicture');
 
     Route::post('comment', 'CommentController@create');
