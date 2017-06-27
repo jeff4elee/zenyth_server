@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Auth;
 
 use App\User;
+use App\Profile;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Hash;
@@ -57,9 +58,11 @@ class RegisterController extends Controller
     protected function validator(array $data)
     {
         return Validator::make($data, [
-            'name' => 'required',
+            'first_name' => 'required|alpha',
+            'last_name' => 'required|alpha',
             'email' => 'required|email|max:255|unique:users',
             'password' => 'required|AlphaNum|min:8|max:16|confirmed',
+            'gender' => 'required'
         ]);
     }
 
@@ -72,22 +75,30 @@ class RegisterController extends Controller
     protected function create(Request $request)
     {
 
-      $data = $request->all();
+        $data = $request->all();
 
-      $validator = $this->validator($data);
+        $validator = $this->validator($data);
 
-      if ($validator->fails()){
+        if ($validator->fails()){
 
-        return $validator->errors()->all();
+            return $validator->errors()->all();
 
-      }
+        }
 
-      return User::create([
-            'name' => $data['name'],
-            'email' => $data['email'],
-            'password' => Hash::make($data['password']),
-            'api_token' => str_random(60)
-            ]);
+        $user = User::create([
+                'email' => $data['email'],
+                'password' => Hash::make($data['password']),
+                'api_token' => str_random(60)
+                ]);
+
+        $profile = new Profile();
+        $profile->user_id = $user->id;
+        $profile->first_name = $data['first_name'];
+        $profile->last_name = $data['last_name'];
+        $profile->gender = $data['gender'];
+        $profile->save();
+
+        return $user;
 
     }
 

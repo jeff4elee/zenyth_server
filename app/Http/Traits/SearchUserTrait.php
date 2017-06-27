@@ -2,7 +2,7 @@
 
 namespace App\Http\Traits;
 
-use App\User;
+use App\Profile;
 use App\Relationship;
 
 /**
@@ -62,10 +62,16 @@ trait SearchUserTrait
      */
     public function similarTo($user_id, $name)
     {
-        return User::select('users.id')->where([
-            ['users.name', 'like', '%' . $name . '%'],
-            ['users.id', '!=', $user_id]
-        ])->get()->pluck('id');
+        return Profile::select('profiles.user_id')
+            ->where([
+                ['profiles.first_name', 'like', '%'.$name.'%'],
+                ['profiles.user_id', '!=', $user_id]
+            ])
+            ->orWhere([
+                ['profiles.last_name', 'like', '%'.$name.'%'],
+                ['profiles.user_id', '!=', $user_id]
+            ])
+            ->get()->pluck('user_id');
     }
 
     /**
