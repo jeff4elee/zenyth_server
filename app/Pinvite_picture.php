@@ -4,9 +4,8 @@ namespace App;
 
 use Illuminate\Database\Eloquent\Model;
 
-class Invitation extends Model
+class Pinvite_picture extends Model
 {
-    protected $fillable = ['invited_on'];
     public $timestamps = false;
 
     public function pinvite()
@@ -14,8 +13,8 @@ class Invitation extends Model
         return $this->belongsTo('App\Pinvite', 'pinvite_id');
     }
 
-    public function invitee()
+    public function image()
     {
-        return $this->belongsTo('App\User', 'invitee_id');
+        return $this->belongsTo('App\Image', 'image_id');
     }
 }

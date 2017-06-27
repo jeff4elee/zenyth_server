@@ -2,9 +2,12 @@
 
 namespace App\Http\Controllers\Auth;
 
-use Illuminate\Support\Facades\Auth;
 use App\Http\Controllers\Controller;
 use Illuminate\Foundation\Auth\AuthenticatesUsers;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Hash;
+use App\User;
+use Illuminate\Support\Facades\Validator;
 
 class LoginController extends Controller
 {
@@ -24,41 +27,54 @@ class LoginController extends Controller
     /**
      * Handle an authentication attempt.
      *
-     * @return Response
+     * @param Request $request, post request,
+     *        rules: requires email and password
+     * @return Response json response with api_token or json response
+     *         indicating login failed
      */
     public function login(Request $request)
     {
+        $validator = Validator::make($request->all(), [
+            'email' => 'required|email',
+            'password' => 'required'
+        ]);
+
+        if ($validator->fails()) {
+            return $validator->errors()->all();
+        }
 
         $email = $request->input('email');
         $password = $request->input('password');
 
-	$user = User::where('email', '=', $email);
-	
-	if($user == null){
-	  return 0;
-	}
+        $user = User::where('email', $email)->first();
 
-	if(password_verify($password, $user->password)){
+        if ($user == null) {
+            return response(json_encode(['email' => 'incorrect']), 403);
+        }
 
-          // Authentication passed...
-          do{
+        if (Hash::check($password, $user->password)) {   // checks password
+            // against hashed pw
 
-            $api_token = str_random(60);
+            // Authentication passed...
+            do {
 
-            $user = User::where('api_token', '=', $api_token)->first();
+                $api_token = str_random(60);
 
-          } while( $user != null );
+                $dup_token_user = User::where('api_token', $api_token)
+                    ->first();
 
-          //found unique api token
-          $user = User::where('email', '=', $email)->first();
-          $user->api_token = $apiToken;
-          $user->update();
+            } while ($dup_token_user != null);
 
-          return json_encode(['api_token' => $api_token]);
+            //found unique api token
+
+            $user->api_token = $api_token;
+            $user->update();
+
+            return response(json_encode(['api_token' => $api_token]), 202);
 
         }
 
-        return 0;
+        return response(json_encode(['password' => 'incorrect']), 403);
 
     }
 
