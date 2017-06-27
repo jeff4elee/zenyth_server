@@ -92,14 +92,14 @@ trait SearchUserTrait
         /* Retains only friends'id that have names similar to the name
         searched */
         $friends_id = array_filter($friends_id, function ($id)
-        use ($similar_names_id) {
+                                                use ($similar_names_id) {
             return in_array($id, $similar_names_id);
         });
 
         /* Retains only mutual friends'id that have names similar to the name
          searched */
         $mutual_friends_id = array_filter($mutual_friends_id, function ($id)
-        use ($similar_names_id) {
+                                                use ($similar_names_id) {
             return in_array($id, $similar_names_id);
         });
 
