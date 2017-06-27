@@ -62,7 +62,7 @@ class DataRules
         return [
             'entity_id' => 'required',
             'comment' => 'required|min:1',
-            'on_entity' => 'required',
+            'on_entity_id' => 'required',
         ];
     }
 

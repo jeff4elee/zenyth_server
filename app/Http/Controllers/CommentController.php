@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use App\Comment;
 use App\User;
 use App\EntitysPicture;
+use App\Image;
 use Illuminate\Support\Facades\Validator;
 
 /**
