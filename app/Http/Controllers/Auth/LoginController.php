@@ -27,16 +27,19 @@ class LoginController extends Controller
     /**
      * Handle an authentication attempt.
      *
-     * @return Response
+     * @param Request $request, post request,
+     *        rules: requires email and password
+     * @return Response json response with api_token or json response
+     *         indicating login failed
      */
     public function login(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'email' => 'required',
+            'email' => 'required|email',
             'password' => 'required'
         ]);
 
-        if($validator->fails()) {
+        if ($validator->fails()) {
             return $validator->errors()->all();
         }
 
@@ -45,33 +48,33 @@ class LoginController extends Controller
 
         $user = User::where('email', $email)->first();
 
-        if($user == null){
-          return 0;
+        if ($user == null) {
+            return response(json_encode(['email' => 'incorrect']), 403);
         }
 
-        if(Hash::check($password, $user->password)){   // checks password
-                                                       // against hashed pw
+        if (Hash::check($password, $user->password)) {   // checks password
+            // against hashed pw
 
             // Authentication passed...
-            do{
+            do {
 
                 $api_token = str_random(60);
 
                 $dup_token_user = User::where('api_token', $api_token)
                     ->first();
 
-            } while( $dup_token_user != null );
+            } while ($dup_token_user != null);
 
             //found unique api token
 
             $user->api_token = $api_token;
             $user->update();
 
-            return json_encode(['api_token' => $api_token]);
+            return response(json_encode(['api_token' => $api_token]), 202);
 
         }
 
-        return 0;
+        return response(json_encode(['password' => 'incorrect']), 403);
 
     }
 

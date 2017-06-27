@@ -7,9 +7,20 @@ use App\Comment;
 use App\User;
 use Illuminate\Support\Facades\Validator;
 
+/**
+ * Class CommentController
+ * @package App\Http\Controllers
+ */
 class CommentController extends Controller
 {
 
+    /**
+     * Creates a comment
+     *
+     * @param Request $request, post request
+     *        rules: requires comment that is not empty and entity_id
+     * @return Comment information
+     */
     public function create(Request $request)
     {
 
@@ -18,7 +29,7 @@ class CommentController extends Controller
             'entity_id' => 'required'
         ]);
 
-        if($validator->fails()) {
+        if ($validator->fails()) {
             return $validator->errors()->all();
         }
 
@@ -36,6 +47,12 @@ class CommentController extends Controller
 
     }
 
+    /**
+     * Returns information on comment
+     *
+     * @param $comment_id
+     * @return Comnent information, json response if comment is not found
+     */
     public function read($comment_id)
     {
 
@@ -49,6 +66,14 @@ class CommentController extends Controller
 
     }
 
+    /**
+     * Edits comment
+     *
+     * @param Request $request, post request
+     *        rules: requires comment that is not empty
+     * @param $comment_id
+     * @return Comment information, json response if comment is not found
+     */
     public function update(Request $request, $comment_id)
     {
 
@@ -56,7 +81,7 @@ class CommentController extends Controller
             'comment' => 'required|min:1'
         ]);
 
-        if($validator->fails()) {
+        if ($validator->fails()) {
             return $validator->errors()->all();
         }
 
@@ -75,7 +100,17 @@ class CommentController extends Controller
 
     }
 
-    public function delete($comment_id)
+    /**
+     * Deletes a comment, only available if comment belongs to logged in user
+     *
+     * @param Request $request, delete request
+     * @param $comment_id
+     * @return json response indicating error if comment is not found, json
+     *         respsonse indicating error if user logged in did not make the
+     *         comment, or json response indicating comment deleted if it is
+     *         successfully deleted
+     */
+    public function delete(Request $request, $comment_id)
     {
 
         $comment = Comment::find($comment_id);
@@ -84,9 +119,14 @@ class CommentController extends Controller
             return response(json_encode(['error' => 'not found']), 404);
         }
 
-        $comment->delete();
+        $api_token = $comment->user->api_token;
+        if($api_token != $request->header('Authorization')) {
+            return response(json_encode(['error' => 'Unauthenticated']),
+                401);
+        }
 
-        return response(json_encode(['comment status' => 'deleted']), 200);
+        $comment->delete();
+        return response(json_encode(['comment' => 'deleted']), 200);
 
     }
 

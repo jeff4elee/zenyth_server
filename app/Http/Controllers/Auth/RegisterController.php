@@ -27,8 +27,7 @@ class RegisterController extends Controller
 
     public function register(Request $request) {
 
-        if($this->create($request) != null)
-            return response(json_encode(['register' => true]), 200);
+        return $this->create($request);
 
     }
 

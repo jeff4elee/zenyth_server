@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 class Pinvite extends Model
 {
     protected $fillable = ['title', 'description', 'latitude', 'longitude',
-                            'thumbnail_id', 'event_time'];
+        'thumbnail_id', 'event_time'];
 
     public $timestamps = false;
 
@@ -30,8 +30,7 @@ class Pinvite extends Model
     {
         $invitees_arr = [];
         $invitations = $this->invitations;
-        foreach($invitations as $invitation)
-        {
+        foreach ($invitations as $invitation) {
             array_push($invitees_arr, $invitation->invitee);
         }
         return $invitees_arr;

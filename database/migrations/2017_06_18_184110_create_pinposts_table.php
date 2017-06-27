@@ -29,8 +29,8 @@ class CreatePinpostsTable extends Migration
             $table->foreign('thumbnail_id')
                 ->references('id')->on('images')
                 ->onDelete('set null');
-            $table->unsignedInteger('user_id');
-            $table->foreign('user_id')
+            $table->unsignedInteger('creator_id');
+            $table->foreign('creator_id')
                 ->references('id')->on('users')
                 ->onDelete('cascade');
             $table->timestamp('updated_on');
