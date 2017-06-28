@@ -46,6 +46,8 @@ class PinpostTest extends TestCase
             Storage::disk('images')->assertExists(basename(Image::find($id)->filename));
 
         $this->assertDatabaseHas('pinposts', ['title' => 'testpin', 'latitude' => 33.33, 'longitude' => 69.69]);
+        File::delete(Image::find($id)->filename);
+
     }
 
     public function testPinpostRead()
