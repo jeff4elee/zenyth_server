@@ -18,12 +18,13 @@ Route::post('register', 'Auth\RegisterController@register');
 Route::post('login', 'Auth\LoginController@login');
 Route::get('logout', 'Auth\LogoutController@logout');
 
+Route::get('user/search_user/{name}', 'UserController@searchUser');
+
 Route::group(['middleware' => 'authenticated'], function() {
 
     Route::get('user/{user_id}/get_friends', 'UserController@getFriends');
-    Route::get('user/get_blocked_users', 'UserController@blockedUsers');
-    Route::get('user/get_friend_requests', 'UserController@getFriendRequests');
-    Route::get('user/search_user/{name}', 'UserController@searchUser');
+    Route::get('user/blocked_users', 'UserController@blockedUsers');
+    Route::get('user/friend_requests', 'UserController@getFriendRequests');
 
     Route::post('relationship/friend_request',
                 'RelationshipController@friendRequest');

@@ -12,7 +12,10 @@ class UserTableSeeder extends Seeder
      */
     public function run()
     {
-        factory(App\User::class, 80)->create();
+
+        factory(App\User::class, 40)->create()->each(function($u){
+            factory('App\Profile')->create(['user_id'=>$u->id]);
+        });
 
         for( $i = 0; $i<20; $i++ ) {
 

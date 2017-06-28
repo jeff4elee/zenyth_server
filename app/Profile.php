@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 class Profile extends Model
 {
     public $timestamps = false;
-    protected $fillable = ['first_name', 'last_name', 'gender'];
+    protected $fillable = ['user_id', 'first_name', 'last_name', 'gender'];
 
     public function user()
     {

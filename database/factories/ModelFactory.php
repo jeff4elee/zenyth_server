@@ -18,13 +18,24 @@ $factory->define(App\User::class, function (Faker\Generator $faker) {
     static $password;
 
     return [
-        'first_name' => $faker->firstName,
-        'last_name' => $faker->lastName,
-        'gender' => ((bool) rand_int(0, 1)) ? 'male' : 'female',
         'email' => $faker->unique()->safeEmail,
         'password' => Hash::make($faker->password(6, 10)),
         'api_token' => str_random(60),
     ];
+
+});
+
+$factory->define(App\Profile::class, function (Faker\Generator $faker) {
+
+    $user_id = factory('App\User')->create()->id;
+
+    return [
+        'user_id' => $user_id,
+        'first_name' => $faker->firstName,
+        'last_name' => $faker->lastName,
+        'gender' => ((bool) random_int(0, 1)) ? 'male' : 'female'
+    ];
+
 });
 
 $factory->define(App\Entity::class, function (Faker\Generator $faker) {

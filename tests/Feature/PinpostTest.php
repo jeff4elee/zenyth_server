@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use Illuminate\Http\File;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
 use Tests\TestCase;
@@ -46,7 +47,6 @@ class PinpostTest extends TestCase
             Storage::disk('images')->assertExists(basename(Image::find($id)->filename));
 
         $this->assertDatabaseHas('pinposts', ['title' => 'testpin', 'latitude' => 33.33, 'longitude' => 69.69]);
-        File::delete(Image::find($id)->filename);
 
     }
 
