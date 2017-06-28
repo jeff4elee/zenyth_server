@@ -40,7 +40,7 @@ class AuthTest extends TestCase
     public function testRegistration()
     {
 
-        $response = $this->json('POST', '/api/register', ['first_name' => 'testman', 'last_name' => 'man', 'gender' => 'gay', 'email' => 'test@email.com', 'password' => 'password']);
+        $response = $this->json('POST', '/api/register', ['first_name' => 'testman', 'last_name' => 'man', 'gender' => 'gay', 'email' => 'test@email.com', 'password' => 'password', 'password_confirmation' => 'password']);
 
         $response
             ->assertStatus(200)
