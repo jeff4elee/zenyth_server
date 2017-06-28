@@ -14,6 +14,11 @@ class RelationshipTableSeeder extends Seeder
     {
         $users = User::all();
 
+        foreach($users as $user){
+
+            $user->id;
+
+        }
     }
 
 }

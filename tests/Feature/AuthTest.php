@@ -40,7 +40,7 @@ class AuthTest extends TestCase
     public function testRegistration()
     {
 
-        $response = $this->json('POST', '/api/register', ['name' => 'testman', 'email' => 'test@email.com', 'password' => 'password']);
+        $response = $this->json('POST', '/api/register', ['first_name' => 'testman', 'last_name' => 'man', 'gender' => 'gay', 'email' => 'test@email.com', 'password' => 'password', 'password_confirmation' => 'password']);
 
         $response
             ->assertStatus(200)
@@ -60,9 +60,9 @@ class AuthTest extends TestCase
 
     public function testLogin(){
 
-        factory('App\User')->create(['name' => 'testman', 'email' => 'test@email.com', 'password' => Hash::make('password')]);
+        $user = factory('App\User')->create(['password' => Hash::make('password')]);
 
-        $response = $this->json('POST', '/api/login', ['email' => 'test@email.com', 'password' => 'password']);
+        $response = $this->json('POST', '/api/login', ['email' => $user->email, 'password' => 'password']);
 
         $response->assertStatus(200);
 
