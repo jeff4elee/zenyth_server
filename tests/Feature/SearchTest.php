@@ -25,7 +25,7 @@ class SearchTest extends TestCase
     public function testSearchBlockedUser(){
 
 
-        $this->get('/api/user/get_blocked_users', ['Authorization'])
+        $this->get('/api/user/get_blocked_users', ['Authorization']);
     }
 
 }
