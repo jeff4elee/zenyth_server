@@ -19,6 +19,7 @@ Route::post('login', 'Auth\LoginController@login');
 Route::get('logout', 'Auth\LogoutController@logout');
 
 Route::group(['middleware' => 'authenticated'], function() {
+
     Route::get('user/{user_id}/get_friends', 'UserController@getFriends');
     Route::get('user/get_blocked_users', 'UserController@blockedUsers');
     Route::get('user/get_friend_requests', 'UserController@getFriendRequests');
@@ -68,5 +69,6 @@ Route::group(['middleware' => 'authenticated'], function() {
     Route::delete('like/{like_id}', 'LikeController@delete');
 
     Route::get('storage/{filename}', 'ImageController@showImage');
+
 });
 
