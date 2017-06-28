@@ -7,6 +7,7 @@ use Illuminate\Foundation\Testing\WithoutMiddleware;
 use Illuminate\Foundation\Testing\DatabaseMigrations;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Illuminate\Support\Facades\User;
+use Illuminate\Support\Facades\Hash;
 
 
 class AuthTest extends TestCase
@@ -53,13 +54,13 @@ class AuthTest extends TestCase
 
         $response = $this->json('POST', '/api/login', ['email' => 'test@email.com', 'password' => 'password']);
 
-        $response->assertSee('0');
+        $response->assertJson(['email'=>'incorrect']);
 
     }
 
     public function testLogin(){
 
-        factory('App\User')->create(['name' => 'testman', 'email' => 'test@email.com', 'password' => bcrypt('password')]);
+        factory('App\User')->create(['name' => 'testman', 'email' => 'test@email.com', 'password' => Hash::make('password')]);
 
         $response = $this->json('POST', '/api/login', ['email' => 'test@email.com', 'password' => 'password']);
 
