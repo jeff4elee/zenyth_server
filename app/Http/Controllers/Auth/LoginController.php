@@ -7,7 +7,7 @@ use Illuminate\Foundation\Auth\AuthenticatesUsers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use App\User;
-use Illuminate\Support\Facades\Validator;
+use App\Http\Requests\DataValidator;
 
 class LoginController extends Controller
 {
@@ -34,14 +34,9 @@ class LoginController extends Controller
      */
     public function login(Request $request)
     {
-        $validator = Validator::make($request->all(), [
-            'email' => 'required|email',
-            'password' => 'required'
-        ]);
-
-        if ($validator->fails()) {
+        $validator = DataValidator::validateLogin($request);
+        if ($validator->fails())
             return $validator->errors()->all();
-        }
 
         $email = $request->input('email');
         $password = $request->input('password');

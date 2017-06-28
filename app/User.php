@@ -18,7 +18,7 @@ class User extends Model implements Authenticatable
      * @var array
      */
     protected $fillable = [
-        'name', 'password', 'email', 'api_token', 'token_expired_on'
+        'password', 'email', 'api_token', 'token_expired_on'
     ];
 
     protected $hidden = [
@@ -45,6 +45,11 @@ class User extends Model implements Authenticatable
     public function comments()
     {
         return $this->hasMany('App\Comment', 'user_id');
+    }
+
+    public function profile()
+    {
+        return $this->hasOne('App\Profile', 'user_id');
     }
 
 }

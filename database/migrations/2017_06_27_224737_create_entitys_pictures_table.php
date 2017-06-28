@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class CreatePinvitePicturesTable extends Migration
+class CreateEntitysPicturesTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,10 +13,10 @@ class CreatePinvitePicturesTable extends Migration
      */
     public function up()
     {
-        Schema::create('pinvite_pictures', function (Blueprint $table) {
+        Schema::create('entitys_pictures', function (Blueprint $table) {
             $table->increments('id');
-            $table->unsignedInteger('pinvite_id')
-                ->references('id')->on('pinvites')
+            $table->unsignedInteger('entity_id')
+                ->references('id')->on('entities')
                 ->onDelete('cascade');
             $table->unsignedInteger('image_id')
                 ->references('id')->on('images')
@@ -32,6 +32,6 @@ class CreatePinvitePicturesTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('pinvite_pictures');
+        Schema::dropIfExists('entitys_pictures');
     }
 }

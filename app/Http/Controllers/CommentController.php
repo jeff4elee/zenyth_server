@@ -2,9 +2,12 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\DataValidator;
 use Illuminate\Http\Request;
 use App\Comment;
 use App\User;
+use App\EntitysPicture;
+use App\Image;
 use Illuminate\Support\Facades\Validator;
 
 /**
@@ -24,19 +27,26 @@ class CommentController extends Controller
     public function create(Request $request)
     {
 
-        $validator = Validator::make($request->all(), [
-            'comment' => 'required|min:1',
-            'entity_id' => 'required'
-        ]);
-
-        if ($validator->fails()) {
+        $validator = DataValidator::validateComment($request);
+        if ($validator->fails())
             return $validator->errors()->all();
-        }
 
+        $entity = Entity::create([]);
         $comment = new Comment();
 
-        $comment->entity_id = $request->input('entity_id');
+        $comment->entity_id = $entity->id;
+        $comment->on_entity_id = $request->input('on_entity_id');
         $comment->comment = $request->input('comment');
+
+        if($request->has('picture')) {
+            $image = new Image();
+            $entitys_picture = new EntitysPicture();
+            ImageController::storeImage($request->file('picture'), $image);
+            $image->save();
+            $entitys_picture->entity_id = $entity->id;
+            $entitys_picture->image_id = $image->id;
+            $entitys_picture->save();
+        }
 
         $api_token = $request->header('Authorization');
 
@@ -80,12 +90,15 @@ class CommentController extends Controller
         $validator = Validator::make($request->all(), [
             'comment' => 'required|min:1'
         ]);
-
-        if ($validator->fails()) {
+        if ($validator->fails())
             return $validator->errors()->all();
-        }
 
         $comment = Comment::find($comment_id);
+        $api_token = $comment->user->api_token;
+        if($api_token != $request->header('Authorization')) {
+            return response(json_encode(['error' => 'Unauthenticated']),
+                401);
+        }
 
         if ($comment == null) {
             return response(json_encode(['error' => 'not found']), 404);
@@ -125,7 +138,11 @@ class CommentController extends Controller
                 401);
         }
 
-        $comment->delete();
+        $pictures = $comment->entity->pictures;
+        foreach ($pictures as $picture) {
+            $picture->image->delete();
+        }
+        $comment->entity->delete();
         return response(json_encode(['comment' => 'deleted']), 200);
 
     }
