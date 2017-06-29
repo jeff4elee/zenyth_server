@@ -19,6 +19,7 @@ Route::post('login', 'Auth\LoginController@login');
 Route::get('logout', 'Auth\LogoutController@logout');
 
 Route::get('user/search_user/{name}', 'UserController@searchUser');
+Route::get('comment/{comment_id}', 'CommentController@read');
 
 Route::group(['middleware' => 'authenticated'], function() {
 
@@ -62,12 +63,11 @@ Route::group(['middleware' => 'authenticated'], function() {
                     'PinviteController@deletePicture');
 
     Route::post('comment', 'CommentController@create');
-    Route::get('comment/{comment_id}', 'CommentController@read');
     Route::post('comment/{comment_id}', 'CommentController@update');
     Route::delete('comment/{comment_id}', 'CommentController@delete');
 
     Route::post('like', 'LikeController@create');
-    Route::delete('like/{like_id}', 'LikeController@delete');
+    Route::delete('like/{entity_id}', 'LikeController@delete');
 
     Route::get('storage/{filename}', 'ImageController@showImage');
 

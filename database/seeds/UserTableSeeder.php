@@ -13,11 +13,11 @@ class UserTableSeeder extends Seeder
     public function run()
     {
 
-        factory(App\User::class, 40)->create()->each(function($u){
+        factory(App\User::class, 15)->create()->each(function($u){
             factory('App\Profile')->create(['user_id'=>$u->id]);
         });
 
-        for( $i = 0; $i<20; $i++ ) {
+        for( $i = 0; $i<10; $i++ ) {
 
             $users = User::inRandomOrder()->take(2)->get();
             $relationship = factory('App\Relationship')->create(['requestee' => $users[0], 'requester' => $users[1], 'status' => (bool) random_int(0, 1)]);
