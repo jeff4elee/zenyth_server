@@ -50,11 +50,11 @@ class LikesAndCommentsTest extends TestCase
         $like = Like::first();
 
         $entity = Entity::find($like->entity_id);
-        $numLikes = $entity->likesCount;
+        $numLikes = $entity->likesCount();
 
         $this->json('DELETE', '/api/like/' . $entity->id, [], ['Authorization' => $like->user->api_token]);
 
-        $this->assertEquals($numLikes-1, $entity->likesCount);
+        $this->assertEquals($numLikes-1, $entity->likesCount());
 
     }
 
@@ -65,11 +65,11 @@ class LikesAndCommentsTest extends TestCase
 
         $entity = factory('App\Entity')->create();
 
-        $this->assertEquals(0, $entity->commentsCount);
+        $this->assertEquals(0, $entity->commentsCount());
 
         $this->json('POST', '/api/comment', ['entity_id' => $entity->id], ['Authorization' => $user->api_token]);
 
-        $this->assertEquals(1, $entity->commentsCount);
+        $this->assertEquals(1, $entity->commentsCount());
 
     }
 
@@ -78,13 +78,13 @@ class LikesAndCommentsTest extends TestCase
 
         do {
             $entity = Entity::inRandomOrder()->first();
-        } while ($entity->commentsCount == 0);
+        } while ($entity->commentsCount() == 0);
 
         $comment = $entity->comments->first();
 
         $this->json('GET', '/api/comment/' . $comment->id);
 
-        $this->assertEquals(1, $entity->commentsCount);
+        $this->assertEquals(1, $entity->commentsCount());
 
     }
 
