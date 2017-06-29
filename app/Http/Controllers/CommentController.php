@@ -53,7 +53,7 @@ class CommentController extends Controller
         $comment->user_id = User::where('api_token', $api_token)->first()->id;
         $comment->save();
 
-        return $comment;
+        return response(json_encode(['comment' => 'created']), 202);
 
     }
 
@@ -109,7 +109,7 @@ class CommentController extends Controller
 
         $comment->update();
 
-        return $comment;
+        return response(json_encode(['comment' => 'updated']), 201);
 
     }
 

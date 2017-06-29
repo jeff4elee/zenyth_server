@@ -44,14 +44,20 @@ class LikeController extends Controller
     /**
      * Deletes a like
      *
-     * @param $like_id, like to be deleted
+     * @param Request $request , delete request
+     * @param $entity_id , entity the like is on
      * @return json response if like is not found or if like is successfully
      *         deleted
      */
-    public function delete($like_id)
+    public function delete(Request $request, $entity_id)
     {
 
-        $like = Like::find($like_id);
+        $api_token = $request->header('Authorization');
+        $user_id = User::where('api_token', $api_token)->first()->id;
+        $like = Like::where([
+            ['entity_id', '=', $entity_id],
+            ['user_id', '=', $user_id]
+        ]);
 
         if ($like == null) {
             return response(json_encode(['error' => 'not found']), 404);

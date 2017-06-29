@@ -9,7 +9,6 @@ use App\Http\Requests\DataValidator;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Foundation\Auth\RegistersUsers;
 use Illuminate\Http\Request;
-use App\Http\Controllers\Response;
 
 class RegisterController extends Controller
 {
@@ -26,9 +25,18 @@ class RegisterController extends Controller
 
     use RegistersUsers;
 
-    public function register(Request $request) {
+    public function register(Request $request)
+    {
 
-        return $this->create($request);
+        $validator = DataValidator::validateRegister($request);
+        if($validator->fails())
+            return $validator->errors()->all();
+
+        $user = $this->create($request);
+        if($user != null)
+        {
+            return response(json_encode(['register' => true]), 201);
+        }
 
     }
 
@@ -57,10 +65,6 @@ class RegisterController extends Controller
      */
     protected function create(Request $request)
     {
-
-        $validator = DataValidator::validateRegister($request);
-        if($validator->fails())
-            return $validator->errors()->all();
 
         $user = User::create([
                 'email' => $request['email'],
