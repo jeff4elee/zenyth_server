@@ -93,10 +93,18 @@ class UserController extends Controller
     {
 
         $api_token = $request->header('Authorization');
-        $user_id = User::where('api_token', $api_token)->first()->id;
+        $result_id = null;
 
-        $result_id = $this->searchUserId($user_id, $name);
+        if($api_token == null) {
 
+            $result_id = $this->similarTo(null, $name);
+
+        } else {
+
+            $user_id = User::where('api_token', $api_token)->first()->id;
+            $result_id = $this->searchUserId($user_id, $name);
+
+        }
         if (count($result_id) == 0)
             return array();
 

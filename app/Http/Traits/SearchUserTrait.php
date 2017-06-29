@@ -62,16 +62,24 @@ trait SearchUserTrait
      */
     public function similarTo($user_id, $name)
     {
-        return Profile::select('profiles.user_id')
-            ->where([
-                ['profiles.first_name', 'like', '%'.$name.'%'],
-                ['profiles.user_id', '!=', $user_id]
-            ])
-            ->orWhere([
-                ['profiles.last_name', 'like', '%'.$name.'%'],
-                ['profiles.user_id', '!=', $user_id]
-            ])
-            ->get()->pluck('user_id');
+        if($user_id != null) {
+            return Profile::select('profiles.user_id')
+                ->where([
+                    ['profiles.first_name', 'like', '%' . $name . '%'],
+                    ['profiles.user_id', '!=', $user_id]
+                ])
+                ->orWhere([
+                    ['profiles.last_name', 'like', '%' . $name . '%'],
+                    ['profiles.user_id', '!=', $user_id]
+                ])
+                ->get()->pluck('user_id');
+        }
+        else {
+            return Profile::select('profiles.user_id')
+                ->where('profiles.first_name', 'like', '%' . $name . '%')
+                ->orWhere('profiles.last_name', 'like', '%' . $name . '%')
+                ->get()->pluck('user_id');
+        }
     }
 
     /**

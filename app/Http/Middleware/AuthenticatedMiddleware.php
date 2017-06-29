@@ -20,6 +20,8 @@ class AuthenticatedMiddleware
     {
 
         $api_token = $request->header('Authorization');
+        if($api_token == null)
+            return response(json_encode(['error' => 'Unauthenticated']), 401);
 
         $user = User::where('api_token', $api_token)->first();
         if($user != null) {
