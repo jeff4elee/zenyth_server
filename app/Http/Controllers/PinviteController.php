@@ -33,7 +33,9 @@ class PinviteController extends Controller
 
         $validator = DataValidator::validatePinvite($request);
         if ($validator->fails())
-            return $validator->errors()->all();
+            return response(json_encode([
+                'errors' => $validator->errors()->all()
+            ]), 400);
 
         $pin = new Pinvite();
         $entity = Entity::create([]);
@@ -99,7 +101,9 @@ class PinviteController extends Controller
             'thumbnail' => 'image'
         ]);
         if ($validator->fails())
-            return $validator->errors()->all();
+            return response(json_encode([
+                'errors' => $validator->errors()->all()
+            ]), 400);
 
         /* Checks if pinvite is there */
         $pin = Pinvite::find($pinvite_id);
