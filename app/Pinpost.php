@@ -7,9 +7,14 @@ use Illuminate\Database\Eloquent\Model;
 class Pinpost extends Model
 {
     protected $fillable = ['title', 'description', 'latitude', 'longitude',
-        'thumbnail', 'updated_on'];
+        'thumbnail', 'updated_at'];
 
     protected $table = 'pinposts';
+
+    public function setCreatedAt($value)
+    {
+        // Do nothing.
+    }
 
     public function entity()
     {
