@@ -30,7 +30,9 @@ class RegisterController extends Controller
 
         $validator = DataValidator::validateRegister($request);
         if($validator->fails())
-            return $validator->errors()->all();
+            return response(json_encode([
+                'errors' => $validator->errors()->all()
+            ]), 400);
 
         $user = $this->create($request);
         if($user != null)
@@ -69,7 +71,7 @@ class RegisterController extends Controller
         $user = User::create([
                 'email' => $request['email'],
                 'password' => Hash::make($request['password']),
-                'api_token' => str_random(60)
+                'api_token' => "Bearer " . str_random(60)
                 ]);
 
         $profile = new Profile();

@@ -25,7 +25,9 @@ class LikeController extends Controller
     {
         $validator = DataValidator::validateLike($request);
         if($validator->fails())
-            return $validator->errors()->all();
+            return response(json_encode([
+                'errors' => $validator->errors()->all()
+            ]), 400);
 
         $like = new Like();
 
@@ -37,7 +39,7 @@ class LikeController extends Controller
 
         $like->save();
 
-        return $like;
+        return response(json_encode(['like' => 'created']), 202);;
 
     }
 

@@ -29,7 +29,9 @@ class RelationshipController extends Controller
 
         $validator = DataValidator::validateFriendRequest($request);
         if ($validator->fails())
-            return $validator->errors()->all();
+            return response(json_encode([
+                'errors' => $validator->errors()->all()
+            ]), 400);
 
         $api_token = $request->header('Authorization');
         $user_id = User::where('api_token', $api_token)->first()->id;
@@ -52,7 +54,7 @@ class RelationshipController extends Controller
             'requestee' => $request->input('requestee_id')
         ]);
 
-        return $relationship;
+        return response(json_encode(['relationship' => 'created']), 202);
 
     }
 
@@ -121,7 +123,7 @@ class RelationshipController extends Controller
                 404);
 
         $relationship->delete();
-        return response(json_encode(['relationship' => 'Unfriended']), 200);
+        return response(json_encode(['relationship' => 'unfriended']), 200);
 
     }
 

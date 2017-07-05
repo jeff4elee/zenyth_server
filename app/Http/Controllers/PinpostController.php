@@ -33,7 +33,9 @@ class PinpostController extends Controller
 
         $validator = DataValidator::validatePinpost($request);
         if ($validator->fails())
-            return $validator->errors()->all();
+            return response(json_encode([
+                'errors' => $validator->errors()->all()
+            ]), 400);
 
         $pin = new Pinpost();
         $entity = Entity::create([]);
@@ -63,7 +65,7 @@ class PinpostController extends Controller
 
         $pin->save();
 
-        return $pin;
+        return response(json_encode(['pinpost' => 'created']), 202);;
 
     }
 
@@ -100,7 +102,9 @@ class PinpostController extends Controller
             'thumbnail' => 'image'
         ]);
         if ($validator->fails())
-            return $validator->errors()->all();
+            return response(json_encode([
+                'errors' => $validator->errors()->all()
+            ]), 400);
 
         /* Checks if pinpost is there */
         $pin = Pinpost::find($pinpost_id);
@@ -146,7 +150,7 @@ class PinpostController extends Controller
 
         $pin->update();
 
-        return $pin;
+        return response(json_encode(['pinpost' => 'updated']), 202);;
 
     }
 

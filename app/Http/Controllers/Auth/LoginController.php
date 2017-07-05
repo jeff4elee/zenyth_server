@@ -36,7 +36,9 @@ class LoginController extends Controller
     {
         $validator = DataValidator::validateLogin($request);
         if ($validator->fails())
-            return $validator->errors()->all();
+            return response(json_encode([
+                'errors' => $validator->errors()->all()
+            ]), 400);
 
         $email = $request->input('email');
         $password = $request->input('password');
@@ -53,7 +55,7 @@ class LoginController extends Controller
             // Authentication passed...
             do {
 
-                $api_token = str_random(60);
+                $api_token = "Bearer " . str_random(60);
 
                 $dup_token_user = User::where('api_token', $api_token)
                     ->first();

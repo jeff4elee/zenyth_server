@@ -18,8 +18,8 @@ class CreateUsersTable extends Migration
             $table->increments('id');
             $table->string('email')->unique();
             $table->string('password');
-            $table->string('api_token', 60)->unique()
-                                                            ->nullable();
+            $table->string('api_token', 67)->unique()
+                ->nullable();
 
             $token_expired_on = Carbon::now()->addDays(30);
             $table->dateTime('token_expired_on')

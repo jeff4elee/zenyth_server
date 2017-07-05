@@ -29,7 +29,9 @@ class CommentController extends Controller
 
         $validator = DataValidator::validateComment($request);
         if ($validator->fails())
-            return $validator->errors()->all();
+            return response(json_encode([
+                'errors' => $validator->errors()->all()
+            ]), 400);
 
         $entity = Entity::create([]);
         $comment = new Comment();
@@ -91,7 +93,9 @@ class CommentController extends Controller
             'comment' => 'required|min:1'
         ]);
         if ($validator->fails())
-            return $validator->errors()->all();
+            return response(json_encode([
+                'errors' => $validator->errors()->all()
+            ]), 400);
 
         $comment = Comment::find($comment_id);
         $api_token = $comment->user->api_token;
