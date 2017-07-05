@@ -27,7 +27,7 @@ class SearchTest extends TestCase
 
         Artisan::call('migrate:refresh');
 
-        Artisan::call('db:seed', ['--class' => 'UserTableSeeder']);
+        Artisan::call('db:seed', ['--class' => 'UserSearchTableSeeder']);
     }
 
     public function testSearchBlockedUsers(){
@@ -84,10 +84,7 @@ class SearchTest extends TestCase
 
     public function testSearchUsers(){
 
-        Artisan::call('migrate:refresh');
-        Artisan::call('db:seed', ['--class' => 'UserSearchTableSeeder']);
-
-        $users = $this->call('GET', '/api/search_user/Rob')->decodeResponseJson();
+        $users = $this->call('GET', '/api/user/search_user/Rob')->decodeResponseJson();
 
         foreach($users as $user){
 

@@ -10,7 +10,6 @@ class Pinpost extends Model
         'thumbnail', 'updated_on'];
 
     protected $table = 'pinposts';
-    public $timestamps = false;
 
     public function entity()
     {
