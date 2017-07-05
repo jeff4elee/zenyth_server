@@ -5,23 +5,25 @@ use App\User;
 use App\Post;
 use Auth;
 
-class PostFormRequest extends FormRequest {
+class PostFormRequest extends FormRequest
+{
 
-  public function authorize(){
-    return true;
-  }
+    public function authorize()
+    {
+        return true;
+    }
 
-  /**
-   * Get the validation rules that apply to the request.
-   *
-   * @return array
-   */
-  public function rules()
-  {
-    return [
-      'title' => 'required|unique:post|max:255',
-      'title' => array('Regex:/^[A-Za-z0-9 ]+$/'),
-      'body' => 'required'
-    ];
-  }
+    /**
+     * Get the validation rules that apply to the request.
+     *
+     * @return array
+     */
+    public function rules()
+    {
+        return [
+            'title' => 'required|unique:post|max:255',
+            'title' => array('Regex:/^[A-Za-z0-9 ]+$/'),
+            'body' => 'required'
+        ];
+    }
 }
