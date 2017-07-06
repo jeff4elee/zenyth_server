@@ -48,7 +48,7 @@ class LoginController extends Controller
 
         if ($user == null) {
             return response(json_encode([
-                'errors' => ['incorrect email or password']
+                'errors' => ['Incorrect email or password']
             ]), 403);
         }
 
@@ -59,7 +59,7 @@ class LoginController extends Controller
         }
 
         return response(json_encode([
-            'errors' => ['incorrect email or password']
+            'errors' => ['Incorrect email or password']
         ]), 403);
 
     }
