@@ -24,6 +24,7 @@ class RegisterController extends Controller
     */
 
     use RegistersUsers;
+    use AuthenticationTrait;
 
     public function register(Request $request)
     {
@@ -71,7 +72,7 @@ class RegisterController extends Controller
         $user = User::create([
                 'email' => $request['email'],
                 'password' => Hash::make($request['password']),
-                'api_token' => "Bearer " . str_random(60)
+                'api_token' => $this->generateApiToken()
                 ]);
 
         $profile = new Profile();

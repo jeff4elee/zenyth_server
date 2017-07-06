@@ -23,6 +23,7 @@ class LoginController extends Controller
     */
 
     use AuthenticatesUsers;
+    use AuthenticationTrait;
 
     /**
      * Handle an authentication attempt.
@@ -46,32 +47,20 @@ class LoginController extends Controller
         $user = User::where('email', $email)->first();
 
         if ($user == null) {
-            return response(json_encode(['email' => 'incorrect']), 403);
+            return response(json_encode([
+                'errors' => ['incorrect email or password']
+            ]), 403);
         }
 
         if (Hash::check($password, $user->password)) {   // checks password
             // against hashed pw
-
-            // Authentication passed...
-            do {
-
-                $api_token = "Bearer " . str_random(60);
-
-                $dup_token_user = User::where('api_token', $api_token)
-                    ->first();
-
-            } while ($dup_token_user != null);
-
-            //found unique api token
-
-            $user->api_token = $api_token;
-            $user->update();
-
-            return response(json_encode(['api_token' => $api_token]), 202);
+            return response(json_encode(['login' => true]), 202);
 
         }
 
-        return response(json_encode(['password' => 'incorrect']), 403);
+        return response(json_encode([
+            'errors' => ['incorrect email or password']
+        ]), 403);
 
     }
 
