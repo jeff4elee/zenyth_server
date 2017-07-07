@@ -8,8 +8,7 @@ class DataRules
     static public function registerRules()
     {
         return [
-            'first_name' => 'required|alpha',
-            'last_name' => 'required|alpha',
+            'username' => 'required|max:255|unique:users',
             'email' => 'required|email|max:255|unique:users',
             'password' => 'required|AlphaNum|min:8|max:16|confirmed',
             'gender' => 'required'
