@@ -70,6 +70,7 @@ class RegisterController extends Controller
     {
 
         $user = User::create([
+                'username' => $request['username'],
                 'email' => $request['email'],
                 'password' => Hash::make($request['password']),
                 'api_token' => $this->generateApiToken()
@@ -77,8 +78,6 @@ class RegisterController extends Controller
 
         $profile = new Profile();
         $profile->user_id = $user->id;
-        $profile->first_name = $request['first_name'];
-        $profile->last_name = $request['last_name'];
         $profile->gender = $request['gender'];
         $profile->save();
 
