@@ -38,8 +38,13 @@ class RegisterController extends Controller
         $user = $this->create($request);
         if($user != null)
         {
-            return response(json_encode(['register' => true]), 201);
+            return response(json_encode([
+                'success' => true,
+                'user' => $user
+            ]), 201);
         }
+
+        return response(json_encode(['success' => false]), 400);
 
     }
 

@@ -54,7 +54,10 @@ class LoginController extends Controller
 
         if (Hash::check($password, $user->password)) {   // checks password
             // against hashed pw
-            return response(json_encode(['login' => true]), 202);
+            return response(json_encode([
+                'success' => true,
+                'user' => $user
+            ]), 202);
 
         }
 
