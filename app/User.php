@@ -22,7 +22,7 @@ class User extends Model implements Authenticatable
     ];
 
     protected $hidden = [
-        'password', 'api_token', 'token_expired_on'
+        'password', 'token_expired_on'
     ];
 
     public $timestamps = false;
