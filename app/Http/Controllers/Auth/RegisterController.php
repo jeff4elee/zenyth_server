@@ -41,9 +41,7 @@ class RegisterController extends Controller
         {
             return response(json_encode([
                 'success' => true,
-                'data' => [
-                    'user' => $user
-                    ]
+                'data' => $user
             ]), 201);
         }
 

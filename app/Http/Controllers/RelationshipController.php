@@ -99,9 +99,7 @@ class RelationshipController extends Controller
             $relationship->update(['status' => true]);
             return response(json_encode([
                 'success' => true,
-                'data' => [
-                    'relationship' => $relationship
-                ]
+                'data' => $relationship
             ]), 200);
         } else {
             $relationship->delete();
