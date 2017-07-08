@@ -34,6 +34,7 @@ class PinpostController extends Controller
         $validator = DataValidator::validatePinpost($request);
         if ($validator->fails())
             return response(json_encode([
+                'success' => false,
                 'errors' => $validator->errors()->all()
             ]), 400);
 
@@ -67,7 +68,9 @@ class PinpostController extends Controller
 
         return response(json_encode([
             'success' => true,
-            'pinpost' => $pin
+            'data' => [
+                'pinpost' => $pin
+                ]
         ]), 202);
 
     }
@@ -84,12 +87,17 @@ class PinpostController extends Controller
         $pin = Pinpost::find($pinpost_id);
 
         if ($pin == null) {
-            return response(json_encode(['error' => 'not found']), 404);
+            return response(json_encode([
+                'success' => false,
+                'errors' => ['not found']
+            ]), 404);
         }
 
         return response(json_encode([
             'success' => true,
-            'pinpost' => $pin
+            'data' => [
+                'pinpost' => $pin
+            ]
         ]), 202);
 
     }
@@ -116,7 +124,7 @@ class PinpostController extends Controller
         $pin = Pinpost::find($pinpost_id);
 
         if ($pin == null) {
-            return response(json_encode(['error' => 'not found']), 404);
+            return response(json_encode(['errors' => ['not found']]), 404);
         }
 
         /* Checks if pinpost being updated belongs to the user making the
@@ -124,7 +132,7 @@ class PinpostController extends Controller
         $api_token = $pin->creator->api_token;
 
         if ($api_token != $request->header('Authorization')) {
-            return response(json_encode(['error' => 'Unauthenticated'])
+            return response(json_encode(['errors' => ['Unauthenticated']])
                 , 401);
         }
 
@@ -177,14 +185,14 @@ class PinpostController extends Controller
         $pin = Pinpost::find($pinpost_id);
 
         if ($pin == null) {
-            return response(json_encode(['error' => 'not found']), 404);
+            return response(json_encode(['errors' => ['not found']]), 404);
         }
 
         /* Checks if pinpost being deleted belongs to the user making the
             request */
         $api_token = $pin->creator->api_token;
         if ($api_token != $request->header('Authorization')) {
-            return response(json_encode(['error' => 'Unauthenticated'])
+            return response(json_encode(['errors' => ['Unauthenticated']])
                 , 401);
         }
 
