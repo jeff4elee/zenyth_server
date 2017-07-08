@@ -56,7 +56,9 @@ class RelationshipController extends Controller
 
         return response(json_encode([
             'success' => true,
-            'relationship' => $relationship
+            'data' => [
+                'relationship' => $relationship
+            ]
         ]), 202);
 
     }

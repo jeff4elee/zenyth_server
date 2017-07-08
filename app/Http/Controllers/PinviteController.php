@@ -66,7 +66,7 @@ class PinviteController extends Controller
 
         return response(json_encode([
             'success' => true,
-            'pinvite' => $pin
+            'data' => $pin
         ]), 202);
 
     }
@@ -155,7 +155,7 @@ class PinviteController extends Controller
 
         return response(json_encode([
             'success' => true,
-            'pinvite' => $pin
+            'data' => $pin
         ]), 202);
 
     }
