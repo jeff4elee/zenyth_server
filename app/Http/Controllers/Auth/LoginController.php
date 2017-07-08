@@ -41,10 +41,14 @@ class LoginController extends Controller
                 'errors' => $validator->errors()->all()
             ]), 400);
 
-        $email = $request->input('email');
+        $user = null;
         $password = $request->input('password');
+        $username = $request->input('username');
 
-        $user = User::where('email', $email)->first();
+        $user = User::where('username', $username)->first();
+        if($user == null)
+            $user = User::where('email', $username)->first();
+
 
         if ($user == null) {
             return response(json_encode([
