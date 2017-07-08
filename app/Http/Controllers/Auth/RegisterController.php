@@ -24,6 +24,7 @@ class RegisterController extends Controller
     */
 
     use RegistersUsers;
+    use AuthenticationTrait;
 
     public function register(Request $request)
     {
@@ -37,8 +38,13 @@ class RegisterController extends Controller
         $user = $this->create($request);
         if($user != null)
         {
-            return response(json_encode(['register' => true]), 201);
+            return response(json_encode([
+                'success' => true,
+                'user' => $user
+            ]), 201);
         }
+
+        return response(json_encode(['success' => false]), 400);
 
     }
 
@@ -70,14 +76,13 @@ class RegisterController extends Controller
 
         $user = User::create([
                 'email' => $request['email'],
+                'username' => $request['username'],
                 'password' => Hash::make($request['password']),
-                'api_token' => "Bearer " . str_random(60)
+                'api_token' => $this->generateApiToken()
                 ]);
 
         $profile = new Profile();
         $profile->user_id = $user->id;
-        $profile->first_name = $request['first_name'];
-        $profile->last_name = $request['last_name'];
         $profile->gender = $request['gender'];
         $profile->save();
 

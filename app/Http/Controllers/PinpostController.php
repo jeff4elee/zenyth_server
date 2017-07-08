@@ -65,7 +65,10 @@ class PinpostController extends Controller
 
         $pin->save();
 
-        return response(json_encode(['pinpost' => 'created']), 202);;
+        return response(json_encode([
+            'success' => true,
+            'pinpost' => $pin
+        ]), 202);
 
     }
 
@@ -84,7 +87,10 @@ class PinpostController extends Controller
             return response(json_encode(['error' => 'not found']), 404);
         }
 
-        return $pin;
+        return response(json_encode([
+            'success' => true,
+            'pinpost' => $pin
+        ]), 202);
 
     }
 
@@ -150,7 +156,10 @@ class PinpostController extends Controller
 
         $pin->update();
 
-        return response(json_encode(['pinpost' => 'updated']), 202);;
+        return response(json_encode([
+            'success' => true,
+            'pinpost' => $pin
+        ]), 202);
 
     }
 
@@ -182,7 +191,9 @@ class PinpostController extends Controller
         $pin->thumbnail->delete();
         $pin->entity->delete();
 
-        return response(json_encode(['pinpost' => 'deleted']), 200);
+        return response(json_encode([
+            'success' => true
+        ]), 202);
 
     }
 
