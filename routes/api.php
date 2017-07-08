@@ -2,6 +2,7 @@
 
 use Illuminate\Http\Request;
 
+
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -13,30 +14,62 @@ use Illuminate\Http\Request;
 |
 */
 
-Route::middleware('auth:api')->get('/user', function (Request $request) {
-    return $request->user();
-});
-
 Route::post('register', 'Auth\RegisterController@register');
 Route::post('login', 'Auth\LoginController@login');
-Route::get('logout', 'Auth\AuthController@logout');
+Route::get('logout', 'Auth\LogoutController@logout');
 
-Route::post('pinpost', 'PinpostController@create');
-Route::get('pinpost/{entity_id}', 'PinpostController@read');
-Route::patch('pinpost/{entity_id}', 'PinpostController@update');
-Route::delete('pinpost/{entity_id}', 'PinpostController@delete');
-
-Route::post('pinvite', 'PinviteController@create');
-Route::get('pinvite/{entity_id}', 'PinviteController@read');
-Route::patch('pinvite/{entity_id}', 'PinviteController@update');
-Route::delete('pinvite/{entity_id}', 'PinviteController@delete');
-
-Route::post('comment', 'CommentController@create');
+Route::get('user/search_user/{name}', 'UserController@searchUser');
 Route::get('comment/{comment_id}', 'CommentController@read');
-Route::patch('comment/{comment_id}', 'CommentController@update');
-Route::delete('comment/{comment_id}', 'CommentController@delete');
-Route::get('comment/{comment_id}/count', 'CommentController@count');
 
-Route::post('like', 'LikeController@create');
-Route::delete('like/{like_id}/count', 'LikeController@delete');
-Route::get('like/{like_id}', 'LikeController@count');
+Route::group(['middleware' => 'authenticated'], function() {
+
+    Route::get('user/{user_id}/get_friends', 'UserController@getFriends');
+    Route::get('user/blocked_users', 'UserController@blockedUsers');
+    Route::get('user/friend_requests', 'UserController@getFriendRequests');
+
+    Route::post('relationship/friend_request',
+                'RelationshipController@friendRequest');
+    Route::post('relationship/{requester_id}/response',
+                'RelationshipController@respondToRequest');
+    Route::delete('relationship/{user_id}/delete',
+                'RelationshipController@deleteFriend');
+    Route::get('relationship/{user_id}/block',
+                'RelationshipController@blockUser');
+    Route::get('relationship/{user1_id}/{user2_id}',
+                'RelationshipController@friended');
+
+    Route::get('entity/{entity_id}/likesCount',
+                'EntityController@likesCount');
+    Route::get('entity/{entity_id}/commentsCount',
+                'EntityController@commentsCount');
+    Route::get('entity/{entity_id}/likes_from_users',
+                'EntityController@likesUsers');
+    Route::get('entity/{entity_id}/comments',
+                'EntityController@comments');
+
+    Route::post('pinpost', 'PinpostController@create');
+    Route::get('pinpost/{pinpost_id}', 'PinpostController@read');
+    Route::post('pinpost/{pinpost_id}', 'PinpostController@update');
+    Route::delete('pinpost/{pinpost_id}', 'PinpostController@delete');
+
+
+    Route::post('pinvite', 'PinviteController@create');
+    Route::get('pinvite/{pinvite_id}', 'PinviteController@read');
+    Route::post('pinvite/{pinvite_id}', 'PinviteController@update');
+    Route::delete('pinvite/{pinvite_id}', 'PinviteController@delete');
+    Route::post('pinvite/{pinvite_id}/uploadPicture',
+                    'PinviteController@uploadPicture');
+    Route::delete('pinvite/{image_id}/deletePicture',
+                    'PinviteController@deletePicture');
+
+    Route::post('comment', 'CommentController@create');
+    Route::post('comment/{comment_id}', 'CommentController@update');
+    Route::delete('comment/{comment_id}', 'CommentController@delete');
+
+    Route::post('like', 'LikeController@create');
+    Route::delete('like/{entity_id}', 'LikeController@delete');
+
+    Route::get('storage/{filename}', 'ImageController@showImage');
+
+});
+

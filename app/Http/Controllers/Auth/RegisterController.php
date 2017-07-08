@@ -3,9 +3,12 @@
 namespace App\Http\Controllers\Auth;
 
 use App\User;
+use App\Profile;
 use App\Http\Controllers\Controller;
-use Illuminate\Support\Facades\Validator;
+use App\Http\Requests\DataValidator;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Foundation\Auth\RegistersUsers;
+use Illuminate\Http\Request;
 
 class RegisterController extends Controller
 {
@@ -21,10 +24,29 @@ class RegisterController extends Controller
     */
 
     use RegistersUsers;
+    use AuthenticationTrait;
 
-    public function register($email, $password){
-      $data = array($email, $password);
-      create($data);
+    public function register(Request $request)
+    {
+
+        $validator = DataValidator::validateRegister($request);
+        if($validator->fails())
+            return response(json_encode([
+                'success' => false,
+                'errors' => $validator->errors()->all()
+            ]), 400);
+
+        $user = $this->create($request);
+        if($user != null)
+        {
+            return response(json_encode([
+                'success' => true,
+                'data' => $user
+            ]), 201);
+        }
+
+        return response(json_encode(['success' => false]), 400);
+
     }
 
     /**
@@ -45,43 +67,27 @@ class RegisterController extends Controller
     }
 
     /**
-     * Get a validator for an incoming registration request.
-     *
-     * @param  array  $data
-     * @return \Illuminate\Contracts\Validation\Validator
-     */
-    protected function validator(array $data)
-    {
-        return Validator::make($data, [
-            'email' => 'required|email|max:255|unique:users',
-            'password' => 'required|min:6',
-        ]);
-    }
-
-    /**
      * Create a new user instance after a valid registration.
      *
-     * @param  array  $data
+     * @param  Request $request
      * @return User
      */
-    protected function create(array $request)
+    protected function create(Request $request)
     {
 
-      $data = $request->all();
+        $user = User::create([
+                'email' => $request['email'],
+                'username' => $request['username'],
+                'password' => Hash::make($request['password']),
+                'api_token' => $this->generateApiToken()
+                ]);
 
-      $validator = $this->validator($data);
+        $profile = new Profile();
+        $profile->user_id = $user->id;
+        $profile->gender = $request['gender'];
+        $profile->save();
 
-      if ($validator->fails()){
-
-        return $validator->errors()->all();
-
-      }
-      
-      return User::create([
-          'email' => $data['email'],
-          'password' => password_hash($data['password'], PASSWORD_BCRYPT),
-          'api_token' => str_random(60),
-      ]);
+        return $user;
 
     }
 

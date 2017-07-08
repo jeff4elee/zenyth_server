@@ -12,13 +12,90 @@
 */
 
 /** @var \Illuminate\Database\Eloquent\Factory $factory */
+use Illuminate\Support\Facades\Storage;
+
 $factory->define(App\User::class, function (Faker\Generator $faker) {
     static $password;
 
     return [
-        'name' => $faker->name,
         'email' => $faker->unique()->safeEmail,
-        'password' => $password ?: $password = bcrypt('secret'),
-        'remember_token' => str_random(10),
+        'password' => Hash::make($faker->password(6, 10)),
+        'api_token' => str_random(60),
     ];
+
+});
+
+$factory->define(App\Profile::class, function (Faker\Generator $faker) {
+
+    $user_id = factory('App\User')->create()->id;
+
+    return [
+        'user_id' => $user_id,
+        'first_name' => $faker->firstName,
+        'last_name' => $faker->lastName,
+        'gender' => ((bool) random_int(0, 1)) ? 'male' : 'female'
+    ];
+
+});
+
+$factory->define(App\Entity::class, function (Faker\Generator $faker) {
+
+    return [
+    ];
+
+});
+
+$factory->define(App\Pinpost::class, function (Faker\Generator $faker) {
+
+    return [
+        'creator_id' => factory('App\User')->create()->id,
+        'title' => $faker->city,
+        'description' => $faker->text(200),
+        'latitude' => $faker->latitude,
+        'longitude' => $faker->longitude,
+        'entity_id' => factory('App\Entity')->create()->id,
+        'thumbnail_id' => factory('App\Image')->create()->id
+    ];
+
+});
+
+$factory->define(App\Image::class, function (Faker\Generator $faker) {
+
+    Storage::disk('images');
+
+    $filename = $faker->image(public_path().'/../storage/app/images');
+
+    return [
+        'filename' => basename($filename)
+    ];
+
+});
+
+$factory->define(App\Relationship::class, function (Faker\Generator $faker) {
+
+    return [
+        'requester' => factory('App\User')->create()->id,
+        'requestee' => factory('App\User')->create()->id
+    ];
+
+});
+
+$factory->define(App\Comment::class, function (Faker\Generator $faker) {
+
+    return [
+        'entity_id' => factory('App\Entity')->create()->id,
+        'on_entity_id' => factory('App\Entity')->create()->id,
+        'user_id' => factory('App\User')->create()->id,
+        'comment' => $faker->text(100)
+    ];
+
+});
+
+$factory->define(App\Like::class, function (Faker\Generator $faker) {
+
+    return [
+        'entity_id' => factory('App\Entity')->create()->id,
+        'user_id' => factory('App\User')->create()->id
+    ];
+
 });
