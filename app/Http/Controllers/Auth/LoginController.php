@@ -60,7 +60,10 @@ class LoginController extends Controller
             // against hashed pw
             return response(json_encode([
                 'success' => true,
-                'user' => $user
+                'data' => [
+                    'user' => $user,
+                    'api_token' => $user->api_token
+                    ]
             ]), 202);
 
         }

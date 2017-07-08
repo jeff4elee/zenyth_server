@@ -32,6 +32,7 @@ class RegisterController extends Controller
         $validator = DataValidator::validateRegister($request);
         if($validator->fails())
             return response(json_encode([
+                'success' => false,
                 'errors' => $validator->errors()->all()
             ]), 400);
 
@@ -40,7 +41,9 @@ class RegisterController extends Controller
         {
             return response(json_encode([
                 'success' => true,
-                'user' => $user
+                'data' => [
+                    'user' => $user
+                    ]
             ]), 201);
         }
 

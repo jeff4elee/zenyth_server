@@ -99,13 +99,17 @@ class RelationshipController extends Controller
             $relationship->update(['status' => true]);
             return response(json_encode([
                 'success' => true,
-                'relationship' => $relationship
+                'data' => [
+                    'relationship' => $relationship
+                ]
             ]), 200);
         } else {
             $relationship->delete();
             return response(json_encode([
                 'success' => true,
-                'relationship' => 'deleted'
+                'data' => [
+                    'relationship' => 'deleted'
+                ]
             ]), 200);
         }
 
@@ -129,14 +133,20 @@ class RelationshipController extends Controller
 
         if ($relationship == null)
             return response(json_encode([
+
                 'success' => false,
-                'relationship' => 'not friends'
+                'error' => ['not friends']
+
             ]), 404);
 
         $relationship->delete();
         return response(json_encode([
+
             'success' => true,
-            'relationship' => 'unfriended'
+            'data' => [
+                'relationship' => 'unfriended'
+            ]
+
         ]), 200);
 
     }
@@ -170,7 +180,9 @@ class RelationshipController extends Controller
         }
         return response(json_encode([
             'success' => true,
-            'relationship' => $relationship
+            'data' => [
+                'relationship' => $relationship
+            ]
         ]), 200);
     }
 
