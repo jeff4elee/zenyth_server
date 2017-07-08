@@ -54,7 +54,10 @@ class RelationshipController extends Controller
             'requestee' => $request->input('requestee_id')
         ]);
 
-        return response(json_encode(['relationship' => 'created']), 202);
+        return response(json_encode([
+            'success' => true,
+            'relationship' => $relationship
+        ]), 202);
 
     }
 
@@ -94,10 +97,16 @@ class RelationshipController extends Controller
 
         if ($request->input('status')) {
             $relationship->update(['status' => true]);
-            return $relationship;
+            return response(json_encode([
+                'success' => true,
+                'relationship' => $relationship
+            ]), 200);
         } else {
             $relationship->delete();
-            return response(json_encode(['relationship' => 'deleted']), 200);
+            return response(json_encode([
+                'success' => true,
+                'relationship' => 'deleted'
+            ]), 200);
         }
 
     }
@@ -119,11 +128,16 @@ class RelationshipController extends Controller
         $relationship = self::friended($requester_id, $user_id);
 
         if ($relationship == null)
-            return response(json_encode(['relationship' => 'not friends']),
-                404);
+            return response(json_encode([
+                'success' => false,
+                'relationship' => 'not friends'
+            ]), 404);
 
         $relationship->delete();
-        return response(json_encode(['relationship' => 'unfriended']), 200);
+        return response(json_encode([
+            'success' => true,
+            'relationship' => 'unfriended'
+        ]), 200);
 
     }
 
@@ -148,13 +162,16 @@ class RelationshipController extends Controller
             $relationship->status = false;
             $relationship->update();
         } else {
-            Relationship::create([
+            $relationship = Relationship::create([
                 'requester' => $requester_id,
                 'requestee' => $user_id,
                 'blocked' => true
             ]);
         }
-        return response(json_encode(['blocked' => true]), 200);
+        return response(json_encode([
+            'success' => true,
+            'relationship' => $relationship
+        ]), 200);
     }
 
     /**

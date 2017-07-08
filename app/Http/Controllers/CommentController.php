@@ -55,7 +55,10 @@ class CommentController extends Controller
         $comment->user_id = User::where('api_token', $api_token)->first()->id;
         $comment->save();
 
-        return response(json_encode(['comment' => 'created']), 202);
+        return response(json_encode([
+            'success' => true,
+            'comment' => $comment
+        ]), 202);
 
     }
 
@@ -74,7 +77,10 @@ class CommentController extends Controller
             return response(json_encode(['error' => 'not found']), 404);
         }
 
-        return $comment;
+        return response(json_encode([
+            'success' => true,
+            'comment' => $comment
+        ]), 202);
 
     }
 
@@ -113,7 +119,10 @@ class CommentController extends Controller
 
         $comment->update();
 
-        return response(json_encode(['comment' => 'updated']), 201);
+        return response(json_encode([
+            'success' => true,
+            'comment' => $comment
+        ]), 202);
 
     }
 
@@ -147,7 +156,7 @@ class CommentController extends Controller
             $picture->image->delete();
         }
         $comment->entity->delete();
-        return response(json_encode(['comment' => 'deleted']), 200);
+        return response(json_encode(['success' => true]), 200);
 
     }
 

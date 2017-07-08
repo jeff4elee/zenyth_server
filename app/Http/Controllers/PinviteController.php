@@ -64,7 +64,10 @@ class PinviteController extends Controller
 
         $pin->save();
 
-        return response(json_encode(['pinvite' => 'created']), 201);
+        return response(json_encode([
+            'success' => true,
+            'pinvite' => $pin
+        ]), 202);
 
     }
 
@@ -83,7 +86,10 @@ class PinviteController extends Controller
             return response(json_encode(['error' => 'not found']), 404);
         }
 
-        return $pin;
+        return response(json_encode([
+            'success' => true,
+            'pinvite' => $pin
+        ]), 202);
 
     }
 
@@ -147,7 +153,10 @@ class PinviteController extends Controller
 
         $pin->update();
 
-        return response(json_encode(['pinvite' => 'updated']), 202);
+        return response(json_encode([
+            'success' => true,
+            'pinvite' => $pin
+        ]), 202);
 
     }
 
@@ -185,7 +194,9 @@ class PinviteController extends Controller
         $pin->entity->delete();
 
 
-        return response(json_encode(['pinvite' => 'deleted']), 200);
+        return response(json_encode([
+            'success' => true
+        ]), 202);
 
     }
 
@@ -215,7 +226,7 @@ class PinviteController extends Controller
             $picture->entity_id = $pin->entity_id;
             $picture->image_id = $image->id;
             $picture->save();
-            return response(json_encode(['pictures' => 'uploaded']), 200);
+            return response(json_encode(['success' => true]), 200);
         }
 
     }
@@ -230,7 +241,7 @@ class PinviteController extends Controller
 
         $picture = EntitysPicture::find($image_id);
         $picture->image->delete();
-        return response(['picture' => 'deleted'], 202);
+        return response(['success' => true], 202);
 
     }
 

@@ -39,7 +39,10 @@ class LikeController extends Controller
 
         $like->save();
 
-        return response(json_encode(['like' => 'created']), 202);;
+        return response(json_encode([
+            'success' => true,
+            'like' => $like
+        ]), 202);
 
     }
 
@@ -67,7 +70,9 @@ class LikeController extends Controller
 
         $like->delete();
 
-        return response(json_encode(['like status' => 'deleted']), 202);
+        return response(json_encode([
+            'success' => true
+        ]), 202);
 
     }
 
