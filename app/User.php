@@ -18,7 +18,7 @@ class User extends Model implements Authenticatable
      * @var array
      */
     protected $fillable = [
-        'password', 'email', 'api_token', 'token_expired_on'
+        'username', 'password', 'email', 'api_token', 'token_expired_on'
     ];
 
     protected $hidden = [
