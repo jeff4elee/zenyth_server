@@ -89,9 +89,6 @@ class RelationshipsTest extends TestCase
         $this->assertDatabaseMissing('relationships', ['requester' => $relationship->requester,
             'requestee' => $relationship->requestee]);
 
-
-
-
         $relationship = factory('App\Relationship')->create(['status' => true]);
 
         $this->json('DELETE', '/api/relationship/' . $relationship->requestee . '/delete', [],

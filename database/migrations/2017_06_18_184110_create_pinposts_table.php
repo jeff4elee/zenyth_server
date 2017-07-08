@@ -33,7 +33,7 @@ class CreatePinpostsTable extends Migration
             $table->foreign('creator_id')
                 ->references('id')->on('users')
                 ->onDelete('cascade');
-            $table->timestamp('updated_on');
+            $table->timestamp('updated_at');
         });
     }
 

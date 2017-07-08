@@ -18,13 +18,24 @@ $factory->define(App\User::class, function (Faker\Generator $faker) {
     static $password;
 
     return [
-        'first_name' => $faker->firstName,
-        'last_name' => $faker->lastName,
-        'gender' => ((bool) random_int(0, 1)) ? 'male' : 'female',
         'email' => $faker->unique()->safeEmail,
         'password' => Hash::make($faker->password(6, 10)),
         'api_token' => str_random(60),
     ];
+
+});
+
+$factory->define(App\Profile::class, function (Faker\Generator $faker) {
+
+    $user_id = factory('App\User')->create()->id;
+
+    return [
+        'user_id' => $user_id,
+        'first_name' => $faker->firstName,
+        'last_name' => $faker->lastName,
+        'gender' => ((bool) random_int(0, 1)) ? 'male' : 'female'
+    ];
+
 });
 
 $factory->define(App\Entity::class, function (Faker\Generator $faker) {
@@ -62,12 +73,29 @@ $factory->define(App\Image::class, function (Faker\Generator $faker) {
 
 $factory->define(App\Relationship::class, function (Faker\Generator $faker) {
 
-    $user1 = factory('App\User')->create();
-    $user2 = factory('App\User')->create();
+    return [
+        'requester' => factory('App\User')->create()->id,
+        'requestee' => factory('App\User')->create()->id
+    ];
+
+});
+
+$factory->define(App\Comment::class, function (Faker\Generator $faker) {
 
     return [
-        'requester' => $user1->id,
-        'requestee' => $user2->id
+        'entity_id' => factory('App\Entity')->create()->id,
+        'on_entity_id' => factory('App\Entity')->create()->id,
+        'user_id' => factory('App\User')->create()->id,
+        'comment' => $faker->text(100)
+    ];
+
+});
+
+$factory->define(App\Like::class, function (Faker\Generator $faker) {
+
+    return [
+        'entity_id' => factory('App\Entity')->create()->id,
+        'user_id' => factory('App\User')->create()->id
     ];
 
 });
