@@ -85,7 +85,7 @@ class RelationshipController extends Controller
 
         if ($relationship == null || $relationship->status == true)
             return response(json_encode(['error' => 'No pending request']),
-                404);
+                200);
 
         $validator = Validator::make($request->all(), [
             'status' => 'required'
@@ -135,7 +135,7 @@ class RelationshipController extends Controller
                 'success' => false,
                 'error' => ['not friends']
 
-            ]), 404);
+            ]), 200);
 
         $relationship->delete();
         return response(json_encode([

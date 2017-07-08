@@ -39,7 +39,7 @@ class LoginController extends Controller
         if ($validator->fails())
             return response(json_encode([
                 'errors' => $validator->errors()->all()
-            ]), 400);
+            ]), 200);
 
         $user = null;
         $password = $request->input('password');
@@ -54,7 +54,7 @@ class LoginController extends Controller
             return response(json_encode([
                 'success' => false,
                 'errors' => ['Incorrect email or password']
-            ]), 403);
+            ]), 200);
         }
 
         if (Hash::check($password, $user->password)) {   // checks password
@@ -72,7 +72,7 @@ class LoginController extends Controller
         return response(json_encode([
             'success' => false,
             'errors' => ['Incorrect email or password']
-        ]), 403);
+        ]), 200);
 
     }
 

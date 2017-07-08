@@ -114,7 +114,7 @@ class PinpostController extends Controller
         if ($validator->fails())
             return response(json_encode([
                 'errors' => $validator->errors()->all()
-            ]), 400);
+            ]), 200);
 
         /* Checks if pinpost is there */
         $pin = Pinpost::find($pinpost_id);
