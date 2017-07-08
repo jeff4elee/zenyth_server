@@ -18,7 +18,7 @@ class DataRules
     static public function loginRules()
     {
         return [
-            'email' => 'required|email',
+            'username' => 'required',
             'password' => 'required'
         ];
     }
