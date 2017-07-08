@@ -70,8 +70,8 @@ class RegisterController extends Controller
     {
 
         $user = User::create([
-                'username' => $request['username'],
                 'email' => $request['email'],
+                'username' => $request['username'],
                 'password' => Hash::make($request['password']),
                 'api_token' => $this->generateApiToken()
                 ]);
