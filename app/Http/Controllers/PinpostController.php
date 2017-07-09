@@ -71,7 +71,7 @@ class PinpostController extends Controller
         return response(json_encode([
             'success' => true,
             'data' => $pin
-        ]), 202);
+        ]), 200);
 
     }
 
@@ -173,7 +173,7 @@ class PinpostController extends Controller
         return response(json_encode([
             'success' => true,
             'data' => $pin
-        ]), 202);
+        ]), 200);
 
     }
 
@@ -215,7 +215,7 @@ class PinpostController extends Controller
 
         return response(json_encode([
             'success' => true
-        ]), 202);
+        ]), 200);
 
     }
 
