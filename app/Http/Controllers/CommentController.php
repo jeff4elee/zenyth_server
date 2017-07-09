@@ -110,7 +110,9 @@ class CommentController extends Controller
 
         $comment = Comment::find($comment_id);
         $api_token = $comment->user->api_token;
-        if($api_token != $request->header('Authorization')) {
+        $headerToken = $this->stripBearerFromToken($request->header('Authorization'));
+
+        if ($api_token != $headerToken) {
             return response(json_encode(['error' => 'Unauthenticated']),
                 401);
         }
@@ -157,7 +159,9 @@ class CommentController extends Controller
         }
 
         $api_token = $comment->user->api_token;
-        if($api_token != $request->header('Authorization')) {
+        $headerToken = $this->stripBearerFromToken($request->header('Authorization'));
+
+        if ($api_token != $headerToken) {
             return response(json_encode([
                 'success' => false,
                 'error' => 'Unauthenticated'

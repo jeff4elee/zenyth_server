@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Controllers\Auth\AuthenticationTrait;
 use App\Http\Requests\DataValidator;
 use Illuminate\Http\Request;
 use App\Pinpost;
@@ -19,6 +20,7 @@ use Illuminate\Support\Facades\Storage;
  */
 class PinpostController extends Controller
 {
+    use AuthenticationTrait;
 
     /**
      * Creates a Pinpost, storing thumbnail image if there is any
@@ -130,8 +132,9 @@ class PinpostController extends Controller
         /* Checks if pinpost being updated belongs to the user making the
             request */
         $api_token = $pin->creator->api_token;
+        $headerToken = $this->stripBearerFromToken($request->header('Authorization'));
 
-        if ($api_token != $request->header('Authorization')) {
+        if ($api_token != $headerToken) {
             return response(json_encode([
                 'success' => false,
                 'errors' => ['Unauthenticated']
@@ -197,7 +200,9 @@ class PinpostController extends Controller
         /* Checks if pinpost being deleted belongs to the user making the
             request */
         $api_token = $pin->creator->api_token;
-        if ($api_token != $request->header('Authorization')) {
+        $headerToken = $this->stripBearerFromToken($request->header('Authorization'));
+
+        if ($api_token != $headerToken) {
             return response(json_encode([
                 'success' => false,
                 'errors' => ['Unauthenticated']
