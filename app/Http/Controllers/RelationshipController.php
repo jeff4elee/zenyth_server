@@ -30,8 +30,9 @@ class RelationshipController extends Controller
         $validator = DataValidator::validateFriendRequest($request);
         if ($validator->fails())
             return response(json_encode([
+                'success' => false,
                 'errors' => $validator->errors()->all()
-            ]), 400);
+            ]), 200);
 
         $api_token = $request->header('Authorization');
         $user_id = User::where('api_token', $api_token)->first()->id;
@@ -56,9 +57,7 @@ class RelationshipController extends Controller
 
         return response(json_encode([
             'success' => true,
-            'data' => [
-                'relationship' => $relationship
-            ]
+            'data' => ['relationship' => $relationship]
         ]), 202);
 
     }
@@ -87,7 +86,7 @@ class RelationshipController extends Controller
 
         if ($relationship == null || $relationship->status == true)
             return response(json_encode(['error' => 'No pending request']),
-                404);
+                200);
 
         $validator = Validator::make($request->all(), [
             'status' => 'required'
@@ -137,7 +136,7 @@ class RelationshipController extends Controller
                 'success' => false,
                 'error' => ['not friends']
 
-            ]), 404);
+            ]), 200);
 
         $relationship->delete();
         return response(json_encode([

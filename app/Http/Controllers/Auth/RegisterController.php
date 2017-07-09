@@ -34,7 +34,7 @@ class RegisterController extends Controller
             return response(json_encode([
                 'success' => false,
                 'errors' => $validator->errors()->all()
-            ]), 400);
+            ]), 200);
 
         $user = $this->create($request);
         if($user != null)

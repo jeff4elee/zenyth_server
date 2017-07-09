@@ -30,8 +30,9 @@ class CommentController extends Controller
         $validator = DataValidator::validateComment($request);
         if ($validator->fails())
             return response(json_encode([
+                'success' => false,
                 'errors' => $validator->errors()->all()
-            ]), 400);
+            ]), 200);
 
         $entity = Entity::create([]);
         $comment = new Comment();
@@ -74,7 +75,10 @@ class CommentController extends Controller
         $comment = Comment::find($comment_id);
 
         if ($comment == null) {
-            return response(json_encode(['error' => 'not found']), 404);
+            return response(json_encode([
+                'success' => false,
+                'error' => 'not found'
+            ]), 200);
         }
 
         return response(json_encode([
@@ -100,8 +104,9 @@ class CommentController extends Controller
         ]);
         if ($validator->fails())
             return response(json_encode([
+                'success' => false,
                 'errors' => $validator->errors()->all()
-            ]), 400);
+            ]), 200);
 
         $comment = Comment::find($comment_id);
         $api_token = $comment->user->api_token;
@@ -111,7 +116,10 @@ class CommentController extends Controller
         }
 
         if ($comment == null) {
-            return response(json_encode(['error' => 'not found']), 404);
+            return response(json_encode([
+                'success' => false,
+                'error' => 'not found'
+            ]), 200);
         }
 
         if ($request->has('comment'))
@@ -142,12 +150,18 @@ class CommentController extends Controller
         $comment = Comment::find($comment_id);
 
         if ($comment == null) {
-            return response(json_encode(['error' => 'not found']), 404);
+            return response(json_encode([
+                'success' => false,
+                'error' => 'not found'
+            ]), 200);
         }
 
         $api_token = $comment->user->api_token;
         if($api_token != $request->header('Authorization')) {
-            return response(json_encode(['error' => 'Unauthenticated']),
+            return response(json_encode([
+                'success' => false,
+                'error' => 'Unauthenticated'
+            ]),
                 401);
         }
 
