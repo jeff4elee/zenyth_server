@@ -7,10 +7,20 @@ use Illuminate\Database\Eloquent\Model;
 class Profile extends Model
 {
     public $timestamps = false;
-    protected $fillable = ['user_id', 'first_name', 'last_name', 'gender'];
+    protected $fillable = ['user_id', 'first_name', 'last_name', 'gender', 'date_of_birth'];
 
     public function user()
     {
         return $this->belongsTo('App\User', 'user_id');
+    }
+
+    public function address()
+    {
+        return $this->hasOne('App\Address', 'profile_id');
+    }
+
+    public function phoneNumbers()
+    {
+        return $this->hasMany('App\Phone_number', 'profile_id');
     }
 }

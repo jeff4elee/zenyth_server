@@ -4,7 +4,6 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\DataValidator;
 use Illuminate\Http\Request;
-use App\Http\Controllers\Response;
 use Illuminate\Support\Facades\Validator;
 use App\Relationship;
 use App\User;

@@ -29,6 +29,8 @@ Route::group(['middleware' => 'authenticated'], function() {
     Route::get('user/blocked_users', 'UserController@blockedUsers');
     Route::get('user/friend_requests', 'UserController@getFriendRequests');
 
+    Route::post('profile/update', 'ProfileController@update');
+
     Route::post('relationship/friend_request',
                 'RelationshipController@friendRequest');
     Route::post('relationship/{requester_id}/response',
