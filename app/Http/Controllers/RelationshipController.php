@@ -47,8 +47,10 @@ class RelationshipController extends Controller
             ['requester', '=', $request->input('requestee_id')]
         ])->first();
         if ($check != null)
-            return response(json_encode(['error' => 'friends or pending 
-                            request']), 400);
+            return response(json_encode([
+                'success' => false,
+                'errors' => ['friends or pending request']
+            ]), 400);
 
         $relationship = Relationship::create([
             'requester' => $user_id,
@@ -57,7 +59,7 @@ class RelationshipController extends Controller
 
         return response(json_encode([
             'success' => true,
-            'data' => ['relationship' => $relationship]
+            'data' => $relationship
         ]), 202);
 
     }
@@ -85,7 +87,10 @@ class RelationshipController extends Controller
         ])->first();
 
         if ($relationship == null || $relationship->status == true)
-            return response(json_encode(['error' => 'No pending request']),
+            return response(json_encode([
+                'success' => false,
+                'errors' => ['No pending request']
+            ]),
                 200);
 
         $validator = Validator::make($request->all(), [
@@ -93,7 +98,10 @@ class RelationshipController extends Controller
         ]);
 
         if ($validator->fails()) {
-            return $validator->errors()->all();
+            return response(json_encode([
+                'success' => false,
+                'errors' => $validator->errors()->all()
+            ]), 200);
         }
 
         if ($request->input('status')) {
@@ -179,9 +187,7 @@ class RelationshipController extends Controller
         }
         return response(json_encode([
             'success' => true,
-            'data' => [
-                'relationship' => $relationship
-            ]
+            'data' => $relationship
         ]), 200);
     }
 
@@ -206,7 +212,10 @@ class RelationshipController extends Controller
             ['status', '=', true]
         ])->first();
 
-        return $relationship;
+        return response(json_encode([
+            'success' => true,
+            'data' => $relationship
+        ]), 200);
 
     }
 
