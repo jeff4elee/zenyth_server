@@ -86,16 +86,20 @@ class RelationshipsTest extends TestCase
         $this->json('DELETE', '/api/relationship/' . $relationship->requester . '/delete', [],
             ['Authorization' => 'bearer ' . User::find($relationship->requestee)->api_token]);
 
-        $this->assertDatabaseMissing('relationships', ['requester' => $relationship->requester,
-            'requestee' => $relationship->requestee]);
+        $this->assertDatabaseMissing('relationships', [
+            'requester' => $relationship->requester,
+            'requestee' => $relationship->requestee
+        ]);
 
         $relationship = factory('App\Relationship')->create(['status' => true]);
 
         $this->json('DELETE', '/api/relationship/' . $relationship->requestee . '/delete', [],
             ['Authorization' => 'bearer ' . User::find($relationship->requester)->api_token]);
 
-        $this->assertDatabaseMissing('relationships', ['requester' => $relationship->requester,
-            'requestee' => $relationship->requestee]);
+        $this->assertDatabaseMissing('relationships', [
+            'requester' => $relationship->requester,
+            'requestee' => $relationship->requestee
+        ]);
 
     }
 
@@ -112,7 +116,7 @@ class RelationshipsTest extends TestCase
             ['Authorization' => 'bearer ' . User::find($relationship->requester)->api_token]);
 
         $this->assertDatabaseHas('relationships', ['requester' => $relationship->requester,
-            'requestee' => $relationship->requestee, 'blocked' => true]);
+            'requestee' => $relationship->requestee, 'status' => false, 'blocked' => true]);
 
     }
     

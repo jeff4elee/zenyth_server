@@ -49,13 +49,14 @@ $factory->define(App\Entity::class, function (Faker\Generator $faker) {
 $factory->define(App\Pinpost::class, function (Faker\Generator $faker) {
 
     return [
-        'creator_id' => factory('App\User')->create()->id,
+        'id' => 1,
+        'entity_id' => factory('App\Entity')->create()->id,
         'title' => $faker->city,
         'description' => $faker->text(200),
         'latitude' => $faker->latitude,
         'longitude' => $faker->longitude,
-        'entity_id' => factory('App\Entity')->create()->id,
-        'thumbnail_id' => factory('App\Image')->create()->id
+        'thumbnail_id' => factory('App\Image')->create()->id,
+        'creator_id' => factory('App\User')->create()->id
     ];
 
 });

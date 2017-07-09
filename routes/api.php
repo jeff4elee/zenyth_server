@@ -20,6 +20,8 @@ Route::get('logout', 'Auth\LogoutController@logout');
 
 Route::get('user/search_user/{name}', 'UserController@searchUser');
 Route::get('comment/{comment_id}', 'CommentController@read');
+Route::get('pinpost/{pinpost_id}', 'PinpostController@read');
+Route::get('pinvite/{pinvite_id}', 'PinviteController@read');
 
 Route::group(['middleware' => 'authenticated'], function() {
 
@@ -48,13 +50,11 @@ Route::group(['middleware' => 'authenticated'], function() {
                 'EntityController@comments');
 
     Route::post('pinpost', 'PinpostController@create');
-    Route::get('pinpost/{pinpost_id}', 'PinpostController@read');
     Route::post('pinpost/{pinpost_id}', 'PinpostController@update');
     Route::delete('pinpost/{pinpost_id}', 'PinpostController@delete');
 
 
     Route::post('pinvite', 'PinviteController@create');
-    Route::get('pinvite/{pinvite_id}', 'PinviteController@read');
     Route::post('pinvite/{pinvite_id}', 'PinviteController@update');
     Route::delete('pinvite/{pinvite_id}', 'PinviteController@delete');
     Route::post('pinvite/{pinvite_id}/uploadPicture',

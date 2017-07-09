@@ -9,6 +9,7 @@ use App\Http\Requests\DataValidator;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Foundation\Auth\RegistersUsers;
 use Illuminate\Http\Request;
+use App\Http\Controllers\Auth\AuthenticationTrait;
 
 class RegisterController extends Controller
 {

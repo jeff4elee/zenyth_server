@@ -45,7 +45,12 @@ class AuthTest extends TestCase
         $response
             ->assertStatus(200)
             ->assertJson([
-                'register' => true
+                'success' => true,
+                'data' => [
+                    'email' => 'test@email.com',
+                    'username' => 'testman',
+                    'id' => 1
+                ]
             ]);
 
     }

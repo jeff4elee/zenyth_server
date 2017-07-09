@@ -46,11 +46,12 @@ class RelationshipController extends Controller
             ['requestee', '=', $user_id],
             ['requester', '=', $request->input('requestee_id')]
         ])->first();
+
         if ($check != null)
             return response(json_encode([
                 'success' => false,
                 'errors' => ['friends or pending request']
-            ]), 400);
+            ]), 200);
 
         $relationship = Relationship::create([
             'requester' => $user_id,
@@ -60,7 +61,7 @@ class RelationshipController extends Controller
         return response(json_encode([
             'success' => true,
             'data' => $relationship
-        ]), 202);
+        ]), 200);
 
     }
 
@@ -172,6 +173,7 @@ class RelationshipController extends Controller
         $requester_id = User::where('api_token', $api_token)->first()->id;
 
         $relationship = self::friended($requester_id, $user_id);
+
         if ($relationship != null) {
             $relationship->blocked = true;
             $relationship->requester = $requester_id;
@@ -212,10 +214,7 @@ class RelationshipController extends Controller
             ['status', '=', true]
         ])->first();
 
-        return response(json_encode([
-            'success' => true,
-            'data' => $relationship
-        ]), 200);
+        return $relationship;
 
     }
 
