@@ -3,6 +3,7 @@
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Carbon\Carbon;
 
 class CreateInvitationsTable extends Migration
 {
@@ -23,7 +24,8 @@ class CreateInvitationsTable extends Migration
             $table->unsignedInteger('invitee_id')
                 ->references('id')->on('users')
                 ->onDelete('cascade');
-            $table->timestamp('invited_on');
+            $table->timestamp('invited_on')
+                ->default(Carbon::now());
         });
     }
 

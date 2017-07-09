@@ -3,6 +3,7 @@
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Carbon\Carbon;
 
 class CreateCommentsTable extends Migration
 {
@@ -31,7 +32,8 @@ class CreateCommentsTable extends Migration
             $table->foreign('user_id')
                 ->references('id')->on('users')
                 ->onDelete('cascade');
-            $table->timestamp('updated_at');
+            $table->timestamp('updated_at')
+                ->default(Carbon::now());
         });
     }
 
