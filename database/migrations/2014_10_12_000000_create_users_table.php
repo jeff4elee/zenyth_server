@@ -19,7 +19,7 @@ class CreateUsersTable extends Migration
             $table->string('email')->unique();
             $table->string('username', 20)->unique();
             $table->string('password');
-            $table->string('api_token', 67)->unique()
+            $table->string('api_token', 60)->unique()
                 ->nullable();
 
             $token_expired_on = Carbon::now()->addDays(365);
