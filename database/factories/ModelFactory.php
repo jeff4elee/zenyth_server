@@ -17,8 +17,12 @@ use Illuminate\Support\Facades\Storage;
 $factory->define(App\User::class, function (Faker\Generator $faker) {
     static $password;
 
+    do {
+        $username = $faker->userName;
+    } while(strlen($username) > 20);
+
     return [
-        'username' => $faker->userName,
+        'username' => $username,
         'email' => $faker->unique()->safeEmail,
         'password' => Hash::make($faker->password(6, 10)),
         'api_token' => str_random(60),
@@ -49,7 +53,6 @@ $factory->define(App\Entity::class, function (Faker\Generator $faker) {
 $factory->define(App\Pinpost::class, function (Faker\Generator $faker) {
 
     return [
-        'id' => 1,
         'entity_id' => factory('App\Entity')->create()->id,
         'title' => $faker->city,
         'description' => $faker->text(200),

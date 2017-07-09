@@ -16,7 +16,7 @@ class Entity extends Model
 
     public function comments()
     {
-        return $this->hasMany('App\Comment', 'entity_id');
+        return $this->hasMany('App\Comment', 'on_entity_id');
     }
 
     public function pictures()

@@ -63,14 +63,18 @@ class LikesAndCommentsTest extends TestCase
     public function testCommentCreation()
     {
 
-        $user = User::first();
+        $user = factory('App\User')->create();
 
         $entity = factory('App\Entity')->create();
 
         $this->assertEquals(0, $entity->commentsCount());
 
-        $this->json('POST', '/api/comment', ['entity_id' => $entity->id], ['Authorization' => 'bearer ' .$user->api_token]);
+        $response = $this->json('POST', '/api/comment', [
+            'on_entity_id' => $entity->id,
+            'comment' => 'test comment'
+        ], ['Authorization' => 'bearer ' . $user->api_token]);
 
+        $response->assertStatus(200);
         $this->assertEquals(1, $entity->commentsCount());
 
     }
@@ -97,10 +101,14 @@ class LikesAndCommentsTest extends TestCase
 
         $text = $comment->comment;
 
-        $this->json('POST', '/api/comment/' . $comment->id, ['comment' => 'NewText!!'], ['Authorization' => 'bearer ' .$comment->user->api_token]);
+        $response = $this->json('POST', '/api/comment/' . $comment->id, ['comment' => 'NewText!!'],
+            ['Authorization' => 'bearer ' . User::find($comment->user_id)->api_token]);
 
-        $this->assertNotEquals($text, $comment->comment);
-        $this->assertEquals('NewText!!', $comment->comment);
+        $response->assertStatus(200);
+
+        $comment_array = $response->json();
+        $this->assertNotEquals($text, $comment_array['data']['comment']);
+        $this->assertEquals('NewText!!', $comment_array['data']['comment']);
         $this->assertDatabaseHas('comments', ['comment' => 'NewText!!']);
 
     }
@@ -110,7 +118,8 @@ class LikesAndCommentsTest extends TestCase
 
         $comment = factory('App\Comment')->create();
 
-        $this->json('DELETE', '/api/comment/' . $comment->id, [], ['Authorization' => 'bearer ' .$comment->user->api_token]);
+        $this->json('DELETE', '/api/comment/' . $comment->id, [],
+            ['Authorization' => 'bearer ' .$comment->user->api_token]);
 
         $this->assertDatabaseMissing('comments', ['id' => $comment->id]);
 

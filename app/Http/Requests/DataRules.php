@@ -59,9 +59,8 @@ class DataRules
     static public function commentRules()
     {
         return [
-            'entity_id' => 'required',
             'comment' => 'required|min:1',
-            'on_entity_id' => 'required',
+            'on_entity_id' => 'required'
         ];
     }
 

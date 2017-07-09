@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\DataValidator;
+use App\Entity;
 use Illuminate\Http\Request;
 use App\Comment;
 use App\User;
@@ -58,8 +59,8 @@ class CommentController extends Controller
 
         return response(json_encode([
             'success' => true,
-            'comment' => $comment
-        ]), 202);
+            'data' => $comment
+        ]), 200);
 
     }
 
@@ -83,7 +84,7 @@ class CommentController extends Controller
 
         return response(json_encode([
             'success' => true,
-            'comment' => $comment
+            'data' => $comment
         ]), 202);
 
     }
@@ -134,8 +135,8 @@ class CommentController extends Controller
 
         return response(json_encode([
             'success' => true,
-            'comment' => $comment
-        ]), 202);
+            'data' => $comment
+        ]), 200);
 
     }
 
