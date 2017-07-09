@@ -52,7 +52,7 @@ class AuthTest extends TestCase
 
     public function testLoginFailure(){
 
-        $response = $this->json('POST', '/api/login', ['email' => 'test@email.com', 'password' => 'password']);
+        $response = $this->json('POST', '/api/login', ['username' => 'test@email.com', 'password' => 'password']);
 
         $response->assertJson(['success' => false]);
 
@@ -62,7 +62,7 @@ class AuthTest extends TestCase
 
         $user = factory('App\User')->create(['password' => Hash::make('password')]);
 
-        $response = $this->json('POST', '/api/login', ['email' => $user->email, 'password' => 'password']);
+        $response = $this->json('POST', '/api/login', ['username' => $user->email, 'password' => 'password']);
 
         $response->assertStatus(200);
 

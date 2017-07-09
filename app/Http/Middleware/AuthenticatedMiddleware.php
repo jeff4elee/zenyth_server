@@ -30,6 +30,7 @@ class AuthenticatedMiddleware
             ]), 401);
 
         $api_token = $this->stripBearerFromToken($api_token);
+
         if($api_token == null)
             return response(json_encode([
                 'success' => false,
