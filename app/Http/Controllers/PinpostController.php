@@ -2,87 +2,220 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Controllers\Auth\AuthenticationTrait;
+use App\Http\Requests\DataValidator;
 use Illuminate\Http\Request;
 use App\Pinpost;
+use App\User;
+use App\Entity;
+use App\EntitysPicture;
+use App\Image;
+use App\Http\Controllers\ImageController;
+use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\Storage;
 
+/**
+ * Class PinpostController
+ * @package App\Http\Controllers
+ */
 class PinpostController extends Controller
 {
+    use AuthenticationTrait;
 
+    /**
+     * Creates a Pinpost, storing thumbnail image if there is any
+     *
+     * @param Request $request, post request
+     *        rules: requires title, description, latitude,
+     *          longitude, event_time
+     * @return Pinpost information
+     */
     public function create(Request $request)
     {
 
+        $validator = DataValidator::validatePinpost($request);
+        if ($validator->fails())
+            return response(json_encode([
+                'success' => false,
+                'errors' => $validator->errors()->all()
+            ]), 200);
+
         $pin = new Pinpost();
+        $entity = Entity::create([]);
 
-        $pin->title = $request->get('title');
-        $pin->description = $request->get('description');
-        $pin->thumbnail = $request->get('thumbnail');
-        $pin->latitude = $request->get('latitude');
-        $pin->longitude = $request->get('longitude');
+        $pin->title = $request->input('title');
+        $pin->description = $request->input('description');
+        $pin->latitude = $request->input('latitude');
+        $pin->longitude = $request->input('longitude');
 
-        $pin->entity_id = Entity::create([])->id;
-        $pin->user_id = User::where('api_token', '=', $request->get('api_token'))->first()->id;
+        /* Checks if a thumbnail was provided */
+        if ($request->file('thumbnail') != null) {
+            $image = new Image();
+            $entitys_picture = new EntitysPicture();
+            ImageController::storeImage($request->file('thumbnail'), $image);
+            $image->save();
+            $pin->thumbnail_id = $image->id;
+            $entitys_picture->entity_id = $entity->id;
+            $entitys_picture->image_id = $image->id;
+            $entitys_picture->save();
+        }
+
+        $pin->entity_id = $entity->id;
+
+        /* Sets creator id */
+        $api_token = $request->header('Authorization');
+        $pin->creator_id = User::where('api_token', $api_token)->first()->id;
 
         $pin->save();
 
-        return 1;
+        return response(json_encode([
+            'success' => true,
+            'data' => $pin
+        ]), 202);
 
     }
 
-    public function read($entity_id)
+    /**
+     * Gives back information on Pinpost
+     *
+     * @param $pinpost_id
+     * @return pin information, json response if pinpost not found
+     */
+    public function read($pinpost_id)
     {
 
-        $pin = Pinpost::where('entity_id', '=', $entity_id)->first();
+        $pin = Pinpost::find($pinpost_id);
 
         if ($pin == null) {
-            return 0;
+            return response(json_encode([
+                'success' => false,
+                'errors' => ['not found']
+            ]), 200);
         }
 
-        return $pin;
+        return response(json_encode([
+            'success' => true,
+            'data' => $pin
+        ]), 202);
 
     }
 
-    public function update(Request $request, $entity_id)
+    /**
+     * Updates Pinpost with information
+     *
+     * @param Request $request, post request
+     * @param $pinvite_id
+     * @return pin information, json response if failed
+     */
+    public function update(Request $request, $pinpost_id)
     {
 
-        $pin = Pinpost::where('entity_id', '=', $entity_id)->first();
+        $validator = Validator::make($request->all(), [
+            'thumbnail' => 'image'
+        ]);
+        if ($validator->fails())
+            return response(json_encode([
+                'success' => false,
+                'errors' => $validator->errors()->all()
+            ]), 200);
+
+        /* Checks if pinpost is there */
+        $pin = Pinpost::find($pinpost_id);
 
         if ($pin == null) {
-            return 0;
+            return response(json_encode([
+                'success' => false,
+                'errors' => ['not found']
+            ]), 200);
         }
 
+        /* Checks if pinpost being updated belongs to the user making the
+            request */
+        $api_token = $pin->creator->api_token;
+        $headerToken = $this->stripBearerFromToken($request->header('Authorization'));
+
+        if ($api_token != $headerToken) {
+            return response(json_encode([
+                'success' => false,
+                'errors' => ['Unauthenticated']
+                ])
+                , 401);
+        }
+
+        /* Updates title */
         if ($request->has('title'))
-            $pin->title = $request->get('title');
+            $pin->title = $request->input('title');
 
+        /* Updates description */
         if ($request->has('description'))
-            $pin->description = $request->get('description');
+            $pin->description = $request->input('description');
 
-        if ($request->has('thumbnail'))
-            $pin->thumbnail = $request->get('thumbnail');
+        /* Updates thumbnail */
+        if ($request->file('thumbnail') != null) {
+            $image = Image::find($pin->thumbnail_id);
+            $old_filename = $image->filename;
+            ImageController::storeImage($request->file('thumbnail'), $image);
 
+            Storage::disk('images')->delete($old_filename);
+            $image->update();
+        }
+
+        /* Updates latitude */
         if ($request->has('latitude'))
-            $pin->latitude = $request->get('latitude');
+            $pin->latitude = $request->input('latitude');
 
+        /* Updates longitude */
         if ($request->has('longitude'))
-            $pin->longitude = $request->get('longitude');
+            $pin->longitude = $request->input('longitude');
 
         $pin->update();
 
-        return 1;
+        return response(json_encode([
+            'success' => true,
+            'data' => $pin
+        ]), 202);
 
     }
 
-    public function delete($entity_id)
+    /**
+     * Deletes the pinpost
+     *
+     * @param Request $request, delete request
+     * @param $pinpost_id
+     * @return json response
+     */
+    public function delete(Request $request, $pinpost_id)
     {
 
-        $pin = Pinpost::where('entity_id', '=', $entity_id)->first();
+        /* Checks if pinpost is there */
+        $pin = Pinpost::find($pinpost_id);
 
         if ($pin == null) {
-            return 0;
+            return response(json_encode([
+                'success' => false,
+                'errors' => ['not found']
+            ]), 200);
         }
 
-        $pin->delete();
+        /* Checks if pinpost being deleted belongs to the user making the
+            request */
+        $api_token = $pin->creator->api_token;
+        $headerToken = $this->stripBearerFromToken($request->header('Authorization'));
 
-        return 1;
+        if ($api_token != $headerToken) {
+            return response(json_encode([
+                'success' => false,
+                'errors' => ['Unauthenticated']
+                ])
+                , 401);
+        }
+
+        $pin->thumbnail->delete();
+        $pin->entity->delete();
+
+        return response(json_encode([
+            'success' => true
+        ]), 202);
 
     }
 

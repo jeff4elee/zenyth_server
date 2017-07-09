@@ -8,17 +8,18 @@ use Illuminate\Database\Eloquent\Model;
 
 class Relationship extends Model
 {
-    protected $fillable = ['requester', 'requestee', 'relation_type', 'status'];
 
-    public function requester() {
+    public $timestamps = false;
+    protected $fillable = ['requester', 'requestee', 'status'];
+
+    public function getRequester()
+    {
         return $this->belongsTo('App\User', 'requester');
     }
 
-    public function requestee() {
+    public function getRequestee()
+    {
         return $this->belongsTo('App\User', 'requestee');
     }
 
-    public function relation_type() {
-        return $this->belongsTo('App\Relation', 'relation_type');
-    }
 }
