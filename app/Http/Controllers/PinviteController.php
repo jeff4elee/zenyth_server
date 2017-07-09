@@ -34,8 +34,9 @@ class PinviteController extends Controller
         $validator = DataValidator::validatePinvite($request);
         if ($validator->fails())
             return response(json_encode([
+                'success' => false,
                 'errors' => $validator->errors()->all()
-            ]), 400);
+            ]), 200);
 
         $pin = new Pinvite();
         $entity = Entity::create([]);
@@ -66,8 +67,8 @@ class PinviteController extends Controller
 
         return response(json_encode([
             'success' => true,
-            'pinvite' => $pin
-        ]), 202);
+            'data' => $pin
+        ]), 200);
 
     }
 
@@ -83,13 +84,16 @@ class PinviteController extends Controller
         $pin = Pinvite::find($pinvite_id);
 
         if ($pin == null) {
-            return response(json_encode(['error' => 'not found']), 404);
+            return response(json_encode([
+                'success' => false,
+                'errors' => ['not found']
+            ]), 404);
         }
 
         return response(json_encode([
             'success' => true,
-            'pinvite' => $pin
-        ]), 202);
+            'data' => $pin
+        ]), 200);
 
     }
 
@@ -108,22 +112,31 @@ class PinviteController extends Controller
         ]);
         if ($validator->fails())
             return response(json_encode([
+                'success' => false,
                 'errors' => $validator->errors()->all()
-            ]), 400);
+            ]), 200);
 
         /* Checks if pinvite is there */
         $pin = Pinvite::find($pinvite_id);
 
         if ($pin == null) {
-            return response(json_encode(['error' => 'not found']), 404);
+            return response(json_encode([
+                'success' => false,
+                'errors' => ['not found']
+            ]), 200);
         }
 
         /* Checks if pinvite being updated belongs to the user making the
             request */
         $api_token = $pin->creator->api_token;
 
-        if ($api_token != $request->header('Authorization')) {
-            return response(json_encode(['error' => 'Unauthenticated'])
+        $headerToken = $this->stripBearerFromToken($request->header('Authorization'));
+
+        if ($api_token != $headerToken) {
+            return response(json_encode([
+                'success' => false,
+                'errors' => ['Unauthenticated']
+                ])
                 , 401);
         }
 
@@ -155,8 +168,8 @@ class PinviteController extends Controller
 
         return response(json_encode([
             'success' => true,
-            'pinvite' => $pin
-        ]), 202);
+            'data' => $pin
+        ]), 200);
 
     }
 
@@ -174,16 +187,24 @@ class PinviteController extends Controller
         $pin = Pinpost::find($pinvite_id);
 
         if ($pin == null) {
-            return response(json_encode(['error' => 'not found']), 404);
+            return response(json_encode([
+                'success' => false,
+                'errors' => ['not found']
+            ]), 404);
         }
 
         /* Checks if pinvite being deleted belongs to the user making the
             request */
         $api_token = $pin->creator->api_token;
 
-        if ($api_token != $request->header('Authorization')) {
-            return response(json_encode(['error' => 'Unauthenticated'])
-                , 401);
+        $headerToken = $this->stripBearerFromToken($request->header('Authorization'));
+
+        if ($api_token != $headerToken) {
+            return response(json_encode([
+                'success' => false,
+                'errors' => ['Unauthenticated']
+                ])
+                , 200);
         }
 
 
@@ -196,7 +217,7 @@ class PinviteController extends Controller
 
         return response(json_encode([
             'success' => true
-        ]), 202);
+        ]), 200);
 
     }
 
@@ -213,7 +234,10 @@ class PinviteController extends Controller
 
         $validator = DataValidator::validatePicture($request);
         if ($validator->fails())
-            return $validator->errors()->all();
+            return response(json_encode([
+                'success' => false,
+                'errors' => $validator->errors()->all()
+            ]), 200);
 
         $file = $request->file('image');
         $pin = Pinvite::find($pinvite_id)->id;

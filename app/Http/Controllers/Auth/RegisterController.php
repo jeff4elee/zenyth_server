@@ -32,15 +32,16 @@ class RegisterController extends Controller
         $validator = DataValidator::validateRegister($request);
         if($validator->fails())
             return response(json_encode([
+                'success' => false,
                 'errors' => $validator->errors()->all()
-            ]), 400);
+            ]), 200);
 
         $user = $this->create($request);
         if($user != null)
         {
             return response(json_encode([
                 'success' => true,
-                'user' => $user
+                'data' => $user
             ]), 201);
         }
 

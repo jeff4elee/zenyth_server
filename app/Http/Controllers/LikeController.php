@@ -26,8 +26,9 @@ class LikeController extends Controller
         $validator = DataValidator::validateLike($request);
         if($validator->fails())
             return response(json_encode([
+                'success' => false,
                 'errors' => $validator->errors()->all()
-            ]), 400);
+            ]), 200);
 
         $like = new Like();
 
@@ -65,7 +66,10 @@ class LikeController extends Controller
         ]);
 
         if ($like == null) {
-            return response(json_encode(['error' => 'not found']), 404);
+            return response(json_encode([
+                'success' => false,
+                'errors' => ['not found']
+            ]), 404);
         }
 
         $like->delete();

@@ -30,8 +30,9 @@ class RelationshipController extends Controller
         $validator = DataValidator::validateFriendRequest($request);
         if ($validator->fails())
             return response(json_encode([
+                'success' => false,
                 'errors' => $validator->errors()->all()
-            ]), 400);
+            ]), 200);
 
         $api_token = $request->header('Authorization');
         $user_id = User::where('api_token', $api_token)->first()->id;
@@ -46,8 +47,10 @@ class RelationshipController extends Controller
             ['requester', '=', $request->input('requestee_id')]
         ])->first();
         if ($check != null)
-            return response(json_encode(['error' => 'friends or pending 
-                            request']), 400);
+            return response(json_encode([
+                'success' => false,
+                'errors' => ['friends or pending request']
+            ]), 400);
 
         $relationship = Relationship::create([
             'requester' => $user_id,
@@ -56,7 +59,7 @@ class RelationshipController extends Controller
 
         return response(json_encode([
             'success' => true,
-            'relationship' => $relationship
+            'data' => $relationship
         ]), 202);
 
     }
@@ -84,28 +87,36 @@ class RelationshipController extends Controller
         ])->first();
 
         if ($relationship == null || $relationship->status == true)
-            return response(json_encode(['error' => 'No pending request']),
-                404);
+            return response(json_encode([
+                'success' => false,
+                'errors' => ['No pending request']
+            ]),
+                200);
 
         $validator = Validator::make($request->all(), [
             'status' => 'required'
         ]);
 
         if ($validator->fails()) {
-            return $validator->errors()->all();
+            return response(json_encode([
+                'success' => false,
+                'errors' => $validator->errors()->all()
+            ]), 200);
         }
 
         if ($request->input('status')) {
             $relationship->update(['status' => true]);
             return response(json_encode([
                 'success' => true,
-                'relationship' => $relationship
+                'data' => $relationship
             ]), 200);
         } else {
             $relationship->delete();
             return response(json_encode([
                 'success' => true,
-                'relationship' => 'deleted'
+                'data' => [
+                    'relationship' => 'deleted'
+                ]
             ]), 200);
         }
 
@@ -129,14 +140,20 @@ class RelationshipController extends Controller
 
         if ($relationship == null)
             return response(json_encode([
+
                 'success' => false,
-                'relationship' => 'not friends'
-            ]), 404);
+                'errors' => ['not friends']
+
+            ]), 200);
 
         $relationship->delete();
         return response(json_encode([
+
             'success' => true,
-            'relationship' => 'unfriended'
+            'data' => [
+                'relationship' => 'unfriended'
+            ]
+
         ]), 200);
 
     }
@@ -170,7 +187,7 @@ class RelationshipController extends Controller
         }
         return response(json_encode([
             'success' => true,
-            'relationship' => $relationship
+            'data' => $relationship
         ]), 200);
     }
 
@@ -195,7 +212,10 @@ class RelationshipController extends Controller
             ['status', '=', true]
         ])->first();
 
-        return $relationship;
+        return response(json_encode([
+            'success' => true,
+            'data' => $relationship
+        ]), 200);
 
     }
 

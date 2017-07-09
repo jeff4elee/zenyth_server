@@ -37,7 +37,7 @@ class PinpostTest extends TestCase
             'longitude' => 69.69,
             'thumbnail' => UploadedFile::fake()->image('pinimage.jpg')
         ],
-            ['Authorization' => $api_token]);
+            ['Authorization' => 'bearer ' . $api_token]);
 
         //get the id of the newly created post
         $id = $response->decodeResponseJson()['thumbnail_id'];
@@ -56,7 +56,7 @@ class PinpostTest extends TestCase
         //create a pinpost, with the title 'pintoupdate' and no image
         $pinpost = factory('App\Pinpost')->create(['title' => 'pintoread']);
 
-        $response = $this->json('GET', '/api/pinpost/' . $pinpost->id, [], ['Authorization' => 'token']);
+        $response = $this->json('GET', '/api/pinpost/' . $pinpost->id, [], ['Authorization' => 'bearer ' . 'token']);
         $response = $response->decodeResponseJson();
 
         $this->assertArrayHasKey('id', $response);

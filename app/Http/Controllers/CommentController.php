@@ -30,8 +30,9 @@ class CommentController extends Controller
         $validator = DataValidator::validateComment($request);
         if ($validator->fails())
             return response(json_encode([
+                'success' => false,
                 'errors' => $validator->errors()->all()
-            ]), 400);
+            ]), 200);
 
         $entity = Entity::create([]);
         $comment = new Comment();
@@ -74,7 +75,10 @@ class CommentController extends Controller
         $comment = Comment::find($comment_id);
 
         if ($comment == null) {
-            return response(json_encode(['error' => 'not found']), 404);
+            return response(json_encode([
+                'success' => false,
+                'errors' => ['not found']
+            ]), 200);
         }
 
         return response(json_encode([
@@ -100,18 +104,27 @@ class CommentController extends Controller
         ]);
         if ($validator->fails())
             return response(json_encode([
+                'success' => false,
                 'errors' => $validator->errors()->all()
-            ]), 400);
+            ]), 200);
 
         $comment = Comment::find($comment_id);
         $api_token = $comment->user->api_token;
-        if($api_token != $request->header('Authorization')) {
-            return response(json_encode(['error' => 'Unauthenticated']),
+        $headerToken = $this->stripBearerFromToken($request->header('Authorization'));
+
+        if ($api_token != $headerToken) {
+            return response(json_encode([
+                'success' => false,
+                'errors' => ['Unauthenticated']
+            ]),
                 401);
         }
 
         if ($comment == null) {
-            return response(json_encode(['error' => 'not found']), 404);
+            return response(json_encode([
+                'success' => false,
+                'errors' => ['not found']
+            ]), 200);
         }
 
         if ($request->has('comment'))
@@ -142,12 +155,20 @@ class CommentController extends Controller
         $comment = Comment::find($comment_id);
 
         if ($comment == null) {
-            return response(json_encode(['error' => 'not found']), 404);
+            return response(json_encode([
+                'success' => false,
+                'errors' => ['not found']
+            ]), 200);
         }
 
         $api_token = $comment->user->api_token;
-        if($api_token != $request->header('Authorization')) {
-            return response(json_encode(['error' => 'Unauthenticated']),
+        $headerToken = $this->stripBearerFromToken($request->header('Authorization'));
+
+        if ($api_token != $headerToken) {
+            return response(json_encode([
+                'success' => false,
+                'errors' => ['Unauthenticated']
+            ]),
                 401);
         }
 
