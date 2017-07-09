@@ -3,6 +3,7 @@
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Carbon\Carbon;
 
 class CreateEntitysPicturesTable extends Migration
 {
@@ -21,7 +22,8 @@ class CreateEntitysPicturesTable extends Migration
             $table->unsignedInteger('image_id')
                 ->references('id')->on('images')
                 ->onDelete('cascade');
-            $table->timestamp('posted_on');
+            $table->timestamp('posted_on')
+                ->default(Carbon::now());
         });
     }
 
