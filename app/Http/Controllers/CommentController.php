@@ -114,6 +114,7 @@ class CommentController extends Controller
 
         if ($api_token != $headerToken) {
             return response(json_encode([
+                'success' => false,
                 'errors' => ['Unauthenticated']
             ]),
                 401);
