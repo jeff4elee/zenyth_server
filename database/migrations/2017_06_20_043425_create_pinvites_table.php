@@ -38,6 +38,7 @@ class CreatePinvitesTable extends Migration
                 ->onDelete('cascade');
 
             $table->dateTime('event_time');
+            $table->timestamps();
         });
     }
 

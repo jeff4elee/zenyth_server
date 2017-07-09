@@ -9,8 +9,6 @@ class Pinvite extends Model
     protected $fillable = ['title', 'description', 'latitude', 'longitude',
         'thumbnail_id', 'event_time'];
 
-    public $timestamps = false;
-
     public function entity()
     {
         return $this->belongsTo('App\Entity', 'entity_id');

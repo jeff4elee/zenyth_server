@@ -11,11 +11,6 @@ class Pinpost extends Model
 
     protected $table = 'pinposts';
 
-    public function setCreatedAt($value)
-    {
-        // Do nothing.
-    }
-
     public function entity()
     {
         return $this->belongsTo('App\Entity', 'entity_id');
