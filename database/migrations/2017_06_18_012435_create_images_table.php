@@ -3,6 +3,7 @@
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Carbon\Carbon;
 
 class CreateImagesTable extends Migration
 {
@@ -16,7 +17,8 @@ class CreateImagesTable extends Migration
         Schema::create('images', function (Blueprint $table) {
             $table->increments('id');
             $table->string('filename', 37);
-            $table->timestamp('created_on');
+            $table->timestamp('created_at')
+                ->default(Carbon::now());
         });
     }
 
