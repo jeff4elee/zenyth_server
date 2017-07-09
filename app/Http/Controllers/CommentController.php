@@ -77,7 +77,7 @@ class CommentController extends Controller
         if ($comment == null) {
             return response(json_encode([
                 'success' => false,
-                'error' => 'not found'
+                'errors' => ['not found']
             ]), 200);
         }
 
@@ -113,14 +113,16 @@ class CommentController extends Controller
         $headerToken = $this->stripBearerFromToken($request->header('Authorization'));
 
         if ($api_token != $headerToken) {
-            return response(json_encode(['error' => 'Unauthenticated']),
+            return response(json_encode([
+                'errors' => ['Unauthenticated']
+            ]),
                 401);
         }
 
         if ($comment == null) {
             return response(json_encode([
                 'success' => false,
-                'error' => 'not found'
+                'errors' => ['not found']
             ]), 200);
         }
 
@@ -154,7 +156,7 @@ class CommentController extends Controller
         if ($comment == null) {
             return response(json_encode([
                 'success' => false,
-                'error' => 'not found'
+                'errors' => ['not found']
             ]), 200);
         }
 
@@ -164,7 +166,7 @@ class CommentController extends Controller
         if ($api_token != $headerToken) {
             return response(json_encode([
                 'success' => false,
-                'error' => 'Unauthenticated'
+                'errors' => ['Unauthenticated']
             ]),
                 401);
         }
