@@ -2,9 +2,12 @@
 
 namespace App\Http\Controllers\Auth;
 
-use Illuminate\Support\Facades\Auth;
 use App\Http\Controllers\Controller;
 use Illuminate\Foundation\Auth\AuthenticatesUsers;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Hash;
+use App\User;
+use App\Http\Requests\DataValidator;
 
 class LoginController extends Controller
 {
@@ -20,45 +23,51 @@ class LoginController extends Controller
     */
 
     use AuthenticatesUsers;
+    use AuthenticationTrait;
 
     /**
      * Handle an authentication attempt.
      *
-     * @return Response
+     * @param Request $request, post request,
+     *        rules: requires email and password
+     * @return Response json response with api_token or json response
+     *         indicating login failed
      */
     public function login(Request $request)
     {
+        $validator = DataValidator::validateLogin($request);
+        if ($validator->fails())
+            return response(json_encode([
+                'errors' => $validator->errors()->all()
+            ]), 400);
 
-        $email = $request->input('email');
+        $user = null;
         $password = $request->input('password');
+        $username = $request->input('username');
 
-	$user = User::where('email', '=', $email);
-	
-	if($user == null){
-	  return 0;
-	}
+        $user = User::where('username', $username)->first();
+        if($user == null)
+            $user = User::where('email', $username)->first();
 
-	if(password_verify($password, $user->password)){
 
-          // Authentication passed...
-          do{
+        if ($user == null) {
+            return response(json_encode([
+                'errors' => ['Incorrect email or password']
+            ]), 403);
+        }
 
-            $api_token = str_random(60);
-
-            $user = User::where('api_token', '=', $api_token)->first();
-
-          } while( $user != null );
-
-          //found unique api token
-          $user = User::where('email', '=', $email)->first();
-          $user->api_token = $apiToken;
-          $user->update();
-
-          return json_encode(['api_token' => $api_token]);
+        if (Hash::check($password, $user->password)) {   // checks password
+            // against hashed pw
+            return response(json_encode([
+                'success' => true,
+                'user' => $user
+            ]), 202);
 
         }
 
-        return 0;
+        return response(json_encode([
+            'errors' => ['Incorrect email or password']
+        ]), 403);
 
     }
 

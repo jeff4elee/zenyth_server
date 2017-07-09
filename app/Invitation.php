@@ -7,12 +7,15 @@ use Illuminate\Database\Eloquent\Model;
 class Invitation extends Model
 {
     protected $fillable = ['invited_on'];
+    public $timestamps = false;
 
-    public function pinvite() {
+    public function pinvite()
+    {
         return $this->belongsTo('App\Pinvite', 'pinvite_id');
     }
 
-    public function invitee() {
+    public function invitee()
+    {
         return $this->belongsTo('App\User', 'invitee_id');
     }
 }
