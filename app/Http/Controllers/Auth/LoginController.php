@@ -66,7 +66,7 @@ class LoginController extends Controller
                     'user' => $user,
                     'api_token' => $user->api_token
                     ]
-            ]), 202);
+            ]), 200);
 
         }
 

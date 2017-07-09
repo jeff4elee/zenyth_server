@@ -25,7 +25,7 @@ class RelationshipsTest extends TestCase
         $user_two = factory('App\User')->create();
 
         $response = $this->json('POST', '/api/relationship/friend_request', [
-            'requestee' => $user_two->id
+            'requestee_id' => $user_two->id
         ],
             ['Authorization' => 'bearer ' . $user_one->api_token]);
 
@@ -43,7 +43,7 @@ class RelationshipsTest extends TestCase
                                                          'status' => false,
                                                          'blocked' => false]);
 
-        $response = $this->json('POST', '/api/relationship/' . User::find($relationship->requester) . '/response', ['status'=>true],
+        $response = $this->json('POST', '/api/relationship/' . $relationship->requester . '/response', ['status'=>true],
             ['Authorization' => 'bearer ' . User::find($relationship->requestee)->api_token]);
 
         $this->assertDatabaseHas('relationships', ['requester' => $relationship->requester,

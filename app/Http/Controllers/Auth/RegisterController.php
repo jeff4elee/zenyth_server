@@ -42,10 +42,10 @@ class RegisterController extends Controller
             return response(json_encode([
                 'success' => true,
                 'data' => $user
-            ]), 201);
+            ]), 200);
         }
 
-        return response(json_encode(['success' => false]), 400);
+        return response(json_encode(['success' => false]), 200);
 
     }
 
