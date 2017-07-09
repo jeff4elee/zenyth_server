@@ -7,6 +7,7 @@ use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
 use Tests\TestCase;
 use App\Image;
+use App\User;
 use Illuminate\Foundation\Testing\WithoutMiddleware;
 use Illuminate\Foundation\Testing\DatabaseMigrations;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
@@ -26,9 +27,6 @@ class PinpostTest extends TestCase
         //create pesudouser
         $api_token = factory('App\User')->create()->api_token;
 
-        //use images disk
-        Storage::disk('images');
-
         //perform the json request
         $response = $this->json('POST', '/api/pinpost', [
             'title' => 'testpin',
@@ -36,17 +34,22 @@ class PinpostTest extends TestCase
             'latitude' => 33.33,
             'longitude' => 69.69,
             'thumbnail' => UploadedFile::fake()->image('pinimage.jpg')
-        ],
-            ['Authorization' => 'bearer ' . $api_token]);
+        ], ['Authorization' => 'bearer ' . $api_token]);
 
         //get the id of the newly created post
-        $id = $response->decodeResponseJson()['thumbnail_id'];
+        $image_id = $response->decodeResponseJson()['data']['thumbnail_id'];
 
         //check if the id exists
-        if($this->assertDatabaseHas('images', ['id' => $id]))
-            Storage::disk('images')->assertExists(basename(Image::find($id)->filename));
+        if($this->assertDatabaseHas('images', ['id' => $image_id]))
+            Storage::disk('images')->assertExists(basename(Image::find($image_id)->filename));
 
-        $this->assertDatabaseHas('pinposts', ['title' => 'testpin', 'latitude' => 33.33, 'longitude' => 69.69]);
+        $this->assertDatabaseHas('pinposts', [
+            'title' => 'testpin',
+            'description' => 'fake description for fake pins',
+            'latitude' => 33.33,
+            'longitude' => 69.69,
+            'thumbnail_id' => $image_id
+        ]);
 
     }
 
@@ -56,13 +59,21 @@ class PinpostTest extends TestCase
         //create a pinpost, with the title 'pintoread' and no image
         $pinpost = factory('App\Pinpost')->create(['title' => 'pintoread']);
 
-        $response = $this->json('GET', '/api/pinpost/' . $pinpost->id, [], ['Authorization' => 'bearer ' . 'token']);
+        $response = $this->json('GET', '/api/pinpost/' . $pinpost->id, [],
+            ['Authorization' => 'bearer ' . 'token']);
 
-        //$response = $response->decodeResponseJson();
-
-        //$this->assertArrayHasKey('data', $response);
-        //$this->assertArrayHasKey('success', $response);
-
+        $response->assertJson([
+            'success' => true,
+            'data' => [
+                'entity_id' => $pinpost->entity_id,
+                'title' => $pinpost->title,
+                'description' => $pinpost->description,
+                'latitude' => $pinpost->latitude,
+                'longitude' => $pinpost->longitude,
+                'thumbnail_id' => $pinpost->thumbnail_id,
+                'creator_id' => $pinpost->creator_id
+            ]
+        ]);
 
     }
 
