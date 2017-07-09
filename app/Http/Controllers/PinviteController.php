@@ -86,7 +86,7 @@ class PinviteController extends Controller
         if ($pin == null) {
             return response(json_encode([
                 'success' => false,
-                'error' => 'not found'
+                'errors' => ['not found']
             ]), 404);
         }
 
@@ -122,7 +122,7 @@ class PinviteController extends Controller
         if ($pin == null) {
             return response(json_encode([
                 'success' => false,
-                'error' => 'not found'
+                'errors' => ['not found']
             ]), 200);
         }
 
@@ -135,7 +135,7 @@ class PinviteController extends Controller
         if ($api_token != $headerToken) {
             return response(json_encode([
                 'success' => false,
-                'error' => 'Unauthenticated'
+                'errors' => ['Unauthenticated']
                 ])
                 , 401);
         }

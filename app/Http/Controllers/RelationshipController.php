@@ -134,7 +134,7 @@ class RelationshipController extends Controller
             return response(json_encode([
 
                 'success' => false,
-                'error' => ['not friends']
+                'errors' => ['not friends']
 
             ]), 200);
 
