@@ -19,8 +19,14 @@ class CreateCommentsTable extends Migration
             $table->foreign('entity_id')
                 ->references('id')->on('entities')
                 ->onDelete('cascade');
-            $table->unique('entity_id');
+
             $table->text('comment');
+
+            $table->unsignedInteger('on_entity_id');
+            $table->foreign('on_entity_id')
+                ->references('id')->on('entities')
+                ->onDelete('cascade');
+
             $table->integer('user_id')->unsigned();
             $table->foreign('user_id')
                 ->references('id')->on('users')
