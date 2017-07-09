@@ -23,10 +23,8 @@ trait AuthenticationTrait
     public function stripBearerFromToken($api_token) {
         $api_token_arr = preg_split(" ", $api_token);
 
-        if(count($api_token_arr) == 2)
-            return null;
-
-        if(strtolower($api_token_arr[0]) != "bearer")
+        if(strtolower($api_token_arr[0]) != "bearer" &&
+            count($api_token_arr) != 2)
             return null;
 
         return $api_token_arr[1];
