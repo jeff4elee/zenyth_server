@@ -168,7 +168,7 @@ class RelationshipController extends Controller
     public function blockUser(Request $request, $user_id)
     {
 
-        $api_token = $request->header('Authorization');
+        $api_token = $request->header('Authorization') ;
         $requester_id = User::where('api_token', $api_token)->first()->id;
 
         $relationship = self::friended($requester_id, $user_id);

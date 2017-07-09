@@ -37,6 +37,8 @@ class AuthenticatedMiddleware
             ]), 401);
 
         $user = User::where('api_token', $api_token)->first();
+
+        $request->headers->set('Authorization', $api_token);
         if($user != null) {
             return $next($request);
         }

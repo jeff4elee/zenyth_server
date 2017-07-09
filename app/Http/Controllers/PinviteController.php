@@ -130,7 +130,7 @@ class PinviteController extends Controller
             request */
         $api_token = $pin->creator->api_token;
 
-        $headerToken = $this->stripBearerFromToken($request->header('Authorization'));
+        $headerToken = $request->header('Authorization');
 
         if ($api_token != $headerToken) {
             return response(json_encode([
@@ -197,7 +197,7 @@ class PinviteController extends Controller
             request */
         $api_token = $pin->creator->api_token;
 
-        $headerToken = $this->stripBearerFromToken($request->header('Authorization'));
+        $headerToken = $request->header('Authorization');
 
         if ($api_token != $headerToken) {
             return response(json_encode([

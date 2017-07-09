@@ -110,7 +110,7 @@ class CommentController extends Controller
 
         $comment = Comment::find($comment_id);
         $api_token = $comment->user->api_token;
-        $headerToken = $this->stripBearerFromToken($request->header('Authorization'));
+        $headerToken = $request->header('Authorization');
 
         if ($api_token != $headerToken) {
             return response(json_encode([
@@ -162,7 +162,7 @@ class CommentController extends Controller
         }
 
         $api_token = $comment->user->api_token;
-        $headerToken = $this->stripBearerFromToken($request->header('Authorization'));
+        $headerToken = $request->header('Authorization');
 
         if ($api_token != $headerToken) {
             return response(json_encode([
