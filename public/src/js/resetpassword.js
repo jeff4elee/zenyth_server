@@ -9,20 +9,6 @@ $('#Submit').on('click', function() {
             _token: token
         },
         success: function(msg) {
-            var html = null;
-            if(msg['success'] == true) {
-                html = "<br>";
-                html += "<div class=\"success\">";
-                html += msg['message'];
-                html += "</div>";
-            }
-            else {
-                html = "<br>";
-                html += "<div class=\"error\">";
-                html += msg['message'];
-                html += "</div>";
-            }
-            //document.getElementById('body').innerHTML += html
             alert(msg['message']);
         },
         error: function (xmlHttpRequest, textStatus, errorThrown) {
