@@ -22,7 +22,8 @@ $('#Submit').on('click', function() {
                 html += msg['message'];
                 html += "</div>";
             }
-            document.getElementById('body').innerHTML += html
+            //document.getElementById('body').innerHTML += html
+            alert(msg['message']);
         },
         error: function (xmlHttpRequest, textStatus, errorThrown) {
             alert(errorThrown.toString());
