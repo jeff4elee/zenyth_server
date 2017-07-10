@@ -1,5 +1,4 @@
 $('#Submit').on('click', function() {
-    alert('hi');
     $.ajax({
         method: 'POST',
         url: url,
