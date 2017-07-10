@@ -9,7 +9,7 @@
 
         <div>
         Please follow the link below to reset your password
-        {{ URL::to('register/verify/' . $confirmation_code) }}.
+        {{ URL::to('password/reset/' . $token) }}.
         <br/>
 
         </div>
