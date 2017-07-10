@@ -11,7 +11,9 @@ $('#Submit').on('click', function() {
             alert(msg['message']);
         },
         error: function (xmlHttpRequest, textStatus, errorThrown) {
+            alert(errorThrown.toString());
             alert('error');
+            alert(textStatus)
         }
         });
 
