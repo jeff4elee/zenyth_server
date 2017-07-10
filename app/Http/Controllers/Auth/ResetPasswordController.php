@@ -41,6 +41,12 @@ class ResetPasswordController extends Controller
 
     public function showPasswordResetBlade($token)
     {
+        if(Password_reset::where('token', '=', $token)->first() == null)
+            return response(json_encode([
+                'success' => false,
+                'message' => 'Invalid token'
+            ]), 200);
+
         return view('restore_password_web')->with(['token' => $token]);
     }
 
