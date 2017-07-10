@@ -12,7 +12,7 @@ Zenyth Reset Password
 </script>
 
 <div class="row">
-    <div class="col-md-4 col-md-offset-4">
+    <div class="col-md-4 col-md-offset-4" id="body">
         <h3>Reset Password</h3>
             <div class="form-group">
                 <label for="password">New Password</label>
