@@ -104,12 +104,16 @@ class RegisterController extends Controller
                 'confirmation_code' => $confirmation_code
                 ]);
 
+        if($user == null)
+            return null;
+
         $profile = new Profile();
         $profile->user_id = $user->id;
         $profile->gender = $request['gender'];
         $profile->save();
 
-        Mail::send('confirmation', $confirmation_code, function($message) {
+        Mail::send('confirmation', ['confirmation_code' => $confirmation_code]
+                    , function($message) {
             $message->from('605industries@zenyth.com', 'Zenyth');
             $message->to($request['email'], $request['username'])
                 ->subject('Verify your email address');
