@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 class Profile extends Model
 {
     public $timestamps = false;
+    protected $table = 'profiles';
     protected $fillable = ['user_id', 'first_name', 'last_name', 'gender', 'date_of_birth'];
 
     public function user()
@@ -21,6 +22,6 @@ class Profile extends Model
 
     public function phoneNumbers()
     {
-        return $this->hasMany('App\Phone_number', 'profile_id');
+        return $this->hasMany('App\PhoneNumber', 'profile_id');
     }
 }

@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 class EntitysPicture extends Model
 {
     public $timestamps = false;
+    protected $table = 'entitys_pictures';
 
     public function entity()
     {

@@ -8,6 +8,7 @@ class Like extends Model
 {
 
     public $timestamps = false;
+    protected $table = 'likes';
 
     public function entity()
     {

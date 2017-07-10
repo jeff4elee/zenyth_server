@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\Auth;
 
 use Illuminate\Http\Request;
-use App\Password_reset;
+use App\PasswordReset;
 use App\User;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\DataValidator;
@@ -41,7 +41,7 @@ class ResetPasswordController extends Controller
 
     public function showPasswordResetBlade($token)
     {
-        if(Password_reset::where('token', '=', $token)->first() == null)
+        if(PasswordReset::where('token', '=', $token)->first() == null)
             return response(json_encode([
                 'success' => false,
                 'message' => 'Invalid token'
@@ -68,7 +68,7 @@ class ResetPasswordController extends Controller
         }
 
 
-        $password_reset = Password_reset::where('token', '=', $token)->first();
+        $password_reset = PasswordReset::where('token', '=', $token)->first();
 
         if($password_reset == null)
             return response()->json([

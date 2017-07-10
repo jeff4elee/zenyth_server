@@ -8,6 +8,7 @@ class Pinvite extends Model
 {
     protected $fillable = ['title', 'description', 'latitude', 'longitude',
         'thumbnail_id', 'event_time'];
+    protected $table = 'pinvites';
 
     public function entity()
     {

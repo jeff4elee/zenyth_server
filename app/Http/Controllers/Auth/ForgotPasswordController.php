@@ -4,7 +4,7 @@ namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\DataValidator;
-use App\Password_reset;
+use App\PasswordReset;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Mail;
 
@@ -43,10 +43,10 @@ class ForgotPasswordController extends Controller
         // Generate unique token
         do {
             $token = str_random(30);
-            $dup_token = Password_reset::where('token', '=', $token)->first();
+            $dup_token = PasswordReset::where('token', '=', $token)->first();
         } while ($dup_token != null);
 
-        Password_reset::create([
+        PasswordReset::create([
             'email' => $request['email'],
             'token' => $token
         ]);

@@ -8,6 +8,7 @@ class Invitation extends Model
 {
     protected $fillable = ['invited_on'];
     public $timestamps = false;
+    protected $table = 'invitations';
 
     public function pinvite()
     {

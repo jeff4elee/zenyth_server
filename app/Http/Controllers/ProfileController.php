@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Phone_number;
+use App\PhoneNumber;
 use App\Address;
 use Illuminate\Http\Request;
 
@@ -26,7 +26,7 @@ class ProfileController extends Controller
             $country_code = $numberStringArr[0];
             $number = $numberStringArr[1] . $numberStringArr[2] . $numberStringArr[3];
 
-            Phone_number::create([
+            PhoneNumber::create([
                 'profile_id' => $profile->id,
                 'country_code' => $country_code,
                 'phone_number' => $number

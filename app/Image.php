@@ -8,7 +8,6 @@ class Image extends Model
 {
 
     protected $fillable = ['filename'];
-
     protected $table = 'images';
     public $timestamps = false;
 
