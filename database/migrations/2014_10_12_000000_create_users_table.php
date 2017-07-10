@@ -26,6 +26,8 @@ class CreateUsersTable extends Migration
             $table->dateTime('token_expired_on')
                     ->default($token_expired_on);
 
+            $table->string('confirmation_code', 30)->nullable();
+
             $table->rememberToken();
 
             $table->dateTime('created_at')

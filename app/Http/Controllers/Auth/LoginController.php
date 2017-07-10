@@ -60,13 +60,20 @@ class LoginController extends Controller
 
         if (Hash::check($password, $user->password)) {   // checks password
             // against hashed pw
-            return response(json_encode([
-                'success' => true,
-                'data' => [
-                    'user' => $user,
-                    'api_token' => $user->api_token
+
+            if($user->confirmation_code != null)
+                return response(json_encode([
+                    'success' => false,
+                    'errors' => ['Account has not been confirmed']
+                ]), 200);
+            else
+                return response(json_encode([
+                    'success' => true,
+                    'data' => [
+                        'user' => $user,
+                        'api_token' => $user->api_token
                     ]
-            ]), 200);
+                ]), 200);
 
         }
 

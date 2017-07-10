@@ -20,3 +20,7 @@ Route::get('/home', 'PostController@index');
 
 Auth::routes();
 
+Route::get('register/verify/{confirmationCode}', [
+    'as' => 'confirmation_path',
+    'uses' => 'Auth\RegisterController@confirm'
+]);
