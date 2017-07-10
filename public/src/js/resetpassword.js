@@ -8,6 +8,11 @@ $('#Submit').on('click', function() {
             _token: token
         },
         success: function(msg) {
+            if(msg['success'] == true) {
+                var html = "<div>" + msg['message']
+                    "</div>";
+                document.documentElement.innerHTML = html;
+            }
             alert(msg['message']);
         },
         error: function (xmlHttpRequest, textStatus, errorThrown) {
