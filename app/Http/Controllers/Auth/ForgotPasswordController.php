@@ -33,7 +33,7 @@ class ForgotPasswordController extends Controller
 
     public function sendResetPasswordEmail(Request $request)
     {
-        $validator = DataValidator::validateResetPasswordEmail();
+        $validator = DataValidator::validateResetPasswordEmail($request);
         if($validator->fails())
             return response(json_encode([
                 'success' => false,
