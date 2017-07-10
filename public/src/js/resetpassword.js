@@ -17,8 +17,6 @@ $('#Submit').on('click', function() {
             }
         },
         error: function (xmlHttpRequest, textStatus, errorThrown) {
-            alert(errorThrown.toString());
-            alert('error');
             alert(textStatus)
         }
         });
