@@ -23,6 +23,13 @@ class DataRules
         ];
     }
 
+    static public function sendResetPWEmailRules()
+    {
+        return [
+            'email' => 'required'
+        ];
+    }
+
     static public function resetPasswordRules()
     {
         return [

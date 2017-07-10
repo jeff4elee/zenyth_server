@@ -18,6 +18,11 @@ class DataValidator
         return Validator::make($request->all(), Rules::loginRules());
     }
 
+    static public function validateResetPasswordEmail($request)
+    {
+        return Validator::make($request->all(), Rules::sendResetPWEmailRules());
+    }
+
     static public function validateResetPassword($request)
     {
         return Validator::make($request->all(), Rules::resetPasswordRules());
