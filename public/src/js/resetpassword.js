@@ -8,7 +8,7 @@ $('#Submit').on('click', function() {
             _token: token
         },
         success: function(msg) {
-            var html = "<li error>msg['message']</li>>"
+            var html = "<li error>" + msg['message'] + "</li>";
             document.getElementById('body').innerHTML += html
         },
         error: function (xmlHttpRequest, textStatus, errorThrown) {
