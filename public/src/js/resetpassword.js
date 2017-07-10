@@ -10,12 +10,14 @@ $('#Submit').on('click', function() {
         success: function(msg) {
             var html = null;
             if(msg['success'] == true) {
-                html = "<div class=\"success\">";
+                html = "<br>";
+                html += "<div class=\"success\">";
                 html += msg['message'];
                 html += "</div>";
             }
             else {
-                html = "<div class=\"error\">";
+                html = "<br>";
+                html += "<div class=\"error\">";
                 html += msg['message'];
                 html += "</div>";
             }
