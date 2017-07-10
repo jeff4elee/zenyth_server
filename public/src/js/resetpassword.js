@@ -12,8 +12,9 @@ $('#Submit').on('click', function() {
                 var html = "<div>" + msg['message']
                     "</div>";
                 document.documentElement.innerHTML = html;
+            } else {
+                alert(msg['message']);
             }
-            alert(msg['message']);
         },
         error: function (xmlHttpRequest, textStatus, errorThrown) {
             alert(errorThrown.toString());
