@@ -10,7 +10,7 @@ class DataRules
         return [
             'username' => 'required|min:3|max:20|unique:users',
             'email' => 'required|email|max:255|unique:users',
-            'password' => 'required|AlphaNum|min:8|max:16|confirmed',
+            'password' => 'required|alpha_num|min:8|max:16|confirmed',
             'gender' => 'required'
         ];
     }
@@ -26,14 +26,14 @@ class DataRules
     static public function sendResetPWEmailRules()
     {
         return [
-            'email' => 'required'
+            'email' => 'required|email'
         ];
     }
 
     static public function resetPasswordRules()
     {
         return [
-            'password' => 'required|confirmed'
+            'password' => 'required|alpha_num|confirmed|min:8|max:16'
         ];
     }
 
