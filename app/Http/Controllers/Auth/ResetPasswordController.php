@@ -7,6 +7,7 @@ use App\Password_reset;
 use App\User;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\DataValidator;
+use Illuminate\Support\Facades\Hash;
 
 class ResetPasswordController extends Controller
 {
@@ -71,7 +72,8 @@ class ResetPasswordController extends Controller
 
         $user = User::where('email', '=', $password_reset->email)->first();
 
-        $user->password = $request['password'];
+
+        $user->password = Hash::make($request['password']);
         $user->update();
 
         $password_reset->delete();
