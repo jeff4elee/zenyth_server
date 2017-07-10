@@ -55,17 +55,26 @@ class RegisterController extends Controller
     {
 
         if( ! $confirmation_code)
-            return response(json_encode(['errors' => ['Invalid confirmation code']]), 401);
+            return response(json_encode([
+                'success' => false,
+                'errors' => ['Invalid confirmation code']
+            ]), 401);
 
         $user = User::where('confirmation_code', '=', $confirmation_code)->first();
 
         if($user == null)
-            return response(json_encode(['errors' => ['Invalid confirmation code']]), 401);
+            return response(json_encode([
+                'success' => false,
+                'errors' => ['Invalid confirmation code']
+            ]), 401);
 
         $user->confirmation_code = null;
         $user->update();
 
-        return response(json_encode(['success' => 'Account verified']), 200);
+        return response(json_encode([
+            'success' => true,
+            'message' => 'Account verified'
+        ]), 200);
 
     }
 

@@ -3,7 +3,8 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Foundation\Auth\SendsPasswordResetEmails;
+use App\Password_reset;
+use Illuminate\Support\Facades\Mail;
 
 class ForgotPasswordController extends Controller
 {
@@ -18,8 +19,6 @@ class ForgotPasswordController extends Controller
     |
     */
 
-    use SendsPasswordResetEmails;
-
     /**
      * Create a new controller instance.
      *
@@ -28,5 +27,25 @@ class ForgotPasswordController extends Controller
     public function __construct()
     {
         $this->middleware('guest');
+    }
+
+    public function sendResetPasswordEmail($email)
+    {
+        // Generate unique token
+        do {
+            $token = str_random(30);
+            $dup_token = Password_reset::where('token', '=', $token)->first();
+        } while ($dup_token != null);
+
+        Password_reset::create([
+            'email' => $email,
+            'token' => $token
+        ]);
+
+        Mail::send('restore_password_email', ['token' => $token]
+            , function($message) use ($email) {
+                $message->to($email, null)
+                    ->subject('Verify your email address');
+            });
     }
 }

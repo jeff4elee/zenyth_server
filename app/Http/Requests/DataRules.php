@@ -23,6 +23,13 @@ class DataRules
         ];
     }
 
+    static public function resetPasswordRules()
+    {
+        return [
+            'password' => 'required|confirmed'
+        ];
+    }
+
     static public function pinpostRules()
     {
         return [

@@ -20,7 +20,12 @@ Route::get('/home', 'PostController@index');
 
 Auth::routes();
 
-Route::get('register/verify/{confirmationCode}', [
+Route::get('register/verify/{confirmation_code}', [
     'as' => 'confirmation_path',
     'uses' => 'Auth\RegisterController@confirm'
+]);
+
+Route::get('password/reset/{token}', [
+    'as' => 'password_reset_path',
+    'uses' => 'Auth\ResetPasswordController@showPasswordResetBlade'
 ]);

@@ -2,8 +2,11 @@
 
 namespace App\Http\Controllers\Auth;
 
+use Illuminate\Http\Request;
+use App\Password_reset;
+use App\User;
 use App\Http\Controllers\Controller;
-use Illuminate\Foundation\Auth\ResetsPasswords;
+use App\Http\Requests\DataValidator;
 
 class ResetPasswordController extends Controller
 {
@@ -17,8 +20,6 @@ class ResetPasswordController extends Controller
     | explore this trait and override any methods you wish to tweak.
     |
     */
-
-    use ResetsPasswords;
 
     /**
      * Where to redirect users after resetting their password.
@@ -35,5 +36,49 @@ class ResetPasswordController extends Controller
     public function __construct()
     {
         $this->middleware('guest');
+    }
+
+    public function showPasswordResetBlade($token)
+    {
+        return view('restore_password_web')->with(['token' => $token]);
+    }
+
+    public function restorePassword(Request $request, $token)
+    {
+        if( ! $token)
+            return response(json_encode([
+                'success' => false,
+                'errors' => ['Invalid token']
+            ]), 200);
+
+        $validator = DataValidator::validateResetPassword($request);
+
+        if($validator->fails()) {
+            return response()->json([
+                'success' => false,
+                'errors' => $validator->errors()->all()
+            ], 200);
+        }
+
+
+        $password_reset = Password_reset::where('token', '=', $token)->first();
+
+        if($password_reset == null)
+            return response(json_encode([
+                'success' => false,
+                'errors' => ['Invalid token', $token]
+            ]), 200);
+
+        $user = User::where('email', '=', $password_reset->email)->first();
+
+        $user->password = $request['password'];
+        $user->update();
+
+        $password_reset->delete();
+        return response(json_encode([
+            'success' => true,
+            'message' => 'Successfully reset password'
+        ]), 200);
+
     }
 }
