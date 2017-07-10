@@ -8,15 +8,16 @@ $('#Submit').on('click', function() {
             _token: token
         },
         success: function(msg) {
+            var html = null;
             if(msg['success'] == true) {
-                var html = "<ul error>";
-                html += "<li>" + msg['message'] + "</li>";
-                html += "</ul>";
+                html = "<div class="success">";
+                html += msg['message'];
+                html += "</div>";
             }
             else {
-                var html = "<ul success>";
-                html += "<li>" + msg['message'] + "</li>";
-                html += "</ul>";
+                html = "<div class="error">";
+                html += msg['message'];
+                html += "</div>";
             }
             document.getElementById('body').innerHTML += html
         },
