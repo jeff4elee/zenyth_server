@@ -29,7 +29,7 @@ return [
     |
     */
 
-    'host' => 'smpt.gmail.com',
+    'host' => 'smtp.gmail.com',
 
     /*
     |--------------------------------------------------------------------------
@@ -56,7 +56,7 @@ return [
     */
 
     'from' => [
-        'address' => 'zenythtestemail@gmail.com',
+        'address' => 'zenythtestemail@zenyth.com',
         'name' => '605Industries',
     ],
 
