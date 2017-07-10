@@ -8,10 +8,7 @@ $('#Submit').on('click', function() {
             _token: token
         },
         success: function(msg) {
-            if(msg['errors'] != null)
-                alert(msg['errors']);
-            else
-                alert('Successfully reset password');
+            alert(msg['message']);
         },
         error: function (xmlHttpRequest, textStatus, errorThrown) {
             alert('error');

@@ -46,17 +46,17 @@ class ResetPasswordController extends Controller
     public function restorePassword(Request $request, $token)
     {
         if( ! $token)
-            return response(json_encode([
+            return response()->json([
                 'success' => false,
-                'errors' => ['Invalid token']
-            ]), 200);
+                'message' => 'Invalid token'
+            ], 200);
 
         $validator = DataValidator::validateResetPassword($request);
 
         if($validator->fails()) {
             return response()->json([
                 'success' => false,
-                'errors' => $validator->errors()->all()
+                'message' => $validator->errors()->all()
             ], 200);
         }
 
@@ -64,10 +64,10 @@ class ResetPasswordController extends Controller
         $password_reset = Password_reset::where('token', '=', $token)->first();
 
         if($password_reset == null)
-            return response(json_encode([
+            return response()->json([
                 'success' => false,
-                'errors' => ['Invalid token', $token]
-            ]), 200);
+                'message' => 'Invalid token'
+            ], 200);
 
         $user = User::where('email', '=', $password_reset->email)->first();
 
@@ -75,10 +75,10 @@ class ResetPasswordController extends Controller
         $user->update();
 
         $password_reset->delete();
-        return response(json_encode([
+        return response()->json([
             'success' => true,
             'message' => 'Successfully reset password'
-        ]), 200);
+        ], 200);
 
     }
 }
