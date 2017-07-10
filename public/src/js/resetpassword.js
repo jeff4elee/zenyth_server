@@ -1,4 +1,4 @@
-$('#Submit').on('click', function() {
+$('#Submit').on('submit', function() {
     $.ajax({
         method: 'POST',
         url: url,
