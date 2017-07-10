@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Foundation\Auth\RegistersUsers;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Auth\AuthenticationTrait;
+use Illuminate\Support\Facades\Mail;
 
 class RegisterController extends Controller
 {
@@ -50,6 +51,33 @@ class RegisterController extends Controller
 
     }
 
+    public function confirm($confirmation_code)
+    {
+
+        if( ! $confirmation_code)
+            return response(json_encode([
+                'success' => false,
+                'errors' => ['Invalid confirmation code']
+            ]), 401);
+
+        $user = User::where('confirmation_code', '=', $confirmation_code)->first();
+
+        if($user == null)
+            return response(json_encode([
+                'success' => false,
+                'errors' => ['Invalid confirmation code']
+            ]), 401);
+
+        $user->confirmation_code = null;
+        $user->update();
+
+        return response(json_encode([
+            'success' => true,
+            'message' => 'Account verified'
+        ]), 200);
+
+    }
+
     /**
      * Where to redirect users after registration.
      *
@@ -76,17 +104,28 @@ class RegisterController extends Controller
     protected function create(Request $request)
     {
 
+        $confirmation_code = str_random(30);
         $user = User::create([
                 'email' => $request['email'],
                 'username' => $request['username'],
                 'password' => Hash::make($request['password']),
-                'api_token' => $this->generateApiToken()
+                'api_token' => $this->generateApiToken(),
+                'confirmation_code' => $confirmation_code
                 ]);
+
+        if($user == null)
+            return null;
 
         $profile = new Profile();
         $profile->user_id = $user->id;
         $profile->gender = $request['gender'];
         $profile->save();
+
+        Mail::send('confirmation', ['confirmation_code' => $confirmation_code]
+                    , function($message) use ($request) {
+            $message->to($request['email'], $request['username'])
+                ->subject('Verify your email address');
+        });
 
         return $user;
 

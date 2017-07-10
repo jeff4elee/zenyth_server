@@ -29,7 +29,7 @@ return [
     |
     */
 
-    'host' => env('MAIL_HOST', 'smtp.mailgun.org'),
+    'host' => 'smtp.gmail.com',
 
     /*
     |--------------------------------------------------------------------------
@@ -56,8 +56,8 @@ return [
     */
 
     'from' => [
-        'address' => env('MAIL_FROM_ADDRESS', 'hello@example.com'),
-        'name' => env('MAIL_FROM_NAME', 'Example'),
+        'address' => 'zenythtestemail@zenyth.com',
+        'name' => '605Industries',
     ],
 
     /*
@@ -84,9 +84,9 @@ return [
     |
     */
 
-    'username' => env('MAIL_USERNAME'),
+    'username' => 'zenythtestemail@gmail.com',
 
-    'password' => env('MAIL_PASSWORD'),
+    'password' => 'zenyth2017',
 
     /*
     |--------------------------------------------------------------------------
@@ -119,5 +119,7 @@ return [
             resource_path('views/vendor/mail'),
         ],
     ],
+
+    'pretend' => false,
 
 ];
