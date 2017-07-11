@@ -56,5 +56,10 @@ class ForgotPasswordController extends Controller
                 $message->to($request['email'], null)
                     ->subject('Reset your password');
             });
+
+        return response(json_encode([
+            'success' => true,
+            'message' => 'Check your email'
+        ]), 200);
     }
 }
