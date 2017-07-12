@@ -34,7 +34,10 @@ class UserController extends Controller
             ->where('relationships.status', '=', true)
             ->get();
 
-        return $searchResult;
+        return response(json_encode([
+            'success' => true,
+            'data' => $searchResult
+        ]), 200);
 
     }
 
@@ -50,13 +53,18 @@ class UserController extends Controller
         $api_token = $request->header('Authorization');
         $user_id = User::where('api_token', $api_token)->first()->id;
 
-        return User::select('users.*')
+        $searchResult = User::select('users.*')
             ->leftJoin('relationships', function ($join) use ($user_id) {
                 $join->on('users.id', '=', 'relationships.requestee')
                     ->where('relationships.requester', '=', $user_id);
             })
             ->where('relationships.blocked', true)
             ->get();
+
+        return response(json_encode([
+            'success' => true,
+            'data' => $searchResult
+        ]), 200);
 
     }
 
@@ -72,13 +80,18 @@ class UserController extends Controller
         $api_token = $request->header('Authorization');
         $user_id = User::where('api_token', $api_token)->first()->id;
 
-        return User::select('users.*')
+        $searchResult = User::select('users.*')
             ->leftJoin('relationships', function ($join) use ($user_id) {
                 $join->on('users.id', '=', 'relationships.requester')
                     ->where('relationships.requestee', '=', $user_id);
             })
             ->where('relationships.status', false)
             ->get();
+
+        return response(json_encode([
+            'success' => true,
+            'data' => $searchResult
+        ]), 200);
 
     }
 
@@ -113,7 +126,10 @@ class UserController extends Controller
             ->whereIn('id', $result_id)
             ->orderByRaw('FIELD(`id`,' . $result_id_string . ')')->get();
 
-        return $searchResult;
+        return response(json_encode([
+            'success' => true,
+            'data' => $searchResult
+        ]), 200);
 
     }
 
