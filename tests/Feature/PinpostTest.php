@@ -28,7 +28,7 @@ class PinpostTest extends TestCase
         $api_token = factory('App\User')->create()->api_token;
 
         //perform the json request
-        $response = $this->json('POST', '/api/pinpost', [
+        $response = $this->json('POST', '/api/pinpost/create', [
             'title' => 'testpin',
             'description' => 'fake description for fake pins',
             'latitude' => 33.33,
@@ -59,7 +59,7 @@ class PinpostTest extends TestCase
         //create a pinpost, with the title 'pintoread' and no image
         $pinpost = factory('App\Pinpost')->create(['title' => 'pintoread']);
 
-        $response = $this->json('GET', '/api/pinpost/' . $pinpost->id, [],
+        $response = $this->json('GET', '/api/pinpost/read/' . $pinpost->id, [],
             ['Authorization' => 'bearer ' . 'token']);
 
         $response->assertJson([
@@ -88,7 +88,7 @@ class PinpostTest extends TestCase
         $filename = Image::find($pinpost->thumbnail_id)->filename;
 
         //post request to update the created pin with new values
-        $this->json('POST', '/api/pinpost/' . $pinpost->id, [
+        $this->json('POST', '/api/pinpost/update/' . $pinpost->id, [
             'title' => 'updatedpin',
             'description' => 'fake description for fake pins',
             'latitude' => 33.33,
@@ -115,7 +115,7 @@ class PinpostTest extends TestCase
 
         $this->assertDatabaseHas('pinposts', ['title' => 'pintodelete']);
 
-        $this->json('DELETE', '/api/pinpost/' . $pinpost->id, [],
+        $this->json('DELETE', '/api/pinpost/delete/' . $pinpost->id, [],
             ['Authorization' => 'bearer ' . User::find($pinpost->creator_id)->api_token]);
 
         $this->assertDatabaseMissing('pinposts', ['title' => 'pintodelete']);

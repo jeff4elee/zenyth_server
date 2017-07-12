@@ -23,13 +23,13 @@ Route::post('password/reset/{token}',
             'Auth\ResetPasswordController@restorePassword')->name('api_pw_reset');
 
 Route::get('user/search_user/{name}', 'UserController@searchUser');
-Route::get('comment/{comment_id}', 'CommentController@read');
-Route::get('pinpost/{pinpost_id}', 'PinpostController@read');
-Route::get('pinvite/{pinvite_id}', 'PinviteController@read');
+Route::get('comment/read/{comment_id}', 'CommentController@read');
+Route::get('pinpost/read/{pinpost_id}', 'PinpostController@read');
+Route::get('pinvite/read/{pinvite_id}', 'PinviteController@read');
 
 Route::group(['middleware' => 'authenticated'], function() {
 
-    Route::get('user/{user_id}/get_friends', 'UserController@getFriends');
+    Route::get('user/get_friends/{user_id}', 'UserController@getFriends');
     Route::get('user/blocked_users', 'UserController@blockedUsers');
     Route::get('user/friend_requests', 'UserController@getFriendRequests');
 
@@ -37,43 +37,43 @@ Route::group(['middleware' => 'authenticated'], function() {
 
     Route::post('relationship/friend_request',
                 'RelationshipController@friendRequest');
-    Route::post('relationship/{requester_id}/response',
+    Route::post('relationship/response/{requester_id}',
                 'RelationshipController@respondToRequest');
-    Route::delete('relationship/{user_id}/delete',
+    Route::delete('relationship/delete/{user_id}',
                 'RelationshipController@deleteFriend');
-    Route::get('relationship/{user_id}/block',
+    Route::get('relationship/block/{user_id}',
                 'RelationshipController@blockUser');
-    Route::get('relationship/{user1_id}/{user2_id}',
+    Route::get('relationship/friended/{user1_id}/{user2_id}',
                 'RelationshipController@friended');
 
-    Route::get('entity/{entity_id}/likesCount',
+    Route::get('entity/likes_count/{entity_id}',
                 'EntityController@likesCount');
-    Route::get('entity/{entity_id}/commentsCount',
+    Route::get('entity/commentsCount/comments_count',
                 'EntityController@commentsCount');
-    Route::get('entity/{entity_id}/likes_from_users',
+    Route::get('entity/likes_from_users/{entity_id}',
                 'EntityController@likesUsers');
-    Route::get('entity/{entity_id}/comments',
+    Route::get('entity/comments/{entity_id}',
                 'EntityController@comments');
 
-    Route::post('pinpost', 'PinpostController@create');
-    Route::post('pinpost/{pinpost_id}', 'PinpostController@update');
-    Route::delete('pinpost/{pinpost_id}', 'PinpostController@delete');
+    Route::post('pinpost/create', 'PinpostController@create');
+    Route::post('pinpost/update/{pinpost_id}', 'PinpostController@update');
+    Route::delete('pinpost/delete/{pinpost_id}', 'PinpostController@delete');
 
 
-    Route::post('pinvite', 'PinviteController@create');
-    Route::post('pinvite/{pinvite_id}', 'PinviteController@update');
-    Route::delete('pinvite/{pinvite_id}', 'PinviteController@delete');
-    Route::post('pinvite/{pinvite_id}/uploadPicture',
+    Route::post('pinvite/create', 'PinviteController@create');
+    Route::post('pinvite/update/{pinvite_id}', 'PinviteController@update');
+    Route::delete('pinvite/delete/{pinvite_id}', 'PinviteController@delete');
+    Route::post('pinvite/uploadPicture/{pinvite_id}',
                     'PinviteController@uploadPicture');
-    Route::delete('pinvite/{image_id}/deletePicture',
+    Route::delete('pinvite/deletePicture/{image_id}',
                     'PinviteController@deletePicture');
 
-    Route::post('comment', 'CommentController@create');
-    Route::post('comment/{comment_id}', 'CommentController@update');
-    Route::delete('comment/{comment_id}', 'CommentController@delete');
+    Route::post('comment/create', 'CommentController@create');
+    Route::post('comment/update/{comment_id}', 'CommentController@update');
+    Route::delete('comment/delete/{comment_id}', 'CommentController@delete');
 
-    Route::post('like', 'LikeController@create');
-    Route::delete('like/{entity_id}', 'LikeController@delete');
+    Route::post('like/create', 'LikeController@create');
+    Route::delete('like/delete/{entity_id}', 'LikeController@delete');
 
     Route::get('storage/{filename}', 'ImageController@showImage');
 

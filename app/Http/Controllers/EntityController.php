@@ -22,7 +22,11 @@ class EntityController extends Controller
     public function likesCount($entity_id)
     {
 
-        return Entity::find($entity_id)->likesCount();
+        $count = Entity::find($entity_id)->likesCount();
+        return response(json_encode([
+            'success' => true,
+            'data' => $count
+        ]), 200);
 
     }
 
@@ -35,7 +39,11 @@ class EntityController extends Controller
     public function commentsCount($entity_id)
     {
 
-        return Entity::find($entity_id)->commentsCount();
+        $count = Entity::find($entity_id)->commentsCount();
+        return response(json_encode([
+            'success' => true,
+            'data' => $count
+        ]), 200);
 
     }
 
@@ -57,7 +65,10 @@ class EntityController extends Controller
             array_push($users_arr, $like->user);
         }
 
-        return $users_arr;
+        return response(json_encode([
+            'success' => true,
+            'data' => $users_arr
+        ]), 200);
 
     }
 

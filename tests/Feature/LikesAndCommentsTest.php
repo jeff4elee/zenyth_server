@@ -40,7 +40,7 @@ class LikesAndCommentsTest extends TestCase
 
         $this->assertEquals(0, $entity->likesCount());
 
-        $this->json('POST', '/api/like', ['entity_id' => $entity->id], ['Authorization' => 'bearer ' .$user->api_token]);
+        $this->json('POST', '/api/like/create', ['entity_id' => $entity->id], ['Authorization' => 'bearer ' .$user->api_token]);
 
         $this->assertEquals(1, $entity->likesCount());
 
@@ -54,7 +54,7 @@ class LikesAndCommentsTest extends TestCase
         $entity = Entity::find($like->entity_id);
         $numLikes = $entity->likesCount();
 
-        $this->json('DELETE', '/api/like/' . $entity->id, [], ['Authorization' => 'bearer ' .$like->user->api_token]);
+        $this->json('DELETE', '/api/like/delete/' . $entity->id, [], ['Authorization' => 'bearer ' .$like->user->api_token]);
 
         $this->assertEquals($numLikes-1, $entity->likesCount());
 
@@ -69,7 +69,7 @@ class LikesAndCommentsTest extends TestCase
 
         $this->assertEquals(0, $entity->commentsCount());
 
-        $response = $this->json('POST', '/api/comment', [
+        $response = $this->json('POST', '/api/comment/create', [
             'on_entity_id' => $entity->id,
             'comment' => 'test comment'
         ], ['Authorization' => 'bearer ' . $user->api_token]);
@@ -88,7 +88,7 @@ class LikesAndCommentsTest extends TestCase
 
         $comment = $entity->comments->first();
 
-        $this->json('GET', '/api/comment/' . $comment->id);
+        $this->json('GET', '/api/comment/read/' . $comment->id);
 
         $this->assertEquals(1, $entity->commentsCount());
 
@@ -101,7 +101,7 @@ class LikesAndCommentsTest extends TestCase
 
         $text = $comment->comment;
 
-        $response = $this->json('POST', '/api/comment/' . $comment->id, ['comment' => 'NewText!!'],
+        $response = $this->json('POST', '/api/comment/update/' . $comment->id, ['comment' => 'NewText!!'],
             ['Authorization' => 'bearer ' . User::find($comment->user_id)->api_token]);
 
         $response->assertStatus(200);
@@ -118,7 +118,7 @@ class LikesAndCommentsTest extends TestCase
 
         $comment = factory('App\Comment')->create();
 
-        $this->json('DELETE', '/api/comment/' . $comment->id, [],
+        $this->json('DELETE', '/api/comment/delete/' . $comment->id, [],
             ['Authorization' => 'bearer ' .$comment->user->api_token]);
 
         $this->assertDatabaseMissing('comments', ['id' => $comment->id]);
