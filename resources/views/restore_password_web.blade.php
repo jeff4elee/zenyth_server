@@ -21,12 +21,7 @@
     <!--[if lt IE 9]>
     <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
     <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
-    <![endif]-->
-</head>
 
-<body>
-
-<div class="container">
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
     <script src="{{ URL::to('src/js/resetpassword.js') }}">
         var token = '{{ Session::token() }}';
@@ -34,6 +29,12 @@
         console.log(url);
 
     </script>
+    <![endif]-->
+</head>
+
+<body>
+
+<div class="container">
 
     <div class="form-signin">
         <h2 class="form-signin-heading">Reset your password</h2>
