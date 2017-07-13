@@ -57,11 +57,13 @@ class RegisterController extends Controller
         $user = User::where('email', '=', $email)->first();
         if($user == null) {
             return response(json_encode([
+                'success' => true,
                 'data' => false
             ]), 200);
         }
         else {
             return response(json_encode([
+                'success' => true,
                 'data' => true
             ]), 200);
         }
