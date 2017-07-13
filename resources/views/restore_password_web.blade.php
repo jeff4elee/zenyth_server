@@ -27,7 +27,7 @@
 
 <div class="container">
 
-    <form class="form-signin">
+
         <h2 class="form-signin-heading">Reset your password</h2>
         <label for="inputEmail" class="sr-only">Password</label>
         <input type="password" id="password" class="form-control" placeholder="Password" required autofocus>
@@ -35,7 +35,7 @@
         <input type="password" id="password_confirmation" class="form-control" placeholder="Confirm Password" required>
 
         <button class="btn btn-lg btn-primary btn-block" type="submit" id="Submit">Reset Password</button>
-    </form>
+    
 
 </div> <!-- /container -->
 
