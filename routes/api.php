@@ -15,14 +15,15 @@ use Illuminate\Http\Request;
 */
 
 Route::post('register', 'Auth\RegisterController@register');
-Route::get('email_exists/{email}', 'Auth\RegisterController@emailExists');
+Route::get('email_taken/{email}', 'Auth\RegisterController@emailTaken');
+Route::get('username_taken/{username}', 'Auth\RegisterController@usernameTaken');
 Route::post('login', 'Auth\LoginController@login');
 Route::get('logout', 'Auth\LogoutController@logout');
 Route::post('password/send_reset_password',
             'Auth\ForgotPasswordController@sendResetPasswordEmail');
 Route::post('password/reset/{token}',
             'Auth\ResetPasswordController@restorePassword')->name('api_pw_reset');
-Route::get('oauth', 'Auth\OauthController@oauthLogin');
+Route::get('oauth', 'Auth\OAuthController@oauthLogin');
 
 Route::get('user/search_user/{name}', 'UserController@searchUser');
 Route::get('comment/read/{comment_id}', 'CommentController@read');

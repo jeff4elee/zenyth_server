@@ -51,10 +51,29 @@ class RegisterController extends Controller
 
     }
 
-    public function emailExists($email)
+    public function emailTaken($email)
     {
 
         $user = User::where('email', '=', $email)->first();
+        if($user == null) {
+            return response(json_encode([
+                'success' => true,
+                'data' => false
+            ]), 200);
+        }
+        else {
+            return response(json_encode([
+                'success' => true,
+                'data' => true
+            ]), 200);
+        }
+
+    }
+
+    public function usernameTaken($username)
+    {
+
+        $user = User::where('username', '=', $username)->first();
         if($user == null) {
             return response(json_encode([
                 'success' => true,
