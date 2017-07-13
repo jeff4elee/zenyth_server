@@ -29,11 +29,11 @@
 <body>
 
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
-<script src="{{ URL::to('src/js/resetpassword.js') }}">
+<script src="{{ URL::to('src/js/resetpassword.js') }}"></script>
+<script>
     var token = '{{ Session::token() }}';
     var url = '{{ route('api_pw_reset', ['token' => $token]) }}';
 </script>
-
 <div class="container">
 
     <div class="form-signin">
