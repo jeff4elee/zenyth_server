@@ -49,7 +49,7 @@
 
 </div> <!-- /container -->
 
-<div>
+<div id="body">
     <button class="btn btn-lg btn-primary btn-block" type="submit" id="Submit">Reset Password</button>
 </div>
 
