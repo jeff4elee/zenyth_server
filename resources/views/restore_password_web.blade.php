@@ -11,7 +11,7 @@
     <title>Reset Password</title>
 
     <!-- Bootstrap core CSS -->
-    <link href="{{ URL::to('src/css/bootstrap.min.css') }}" rel="stylesheet">
+    <link href="{{ URL::asset('src/css/bootstrap.min.css') }}" rel="stylesheet">
 
     <!-- Custom styles for this template -->
     <link href="{{ URL::to('src/css/main.css') }}" rel="stylesheet">
@@ -31,7 +31,7 @@
         var token = '{{ Session::token() }}';
         var url = '{{ route('api_pw_reset', ['token' => $token]) }}';
         console.log(url);
-        
+
     </script>
 
     <div class="form-signin">
