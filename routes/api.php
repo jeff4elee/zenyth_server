@@ -23,7 +23,7 @@ Route::post('password/send_reset_password',
             'Auth\ForgotPasswordController@sendResetPasswordEmail');
 Route::post('password/reset/{token}',
             'Auth\ResetPasswordController@restorePassword')->name('api_pw_reset');
-Route::get('oauth', 'Auth\OAuthController@oauthLogin');
+Route::post('oauth/login', 'Auth\OAuthController@oauthLogin');
 
 Route::get('user/search_user/{name}', 'UserController@searchUser');
 Route::get('comment/read/{comment_id}', 'CommentController@read');
