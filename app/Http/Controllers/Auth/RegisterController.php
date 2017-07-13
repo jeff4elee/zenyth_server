@@ -51,6 +51,23 @@ class RegisterController extends Controller
 
     }
 
+    public function emailExists($email)
+    {
+
+        $user = User::where('email', '=', $email)->first();
+        if($user == null) {
+            return response(json_encode([
+                'data' => false
+            ]), 200);
+        }
+        else {
+            return response(json_encode([
+                'data' => true
+            ]), 200);
+        }
+
+    }
+
     public function confirm($confirmation_code)
     {
 
