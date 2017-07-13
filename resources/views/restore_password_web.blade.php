@@ -32,7 +32,6 @@
 <script src="{{ URL::to('src/js/resetpassword.js') }}">
     var token = '{{ Session::token() }}';
     var url = '{{ route('api_pw_reset', ['token' => $token]) }}';
-    console.log(url);
 </script>
 
 <div class="container">
