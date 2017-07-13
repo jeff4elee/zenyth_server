@@ -18,7 +18,7 @@
     <link href="../../assets/css/ie10-viewport-bug-workaround.css" rel="stylesheet">
 
     <!-- Custom styles for this template -->
-    <link href="signin.css" rel="stylesheet">
+    <link href="{{ URL::to('src/css/main.css') }}" rel="stylesheet">
 
     <!-- Just for debugging purposes. Don't actually copy these 2 lines! -->
     <!--[if lt IE 9]><script src="../../assets/js/ie8-responsive-file-warning.js"></script><![endif]-->
@@ -41,7 +41,7 @@
         <label for="inputPassword" class="sr-only">Confirm Password</label>
         <input type="password" id="password_confirmation" class="form-control" placeholder="Confirm Password" required>
 
-        <button class="btn btn-lg btn-primary btn-block" type="submit" id="Submit">Sign in</button>
+        <button class="btn btn-lg btn-primary btn-block" type="submit" id="Submit">Reset Password</button>
 
 </div> <!-- /container -->
 
