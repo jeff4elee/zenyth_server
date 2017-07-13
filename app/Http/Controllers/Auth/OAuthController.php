@@ -12,7 +12,7 @@ class OAuthController extends Controller
     public function oauthLogin(Request $request)
     {
 
-        $access_token = $request->header('Authorization ');
+        $access_token = $request->header('Authorization');
         $client = new Client();
         $res = $client->get('https://graph.facebook.com/me?fields=email,name&access_token=' . $access_token);
 
