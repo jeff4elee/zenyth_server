@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Auth;
 
+use App\Http\Controllers\Controller;
 use GuzzleHttp\Client;
 
 class OAuthController extends Controller
