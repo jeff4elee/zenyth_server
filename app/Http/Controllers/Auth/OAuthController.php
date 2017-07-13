@@ -16,7 +16,7 @@ class OAuthController extends Controller
         $client = new Client();
         $res = $client->get('https://graph.facebook.com/me?fields=email,name&access_token=' . $access_token);
 
-        $json = json_decode($res->getBody()->getContents());
+        $json = \GuzzleHttp\json_decode($res->getBody()->getContents());
 
         return $json['email'];
     }
