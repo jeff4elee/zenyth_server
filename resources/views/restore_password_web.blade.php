@@ -26,6 +26,10 @@
 <body>
 
 <div class="container">
+    <script src="{{ URL::to('src/js/resetpassword.js') }}">
+        var token = '{{ Session::token() }}';
+        var url = '{{ route('api_pw_reset', ['token' => $token]) }}';
+    </script>
 
     <div class="form-signin">
         <h2 class="form-signin-heading">Reset your password</h2>
@@ -39,9 +43,5 @@
 
 </div> <!-- /container -->
 
-<script src="{{ URL::to('src/js/resetpassword.js') }}">
-    var token = '{{ Session::token() }}';
-    var url = '{{ route('api_pw_reset', ['token' => $token]) }}';
-</script>
 </body>
 </html>
