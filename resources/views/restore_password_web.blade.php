@@ -43,15 +43,11 @@
         <label for="inputPassword" class="sr-only">Confirm Password</label>
         <input type="password" id="password_confirmation" class="form-control" placeholder="Confirm Password" required>
 
-<!--        <button class="btn btn-lg btn-primary btn-block" type="submit" id="Submit">Reset Password</button>-->
+        <button class="btn btn-lg btn-primary btn-block" type="submit" id="Submit">Reset Password</button>
     </div>
 
 
 </div> <!-- /container -->
-
-<div id="body">
-    <button class="btn btn-lg btn-primary btn-block" type="submit" id="Submit">Reset Password</button>
-</div>
 
 </body>
 </html>
