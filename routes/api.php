@@ -15,6 +15,7 @@ use Illuminate\Http\Request;
 */
 
 Route::post('register', 'Auth\RegisterController@register');
+Route::get('email_exists/{email}', 'Auth\RegisterController@emailExists');
 Route::post('login', 'Auth\LoginController@login');
 Route::get('logout', 'Auth\LogoutController@logout');
 Route::post('password/send_reset_password',
