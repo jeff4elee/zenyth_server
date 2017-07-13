@@ -1,3 +1,4 @@
+alert();
 $('#Submit').on('click', function() {
     $.ajax({
         method: 'POST',
