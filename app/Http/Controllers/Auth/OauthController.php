@@ -8,12 +8,15 @@ use GuzzleHttp\Client;
 
 class OauthController extends RegisterController
 {
+    use AuthenticationTrait;
     protected $facebookGraphApi = 'https://graph.facebook.com/me?fields=email,name&access_token=';
 
     public function oauthFBLogin(Request $request)
     {
 
         $access_token = $request->header('Authorization');
+        $access_token = $this->stripBearerFromToken($access_token);
+
         $client = new Client();
         $res = $client->get($this->facebookGraphApi . $access_token);
 
