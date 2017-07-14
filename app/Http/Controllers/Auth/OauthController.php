@@ -10,15 +10,24 @@ class OauthController extends RegisterController
 {
     use AuthenticationTrait;
     protected $facebookGraphApi = 'https://graph.facebook.com/me?fields=email,name&access_token=';
+    protected $googleApi = 'https://www.googleapis.com/oauth2/v3/userinfo?access_token=';
 
-    public function oauthFBLogin(Request $request)
+    public function oauthLogin(Request $request)
     {
 
         $access_token = $request->header('Authorization');
         $access_token = $this->stripBearerFromToken($access_token);
 
         $client = new Client();
-        $res = $client->get($this->facebookGraphApi . $access_token);
+
+        $oauth_type = $request['oauth_type'];
+        $res = null;
+
+        if(strtolower($oauth_type) == "facebook")
+            $res = $client->get($this->facebookGraphApi . $access_token);
+
+        else if(strtolower($oauth_type) == "google")
+            $res = $client->get($this->googleApi . $access_token);
 
         $json = json_decode($res->getBody()->getContents(), true);
 
