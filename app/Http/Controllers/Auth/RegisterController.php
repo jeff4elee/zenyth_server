@@ -41,6 +41,12 @@ class RegisterController extends Controller
         $user = $this->create($request);
         if($user != null)
         {
+            Mail::send('confirmation', ['confirmation_code' => $user->confirmation_code]
+                , function($message) use ($request) {
+                    $message->to($request['email'], $request['username'])
+                        ->subject('Verify your email address');
+                });
+
             return response(json_encode([
                 'success' => true,
                 'data' => $user
@@ -49,6 +55,27 @@ class RegisterController extends Controller
 
         return response(json_encode(['success' => false]), 200);
 
+    }
+
+    public function oauthRegister(Request $request)
+    {
+        $validator = DataValidator::validateOauthRegister($request);
+        if($validator->fails())
+            return response(json_encode([
+                'success' => false,
+                'errors' => $validator->errors()->all()
+            ]), 200);
+
+        $user = $this->create($request);
+        if($user != null) {
+            return response(json_encode([
+                'success' => true,
+                'data' => [
+                    'user' => $user,
+                    'api_token' => $user->api_token
+                ]
+            ]), 200);
+        }
     }
 
     public function emailTaken($email)
@@ -139,7 +166,7 @@ class RegisterController extends Controller
      * @param  Request $request
      * @return User
      */
-    protected function create(Request $request)
+    public function create(Request $request)
     {
 
         $confirmation_code = str_random(30);
@@ -156,14 +183,15 @@ class RegisterController extends Controller
 
         $profile = new Profile();
         $profile->user_id = $user->id;
-        $profile->gender = $request['gender'];
-        $profile->save();
 
-        Mail::send('confirmation', ['confirmation_code' => $confirmation_code]
-                    , function($message) use ($request) {
-            $message->to($request['email'], $request['username'])
-                ->subject('Verify your email address');
-        });
+        if($request->has('gender'))
+            $profile->gender = $request['gender'];
+        if($request->has('first_name'))
+            $profile->first_name = $request['first_name'];
+        if($request->has('last_name'))
+            $profile->last_name = $request['last_name'];
+
+        $profile->save();
 
         return $user;
 
