@@ -66,10 +66,14 @@ class RegisterController extends Controller
                 'errors' => $validator->errors()->all()
             ]), 200);
 
-        $user = $this->create($request);
-        // Nullifies confirmation code because logged in through oauth
-        $user->confirmation_code = null;
-        $user->update();
+        $user = User::create([
+            'email' => $request['email'],
+            'username' => $request['username'],
+            'password' => Hash::make(str_random(16)),
+            'api_token' => $this->generateApiToken(),
+            'confirmation_code' => null
+        ]);
+        $this->createProfile($request, $user);
 
         if($user != null) {
             return response(json_encode([
@@ -185,6 +189,15 @@ class RegisterController extends Controller
         if($user == null)
             return null;
 
+        $this->createProfile($request, $user);
+
+        return $user;
+
+    }
+
+    public function createProfile(Request $request, $user)
+    {
+
         $profile = new Profile();
         $profile->user_id = $user->id;
 
@@ -196,8 +209,6 @@ class RegisterController extends Controller
             $profile->last_name = $request['last_name'];
 
         $profile->save();
-
-        return $user;
 
     }
 
