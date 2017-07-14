@@ -38,9 +38,13 @@ class RegisterController extends Controller
                 'errors' => $validator->errors()->all()
             ]), 200);
 
-        $user = $this->create($request);
-        if($user != null)
+        $userArr = $this->create($request);
+
+        if($userArr != null)
         {
+            $user = $userArr[0];
+            $profile = $userArr[1];
+
             Mail::send('confirmation', ['confirmation_code' => $user->confirmation_code]
                 , function($message) use ($request) {
                     $message->to($request['email'], $request['username'])
@@ -49,7 +53,11 @@ class RegisterController extends Controller
 
             return response(json_encode([
                 'success' => true,
-                'data' => $user
+                'data' => [
+                    'user' => $user,
+                    'profile' => $profile
+                ]
+
             ]), 200);
         }
 
@@ -73,14 +81,15 @@ class RegisterController extends Controller
             'api_token' => $this->generateApiToken(),
             'confirmation_code' => null
         ]);
-        $this->createProfile($request, $user);
+        $profile = $this->createProfile($request, $user);
 
         if($user != null) {
             return response(json_encode([
                 'success' => true,
                 'data' => [
                     'user' => $user,
-                    'api_token' => $user->api_token
+                    'api_token' => $user->api_token,
+                    'profile' => $profile
                 ]
             ]), 200);
         }
@@ -142,6 +151,7 @@ class RegisterController extends Controller
             ]), 401);
 
         $user->confirmation_code = null;
+        $user->api_token = $this->generateApiToken();
         $user->update();
 
         return response(json_encode([
@@ -182,16 +192,16 @@ class RegisterController extends Controller
                 'email' => $request['email'],
                 'username' => $request['username'],
                 'password' => Hash::make($request['password']),
-                'api_token' => $this->generateApiToken(),
+                'api_token' => null,
                 'confirmation_code' => $confirmation_code
                 ]);
 
         if($user == null)
             return null;
 
-        $this->createProfile($request, $user);
+        $profile = $this->createProfile($request, $user);
 
-        return $user;
+        return [$user, $profile];
 
     }
 
@@ -209,6 +219,7 @@ class RegisterController extends Controller
             $profile->last_name = $request['last_name'];
 
         $profile->save();
+        return $profile;
 
     }
 
