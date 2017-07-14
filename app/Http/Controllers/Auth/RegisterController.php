@@ -67,6 +67,10 @@ class RegisterController extends Controller
             ]), 200);
 
         $user = $this->create($request);
+        // Nullifies confirmation code because logged in through oauth
+        $user->confirmation_code = null;
+        $user->update();
+
         if($user != null) {
             return response(json_encode([
                 'success' => true,
