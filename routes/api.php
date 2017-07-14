@@ -15,6 +15,7 @@ use Illuminate\Http\Request;
 */
 
 Route::post('register', 'Auth\RegisterController@register');
+Route::post('oauth/register', 'Auth\RegisterController@oauthRegister');
 Route::get('email_taken/{email}', 'Auth\RegisterController@emailTaken');
 Route::get('username_taken/{username}', 'Auth\RegisterController@usernameTaken');
 Route::post('login', 'Auth\LoginController@login');
@@ -23,7 +24,7 @@ Route::post('password/send_reset_password',
             'Auth\ForgotPasswordController@sendResetPasswordEmail');
 Route::post('password/reset/{token}',
             'Auth\ResetPasswordController@restorePassword')->name('api_pw_reset');
-Route::post('oauth/login', 'Auth\OAuthController@oauthLogin');
+Route::post('oauth/fb/login', 'Auth\OauthController@oauthFBLogin');
 
 Route::get('user/search_user/{name}', 'UserController@searchUser');
 Route::get('comment/read/{comment_id}', 'CommentController@read');

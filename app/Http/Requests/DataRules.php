@@ -10,8 +10,15 @@ class DataRules
         return [
             'username' => 'required|min:3|max:20|unique:users',
             'email' => 'required|email|max:255|unique:users',
-            'password' => 'required|alpha_num|min:8|max:16|confirmed',
-            'gender' => 'required'
+            'password' => 'required|alpha_num|min:8|max:16|confirmed'
+        ];
+    }
+
+    static public function oauthRegisterRules()
+    {
+        return [
+            'username' => 'required|min:3|max:20|unique:users',
+            'email' => 'required|email|max:255|unique:users',
         ];
     }
 
