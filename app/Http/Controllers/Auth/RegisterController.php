@@ -217,6 +217,10 @@ class RegisterController extends Controller
             $profile->first_name = $request['first_name'];
         if($request->has('last_name'))
             $profile->last_name = $request['last_name'];
+        if($request->has('date_of_birth')) {
+            $birthdate = \DateTime::createFromFormat('M d, Y', $request['date_of_birth']);
+            $profile->date_of_birth = $birthdate;
+        }
 
         $profile->save();
         return $profile;
