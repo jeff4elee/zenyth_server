@@ -25,7 +25,7 @@ class CreateInvitationsTable extends Migration
                 ->references('id')->on('users')
                 ->onDelete('cascade');
             $table->timestamp('invited_on')
-                ->default(Carbon::now());
+                ->nullable();
         });
     }
 

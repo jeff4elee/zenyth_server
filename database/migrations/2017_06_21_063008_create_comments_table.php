@@ -33,7 +33,7 @@ class CreateCommentsTable extends Migration
                 ->references('id')->on('users')
                 ->onDelete('cascade');
             $table->timestamp('updated_at')
-                ->default(Carbon::now());
+                ->default(DB::raw('CURRENT_TIMESTAMP'));
         });
     }
 
