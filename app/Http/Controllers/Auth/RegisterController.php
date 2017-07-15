@@ -6,6 +6,7 @@ use App\User;
 use App\Profile;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\DataValidator;
+use Carbon\Carbon;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Foundation\Auth\RegistersUsers;
 use Illuminate\Http\Request;
@@ -152,6 +153,7 @@ class RegisterController extends Controller
 
         $user->confirmation_code = null;
         $user->api_token = $this->generateApiToken();
+        $user->token_expired_on = Carbon::now()->addDays(365);
         $user->update();
 
         return response(json_encode([

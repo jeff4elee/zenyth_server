@@ -18,7 +18,7 @@ class CreateImagesTable extends Migration
             $table->increments('id');
             $table->string('filename', 37);
             $table->timestamp('created_at')
-                ->default(Carbon::now());
+                ->default(DB::raw('CURRENT_TIMESTAMP'));
         });
     }
 

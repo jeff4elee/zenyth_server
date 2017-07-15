@@ -22,16 +22,14 @@ class CreateUsersTable extends Migration
             $table->string('api_token', 60)->unique()
                 ->nullable();
 
-            $token_expired_on = Carbon::now()->addDays(365);
-            $table->dateTime('token_expired_on')
-                    ->default($token_expired_on);
+            $table->dateTime('token_expired_on')->nullable();
 
             $table->string('confirmation_code', 30)->nullable();
 
             $table->rememberToken();
 
             $table->dateTime('created_at')
-                    ->default(Carbon::now());
+                    ->default(DB::raw('CURRENT_TIMESTAMP'));
         });
     }
 

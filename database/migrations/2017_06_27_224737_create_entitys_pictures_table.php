@@ -23,7 +23,7 @@ class CreateEntitysPicturesTable extends Migration
                 ->references('id')->on('images')
                 ->onDelete('cascade');
             $table->timestamp('posted_on')
-                ->default(Carbon::now());
+                ->default(DB::raw('CURRENT_TIMESTAMP'));
         });
     }
 
