@@ -225,7 +225,7 @@ class RegisterController extends Controller
         if($request->has('last_name'))
             $profile->last_name = $request['last_name'];
         if($request->has('birthday')) {
-            $birthday = \DateTime::createFromFormat('M d, Y', $request['birthday']);
+            $birthday = \DateTime::createFromFormat('Y-m-d', $request['birthday']);
             $profile->birthday = $birthday;
         }
 
