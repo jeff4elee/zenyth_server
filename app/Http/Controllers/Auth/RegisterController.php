@@ -90,7 +90,12 @@ class RegisterController extends Controller
                 'data' => [
                     'user' => $user,
                     'api_token' => $user->api_token,
-                    'profile' => $profile
+                    'profile' => [
+                        'first_name' => $profile->first_name,
+                        'last_name' => $profile->last_name,
+                        'gender' => $profile->gender,
+                        'date_of_birth' => date_format($profile->date_of_birth, "Y-m-d")
+                    ]
                 ]
             ]), 200);
         }
