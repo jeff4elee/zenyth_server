@@ -47,8 +47,8 @@ class ProfileController extends Controller
             ]);
         }
 
-        if($request->has('date_of_birth')) {
-            $birthdate = \DateTime::createFromFormat('M d, Y', $request['date_of_birth']);
+        if($request->has('birthday')) {
+            $birthdate = \DateTime::createFromFormat('M d, Y', $request['birthday']);
             $profile->date_of_birth = $birthdate;
         }
 

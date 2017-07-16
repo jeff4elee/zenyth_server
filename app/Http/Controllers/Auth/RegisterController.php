@@ -94,7 +94,7 @@ class RegisterController extends Controller
                         'first_name' => $profile->first_name,
                         'last_name' => $profile->last_name,
                         'gender' => $profile->gender,
-                        'date_of_birth' => date_format($profile->date_of_birth, "Y-m-d")
+                        'birthday' => date_format($profile->birthday, "Y-m-d")
                     ]
                 ]
             ]), 200);
@@ -224,9 +224,9 @@ class RegisterController extends Controller
             $profile->first_name = $request['first_name'];
         if($request->has('last_name'))
             $profile->last_name = $request['last_name'];
-        if($request->has('date_of_birth')) {
-            $birthdate = \DateTime::createFromFormat('M d, Y', $request['date_of_birth']);
-            $profile->date_of_birth = $birthdate;
+        if($request->has('birthday')) {
+            $birthday = \DateTime::createFromFormat('M d, Y', $request['birthday']);
+            $profile->birthday = $birthday;
         }
 
         $profile->save();
