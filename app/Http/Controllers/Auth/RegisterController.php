@@ -47,8 +47,8 @@ class RegisterController extends Controller
             $profile = $userArr[1];
 
             Mail::send('confirmation', ['confirmation_code' => $user->confirmation_code]
-                , function($message) use ($request) {
-                    $message->to($request['email'], $request['username'])
+                , function($message) use ($request, $profile) {
+                    $message->to($request['email'], $profile->first_name . " " . $profile->last_name)
                         ->subject('Verify your email address');
                 });
 
@@ -90,12 +90,7 @@ class RegisterController extends Controller
                 'data' => [
                     'user' => $user,
                     'api_token' => $user->api_token,
-                    'profile' => [
-                        'first_name' => $profile->first_name,
-                        'last_name' => $profile->last_name,
-                        'gender' => $profile->gender,
-                        'birthday' => date_format($profile->birthday, "Y-m-d")
-                    ]
+                    'profile' => $profile
                 ]
             ]), 200);
         }
