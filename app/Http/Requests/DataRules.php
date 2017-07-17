@@ -34,7 +34,8 @@ class DataRules
     static public function sendResetPWEmailRules()
     {
         return [
-            'email' => 'required|email'
+            'username' => 'required_without:email',
+            'email' => 'email'
         ];
     }
 
