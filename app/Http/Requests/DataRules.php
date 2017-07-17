@@ -8,9 +8,10 @@ class DataRules
     static public function registerRules()
     {
         return [
-            'username' => 'required|min:3|max:20|unique:users',
+            'username' => 'required|min:3|max:20|unique:users|alpha_dash',
             'email' => 'required|email|max:255|unique:users',
-            'password' => 'required|alpha_num|min:8|max:16|confirmed'
+            'password' => 'required|alpha_num|min:8|max:16|confirmed',
+            'birthday' => 'date_format:Y-m-d'
         ];
     }
 
