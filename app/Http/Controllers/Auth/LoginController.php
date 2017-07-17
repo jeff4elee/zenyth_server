@@ -43,12 +43,13 @@ class LoginController extends Controller
             ]), 200);
 
         $user = null;
-        $password = $request->input('password');
-        $username = $request->input('username');
+        $password = $request['password'];
+        $user = null;
 
-        $user = User::where('username', $username)->first();
-        if($user == null)
-            $user = User::where('email', $username)->first();
+        if($request->has('username'))
+            $user = User::where('username', $request['username'])->first();
+        else if($request->has('email'))
+            $user = User::where('email', $request['email'])->first();
 
 
         if ($user == null) {
