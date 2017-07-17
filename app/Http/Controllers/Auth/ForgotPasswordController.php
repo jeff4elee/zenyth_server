@@ -70,7 +70,8 @@ class ForgotPasswordController extends Controller
 
         return response(json_encode([
             'success' => true,
-            'message' => 'Check your email'
+            'message' => 'Check your email',
+            'data' => $email
         ]), 200);
     }
 }
