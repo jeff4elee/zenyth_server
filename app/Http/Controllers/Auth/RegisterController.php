@@ -83,7 +83,7 @@ class RegisterController extends Controller
                 'errors' => ['Invalid access token']
             ]), 200);
         }
-        $oauth_type = $request['oauth_type'];
+        $oauth_type = strtolower($request['oauth_type']);
         $email = null;
 
         if(isset($json['email'])) {
