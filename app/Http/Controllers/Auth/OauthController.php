@@ -24,7 +24,7 @@ class OauthController extends RegisterController
 
         // Validates token
         $json = $this->oauthValidate($request);
-        if($json == null) {
+        if($json == null || $json->has('error')) {
             return response(json_encode([
                 'success' => false,
                 'errors' => ['Invalid access token']
