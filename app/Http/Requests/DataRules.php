@@ -24,6 +24,13 @@ class DataRules
         ];
     }
 
+    static public function oauthLoginRules()
+    {
+        return [
+            'oauth_type' => 'required'
+        ];
+    }
+
     static public function loginRules()
     {
         return [

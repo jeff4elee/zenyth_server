@@ -79,8 +79,25 @@ class RegisterController extends Controller
             ]), 200);
 
         $json = $this->oauthValidate($request);
+        if($json == null) {
+            return response(json_encode([
+                'success' => false,
+                'errors' => ['Invalid access token']
+            ]), 200);
+        }
         $oauth_type = $request['oauth_type'];
-        $email = $json['email'];
+        if($json->has('email')) {
+            $email = $json['email'];
+        }
+        else {
+            return response(json_encode([
+                'success' => true,
+                'data' => [
+                    'email_access' => false,
+                    'message' => 'No access to email'
+                ]
+            ]), 200);
+        }
 
         // If email provided in the request param is not the same as the one
         // from the access token provided, then it's invalid

@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Auth;
 use App\User;
 use Illuminate\Http\Request;
 use GuzzleHttp\Client;
+use App\Http\Requests\DataValidator;
 
 class OauthController extends RegisterController
 {
@@ -14,15 +15,28 @@ class OauthController extends RegisterController
 
     public function oauthLogin(Request $request)
     {
+        $validator = DataValidator::validateOauthLogin($request);
+        if($validator->fails())
+            return response(json_encode([
+                'success' => false,
+                'errors' => $validator->errors()->all()
+            ]), 200);
 
+        // Validates token
         $json = $this->oauthValidate($request);
+        if($json == null) {
+            return response(json_encode([
+                'success' => false,
+                'errors' => ['Invalid access token']
+            ]), 200);
+        }
         $email = $json['email'];
 
         $user = User::where('email', '=', $email)->first();
         if($user != null) {
 
             $oauth = $user->oauth;
-            if($oauth->facebook || $oauth->google)
+            if($oauth->facebook || $oauth->google) {
                 return response(json_encode([
                     'success' => true,
                     'data' => [
@@ -30,11 +44,12 @@ class OauthController extends RegisterController
                         'api_token' => $user->api_token
                     ]
                 ]), 200);
+            }
             else {
                 return response(json_encode([
                     'success' => false,
                     'errors' => ['An account with the same email has already been created'],
-                    'can_merge' => true
+                    'data' => ['can_merge' => true]
                 ]), 200);
             }
 
