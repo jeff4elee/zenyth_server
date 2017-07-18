@@ -29,8 +29,6 @@ class RegisterController extends Controller
 
     use RegistersUsers;
     use AuthenticationTrait;
-    protected $facebookGraphApi = 'https://graph.facebook.com/me?fields=email,name&access_token=';
-    protected $googleApi = 'https://www.googleapis.com/oauth2/v3/userinfo?access_token=';
 
     public function register(Request $request)
     {
@@ -117,7 +115,7 @@ class RegisterController extends Controller
 
         if($user != null) {
             $profile = $this->createProfile($request, $user);
-            $oauth = Oauth();
+            $oauth = new Oauth();
             $oauth->user_id = $user->id;
             if($oauth_type == 'facebook')
                 $oauth->facebook = true;
