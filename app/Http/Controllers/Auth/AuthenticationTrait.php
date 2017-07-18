@@ -33,6 +33,9 @@ trait AuthenticationTrait
 
     public function oauthValidate(Request $request) {
         $access_token = $request->header('Authorization');
+        if($access_token == null) {
+            return null;
+        }
         $access_token = $this->stripBearerFromToken($access_token);
 
         $client = new Client();
@@ -46,6 +49,9 @@ trait AuthenticationTrait
         else if(strtolower($oauth_type) == "google")
             $res = $client->get($this->googleApi . $access_token);
 
+        if($res == null) {
+            return null;
+        }
         $json = json_decode($res->getBody()->getContents(), true);
         return $json;
     }
