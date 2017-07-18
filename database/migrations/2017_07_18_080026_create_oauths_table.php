@@ -16,7 +16,8 @@ class CreateOauthsTable extends Migration
         Schema::create('oauths', function (Blueprint $table) {
             $table->increments('id');
             $table->unsignedInteger('user_id')
-                ->references('id')->on('users');
+                ->references('id')->on('users')
+                ->onDelete('cascade');
             $table->boolean('facebook')->default(false);
             $table->boolean('google')->default(false);
         });

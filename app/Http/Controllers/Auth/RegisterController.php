@@ -117,15 +117,14 @@ class RegisterController extends Controller
 
         if($user != null) {
             $profile = $this->createProfile($request, $user);
-            $oauth = Oauth::create([
-                'user_id' => $user->id
-            ]);
+            $oauth = Oauth();
+            $oauth->user_id = $user->id;
             if($oauth_type == 'facebook')
                 $oauth->facebook = true;
             else if ($oauth_type == 'google')
                 $oauth->google = true;
 
-            $oauth->update();
+            $oauth->save();
 
             return response(json_encode([
                 'success' => true,
