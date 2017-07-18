@@ -87,10 +87,11 @@ class RegisterController extends Controller
         }
         $oauth_type = $request['oauth_type'];
         $email = null;
-        if($json->has('email')) {
+
+        if(isset($json['email'])) {
             $email = $json['email'];
         }
-        else if(!$json->has('error')) {
+        else if(!isset($json['error'])) {
             return response(json_encode([
                 'success' => true,
                 'data' => [
