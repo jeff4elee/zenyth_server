@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Auth;
 
 use App\User;
+use Illuminate\Http\Request;
 
 trait AuthenticationTrait
 {
@@ -28,5 +29,24 @@ trait AuthenticationTrait
             return null;
 
         return $api_token_arr[1];
+    }
+
+    public function oauthValidate(Request $request) {
+        $access_token = $request->header('Authorization');
+        $access_token = $this->stripBearerFromToken($access_token);
+
+        $client = new Client();
+
+        $oauth_type = $request['oauth_type'];
+        $res = null;
+
+        if(strtolower($oauth_type) == "facebook")
+            $res = $client->get($this->facebookGraphApi . $access_token);
+
+        else if(strtolower($oauth_type) == "google")
+            $res = $client->get($this->googleApi . $access_token);
+
+        $json = json_decode($res->getBody()->getContents(), true);
+        return $json;
     }
 }
