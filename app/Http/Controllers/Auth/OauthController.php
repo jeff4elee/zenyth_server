@@ -10,8 +10,6 @@ use App\Http\Requests\DataValidator;
 class OauthController extends RegisterController
 {
     use AuthenticationTrait;
-    protected $facebookGraphApi = 'https://graph.facebook.com/me?fields=email,name&access_token=';
-    protected $googleApi = 'https://www.googleapis.com/oauth2/v3/userinfo?access_token=';
 
     public function oauthLogin(Request $request)
     {
