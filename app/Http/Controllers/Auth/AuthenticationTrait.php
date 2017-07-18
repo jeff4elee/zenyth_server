@@ -45,13 +45,13 @@ trait AuthenticationTrait
 
         $client = new Client();
 
-        $oauth_type = $request['oauth_type'];
+        $oauth_type = strtolower($request['oauth_type']);
         $res = null;
 
-        if(strtolower($oauth_type) == "facebook")
+        if($oauth_type == "facebook")
             $res = $client->get($this->facebookGraphApi . $access_token);
 
-        else if(strtolower($oauth_type) == "google")
+        else if($oauth_type == "google")
             $res = $client->get($this->googleApi . $access_token);
 
         if($res == null) {
