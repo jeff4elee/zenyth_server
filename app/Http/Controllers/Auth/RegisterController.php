@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Auth;
 
 use App\User;
+use App\Oauth;
 use App\Profile;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\DataValidator;
@@ -28,6 +29,8 @@ class RegisterController extends Controller
 
     use RegistersUsers;
     use AuthenticationTrait;
+    protected $facebookGraphApi = 'https://graph.facebook.com/me?fields=email,name&access_token=';
+    protected $googleApi = 'https://www.googleapis.com/oauth2/v3/userinfo?access_token=';
 
     public function register(Request $request)
     {
@@ -75,16 +78,51 @@ class RegisterController extends Controller
                 'errors' => $validator->errors()->all()
             ]), 200);
 
+        $access_token = $request->header('Authorization');
+        $access_token = $this->stripBearerFromToken($access_token);
+
+        $client = new Client();
+
+        $oauth_type = $request['oauth_type'];
+        $res = null;
+
+        if(strtolower($oauth_type) == "facebook")
+            $res = $client->get($this->facebookGraphApi . $access_token);
+
+        else if(strtolower($oauth_type) == "google")
+            $res = $client->get($this->googleApi . $access_token);
+
+        $json = json_decode($res->getBody()->getContents(), true);
+
+        $email = $json['email'];
+
+        // If email provided in the request param is not the same as the one
+        // from the access token provided, then it's invalid
+        if($email != $request['email']) {
+            return response(json_encode([
+                'success' => false,
+                'errors' => ['Invalid access token']
+            ]), 200);
+        }
+
         $user = User::create([
-            'email' => $request['email'],
+            'email' => $email,
             'username' => $request['username'],
             'password' => Hash::make(str_random(16)),
             'api_token' => $this->generateApiToken(),
             'confirmation_code' => null
         ]);
-        $profile = $this->createProfile($request, $user);
 
         if($user != null) {
+            $profile = $this->createProfile($request, $user);
+            $oauth = Oauth::create([]);
+            if($oauth_type == 'facebook')
+                $oauth->facebook = true;
+            else if ($oauth_type == 'google')
+                $oauth->google = true;
+
+            $oauth->update();
+
             return response(json_encode([
                 'success' => true,
                 'data' => [

@@ -52,5 +52,10 @@ class User extends Model implements Authenticatable
         return $this->hasOne('App\Profile', 'user_id');
     }
 
+    public function oauth()
+    {
+        return $this->hasOne('App\Oauth', 'user_id');
+    }
+
 }
 
