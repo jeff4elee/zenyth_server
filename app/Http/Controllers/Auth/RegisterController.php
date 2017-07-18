@@ -86,10 +86,11 @@ class RegisterController extends Controller
             ]), 200);
         }
         $oauth_type = $request['oauth_type'];
+        $email = null;
         if($json->has('email')) {
             $email = $json['email'];
         }
-        else {
+        else if(!$json->has('error')) {
             return response(json_encode([
                 'success' => true,
                 'data' => [
@@ -98,10 +99,7 @@ class RegisterController extends Controller
                 ]
             ]), 200);
         }
-
-        // If email provided in the request param is not the same as the one
-        // from the access token provided, then it's invalid
-        if($email != $request['email']) {
+        else {
             return response(json_encode([
                 'success' => false,
                 'errors' => ['Invalid access token']
