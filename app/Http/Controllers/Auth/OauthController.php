@@ -36,19 +36,23 @@ class OauthController extends RegisterController
         $user = User::where('email', '=', $email)->first();
         if($user != null) {
 
-            if($user->confirmation_code != null)
+            $oauth = $user->oauth;
+            if($oauth->facebook || $oauth->google)
+                return response(json_encode([
+                    'success' => true,
+                    'data' => [
+                        'user' => $user,
+                        'api_token' => $user->api_token
+                    ]
+                ]), 200);
+            else {
                 return response(json_encode([
                     'success' => false,
-                    'errors' => ['Account has not been confirmed']
+                    'errors' => ['An account with the same email has already been created'],
+                    'can_merge' => true
                 ]), 200);
+            }
 
-            return response(json_encode([
-                'success' => true,
-                'data' => [
-                    'user' => $user,
-                    'api_token' => $user->api_token
-                ]
-            ]), 200);
 
         } else { // Not supposed to happen
             return response(json_encode([
