@@ -78,22 +78,8 @@ class RegisterController extends Controller
                 'errors' => $validator->errors()->all()
             ]), 200);
 
-        $access_token = $request->header('Authorization');
-        $access_token = $this->stripBearerFromToken($access_token);
-
-        $client = new Client();
-
+        $json = $this->oauthValidate($request);
         $oauth_type = $request['oauth_type'];
-        $res = null;
-
-        if(strtolower($oauth_type) == "facebook")
-            $res = $client->get($this->facebookGraphApi . $access_token);
-
-        else if(strtolower($oauth_type) == "google")
-            $res = $client->get($this->googleApi . $access_token);
-
-        $json = json_decode($res->getBody()->getContents(), true);
-
         $email = $json['email'];
 
         // If email provided in the request param is not the same as the one
