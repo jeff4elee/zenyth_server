@@ -21,10 +21,14 @@ class CreateProfilesTable extends Migration
                 ->onDelete('cascade');
             $table->unique('user_id');
 
-            $table->string('first_name', 30)->nullable();
-            $table->string('last_name', 30)->nullable();
-            $table->string('gender', 10)->nullable();
-            $table->date('birthday')->nullable();
+            $table->string('first_name', 30)->nullable()
+                ->default(null);
+            $table->string('last_name', 30)->nullable()
+                ->default(null);
+            $table->string('gender', 10)->nullable()
+                ->default(null);
+            $table->date('birthday')->nullable()
+                ->default(null);
         });
     }
 
