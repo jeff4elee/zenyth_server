@@ -29,6 +29,14 @@ class OauthController extends RegisterController
             ]), 200);
         }
         $email = $json['email'];
+
+        if($email == $request['email']) {
+            return response(json_encode([
+                'success' => false,
+                'errors' => ['Invalid access token']
+            ]), 200);
+        }
+
         $oauth_type = strtolower($request['oauth_type']);
 
         $user = User::where('email', '=', $email)->first();
