@@ -42,14 +42,14 @@ class LoginController extends Controller
                 'errors' => $validator->errors()->all()
             ]), 200);
 
-        $user = null;
         $password = $request['password'];
-        $user = null;
 
         if($request->has('username'))
             $user = User::where('username', $request['username'])->first();
         else if($request->has('email'))
             $user = User::where('email', $request['email'])->first();
+        else
+            $user = null;
 
 
         if ($user == null) {
