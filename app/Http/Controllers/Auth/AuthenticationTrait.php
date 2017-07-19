@@ -12,7 +12,7 @@ trait AuthenticationTrait
 {
 
     protected $facebookGraphApi = 'https://graph.facebook.com/me?fields=email,name&access_token=';
-    protected $googleApi = 'https://www.googleapis.com/oauth2/v3/userinfo?access_token=';
+    protected $googleApi = 'https://www.googleapis.com/oauth2/v3/tokeninfo?id_token=';
     protected $CLIENT_ID = '894303575310-9dqkdbua8pq2bajm24s7hob9fuibd1eb.apps.googleusercontent.com';
 
     public function generateApiToken()
@@ -61,14 +61,12 @@ trait AuthenticationTrait
         }
 
         else if($oauth_type == "google") {
-            //$res = $client->get($this->googleApi . $access_token);
-
-            $client = new \Google_Client([
-                'client_id' => $this->CLIENT_ID
-            ]);
-            $client->setScopes(['email']);
-            $payload = $client->verifyIdToken($access_token); // $access_token being the idToken form google
-            return $payload;
+            $res = $client->get($this->googleApi . $access_token);
+            if($res == null) {
+                return null;
+            }
+            $json = json_decode($res->getBody()->getContents(), true);
+            return $json;
         }
 
     }
