@@ -46,6 +46,9 @@ class RegisterController extends Controller
         {
             $user = $userArr[0];
             $profile = $userArr[1];
+            $oauth = new Oauth();
+            $oauth->user_id = $user->id;
+            $oauth->save()
 
             Mail::send('confirmation', ['confirmation_code' => $user->confirmation_code]
                 , function($message) use ($request, $profile) {
