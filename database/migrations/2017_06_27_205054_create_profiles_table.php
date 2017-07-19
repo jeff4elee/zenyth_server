@@ -23,7 +23,7 @@ class CreateProfilesTable extends Migration
 
             $table->string('first_name', 30)->nullable();
             $table->string('last_name', 30)->nullable();
-            $table->string('gender', 10);
+            $table->string('gender', 10)->nullable();
             $table->date('birthday')->nullable();
         });
     }
