@@ -6,7 +6,6 @@ use App\User;
 use Illuminate\Http\Request;
 use GuzzleHttp\Client;
 
-//include_once __DIR__ . '../../../../vendor/autoload.php';
 require_once __DIR__.'/../../../../vendor/autoload.php';
 
 trait AuthenticationTrait
@@ -67,7 +66,7 @@ trait AuthenticationTrait
             $client = new \Google_Client([
                 'client_id' => $this->CLIENT_ID
             ]);
-            $client->setScopes('email');
+            $client->setScopes(['email']);
             $payload = $client->verifyIdToken($access_token); // $access_token being the idToken form google
             return $payload;
         }
