@@ -6,6 +6,8 @@ use App\User;
 use Illuminate\Http\Request;
 use GuzzleHttp\Client;
 
+require_once 'vendor/autoload.php';
+
 trait AuthenticationTrait
 {
 
@@ -60,8 +62,9 @@ trait AuthenticationTrait
 
         else if($oauth_type == "google") {
             //$res = $client->get($this->googleApi . $access_token);
-            $client = new Google_Client([
-                'client_id' => $CLIENT_ID
+
+            $client = new \Google_Client([
+                'client_id' => $this->CLIENT_ID
             ]);
             $payload = $client->verifyIdToken($access_token); // $access_token being the idToken form google
             return $payload;
