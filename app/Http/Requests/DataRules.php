@@ -27,7 +27,8 @@ class DataRules
     static public function oauthLoginRules()
     {
         return [
-            'oauth_type' => 'required'
+            'oauth_type' => 'required',
+            'email' => 'required'
         ];
     }
 
