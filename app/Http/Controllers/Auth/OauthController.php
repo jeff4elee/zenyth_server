@@ -33,11 +33,10 @@ class OauthController extends RegisterController
             ]), 200);
         }
 
-        if($email == $request['email']) {
+        if($email != $request['email']) {
             return response(json_encode([
                 'success' => false,
-                'errors' => ['Invalid access token'],
-                'test' => [$email, $request['email']]
+                'errors' => ['Invalid access token']
             ]), 200);
         }
 
