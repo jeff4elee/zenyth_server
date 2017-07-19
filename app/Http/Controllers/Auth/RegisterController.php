@@ -117,6 +117,8 @@ class RegisterController extends Controller
         ]);
 
         if($user != null) {
+            $user->token_expired_on = Carbon::now()->addDays(365);
+            $user->update();
             $profile = $this->createProfile($request, $user);
             $oauth = new Oauth();
             $oauth->user_id = $user->id;
