@@ -62,7 +62,7 @@ class OauthController extends RegisterController
                 }
                 return response(json_encode([
                     'success' => false,
-                    'errors' => ['An account with the same email has already been created'],
+                    'errors' => ['A Google account with the same email has already been created. Do you want to merge?'],
                     'data' => ['mergeable' => true]
                 ]), 200);
             }
@@ -78,7 +78,7 @@ class OauthController extends RegisterController
                 }
                 return response(json_encode([
                     'success' => false,
-                    'errors' => ['An account with the same email has already been created'],
+                    'errors' => ['A Facebook account with the same email has already been created. Do you want to merge?'],
                     'data' => ['mergeable' => true]
                 ]), 200);
             }
@@ -97,7 +97,7 @@ class OauthController extends RegisterController
                 }
                 return response(json_encode([
                     'success' => false,
-                    'errors' => ['An account with the same email has already been created'],
+                    'errors' => ['An account with the same email has already been created. Do you want to merge?'],
                     'data' => ['mergeable' => true]
                 ]), 200);
             }
