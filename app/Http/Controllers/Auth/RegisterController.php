@@ -149,8 +149,10 @@ class RegisterController extends Controller
 
         $user = User::where('email', '=', $email)->first();
         $confirmed = false;
-        if($user->confirmation_code == null) {
-            $confirmed = true;
+        if($user != null) {
+            if ($user->confirmation_code == null) {
+                $confirmed = true;
+            }
         }
         return $this->takenResponse($user, $confirmed);
 
@@ -161,8 +163,10 @@ class RegisterController extends Controller
 
         $user = User::where('username', '=', $username)->first();
         $confirmed = false;
-        if($user->confirmation_code == null) {
-            $confirmed = true;
+        if($user != null) {
+            if ($user->confirmation_code == null) {
+                $confirmed = true;
+            }
         }
         return $this->takenResponse($user, $confirmed);
 
