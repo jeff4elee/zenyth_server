@@ -91,6 +91,10 @@ class RegisterController extends Controller
 
         if(isset($json['email'])) {
             $email = $json['email'];
+            $user = User::where('email', '=', $email)->first();
+            if(!$this->emailConfirmed($user)) {
+                $user->delete();
+            }
         }
         else if(!isset($json['error'])) {
             return response(json_encode([
@@ -144,18 +148,11 @@ class RegisterController extends Controller
     {
 
         $user = User::where('email', '=', $email)->first();
-        if($user == null) {
-            return response(json_encode([
-                'success' => true,
-                'data' => false
-            ]), 200);
+        $confirmed = false;
+        if($user->confirmation_code == null) {
+            $confirmed = true;
         }
-        else {
-            return response(json_encode([
-                'success' => true,
-                'data' => true
-            ]), 200);
-        }
+        return $this->takenResponse($user, $confirmed);
 
     }
 
@@ -163,19 +160,42 @@ class RegisterController extends Controller
     {
 
         $user = User::where('username', '=', $username)->first();
+        $confirmed = false;
+        if($user->confirmation_code == null) {
+            $confirmed = true;
+        }
+        return $this->takenResponse($user, $confirmed);
+
+    }
+
+    public function takenResponse($user, $confirmed)
+    {
         if($user == null) {
             return response(json_encode([
                 'success' => true,
-                'data' => false
+                'data' => [
+                    'taken' => false
+                ]
             ]), 200);
         }
         else {
             return response(json_encode([
                 'success' => true,
-                'data' => true
+                'data' => [
+                    'taken' => true,
+                    'confirmed' => $confirmed
+                ]
             ]), 200);
         }
+    }
 
+    public function emailConfirmed($user)
+    {
+        if($user->confirmation_code != null) {
+            return false;
+        } else {
+            return true;
+        }
     }
 
     public function confirm($confirmation_code)
