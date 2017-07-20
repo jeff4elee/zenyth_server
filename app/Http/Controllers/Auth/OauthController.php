@@ -27,8 +27,14 @@ class OauthController extends RegisterController
         if(isset($json['email'])) {
             $email = $json['email'];
         }
-        
         else if($json == null || isset($json['error']) || isset($json['error_description'])) {
+            return response(json_encode([
+                'success' => false,
+                'errors' => ['Invalid access token']
+            ]), 200);
+        }
+
+        if($email != $request['email']) {
             return response(json_encode([
                 'success' => false,
                 'errors' => ['Invalid access token']
