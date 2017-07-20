@@ -72,6 +72,12 @@ class RegisterController extends Controller
 
     public function oauthRegister(Request $request)
     {
+
+        $user = User::where('email', '=', $request['email'])->first();
+        if($user != null && !$this->emailConfirmed($user)) {
+            $user->delete();
+        }
+
         $validator = DataValidator::validateOauthRegister($request);
         if($validator->fails())
             return response(json_encode([
@@ -91,11 +97,6 @@ class RegisterController extends Controller
 
         if(isset($json['email'])) {
             $email = $json['email'];
-            $user = User::where('email', '=', $email)->first();
-            if(!$this->emailConfirmed($user)) {
-                $user->delete();
-                return response(json_encode(['test'=> 'here']));
-            }
         }
         else if(!isset($json['error'])) {
             return response(json_encode([
