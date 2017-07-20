@@ -94,6 +94,7 @@ class RegisterController extends Controller
             $user = User::where('email', '=', $email)->first();
             if(!$this->emailConfirmed($user)) {
                 $user->delete();
+                return response(json_encode(['test'=> 'here']));
             }
         }
         else if(!isset($json['error'])) {
@@ -195,11 +196,7 @@ class RegisterController extends Controller
 
     public function emailConfirmed($user)
     {
-        if($user->confirmation_code != null) {
-            return false;
-        } else {
-            return true;
-        }
+        return $user->confirmation_code == null;
     }
 
     public function confirm($confirmation_code)
