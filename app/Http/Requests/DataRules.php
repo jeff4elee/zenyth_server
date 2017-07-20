@@ -19,7 +19,7 @@ class DataRules
     {
         return [
             'username' => 'required|min:3|max:20|unique:users',
-            'email' => 'required|email|max:255|unique:users',
+            'email' => 'required|email|max:255',
             'oauth_type' => 'required'
         ];
     }
