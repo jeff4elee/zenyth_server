@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Auth;
 
 use App\User;
+use App\Profile;
 use Illuminate\Http\Request;
 use GuzzleHttp\Client;
 use App\Http\Requests\DataValidator;
@@ -45,6 +46,7 @@ class OauthController extends RegisterController
         $user = User::where('email', '=', $email)->first();
         if($user != null) {
             $oauth = $user->oauth;
+            $profile = $user->profile;
             $response = response(json_encode([
                 'success' => true,
                 'data' => [
@@ -61,12 +63,13 @@ class OauthController extends RegisterController
                     // merges to facebook account
                     $oauth->facebook = true;
                     $oauth->update();
+                    $this->mergeInformation($profile, $json, $oauth_type);
                     return $response;
                 }
                 return response(json_encode([
                     'success' => false,
                     'errors' => ['An account with the same email has already been created'],
-                    'data' => ['merge_google' => true]
+                    'data' => ['mergeable' => true]
                 ]), 200);
             }
             // Previously logged in with facebook but now logging in with google
@@ -76,12 +79,13 @@ class OauthController extends RegisterController
                     // merges to google account
                     $oauth->google = true;
                     $oauth->update();
+                    $this->mergeInformation($profile, $json, $oauth_type);
                     return $response;
                 }
                 return response(json_encode([
                     'success' => false,
                     'errors' => ['An account with the same email has already been created'],
-                    'data' => ['merge_facebook' => true]
+                    'data' => ['mergeable' => true]
                 ]), 200);
             }
 
@@ -94,12 +98,13 @@ class OauthController extends RegisterController
                         $oauth->facebook = true;
                     }
                     $oauth->update();
+                    $this->mergeInformation($profile, $json, $oauth_type);
                     return $response;
                 }
                 return response(json_encode([
                     'success' => false,
                     'errors' => ['An account with the same email has already been created'],
-                    'data' => ['can_merge' => true]
+                    'data' => ['mergeable' => true]
                 ]), 200);
             }
             else {
@@ -114,6 +119,31 @@ class OauthController extends RegisterController
             ]), 200);
         }
 
+    }
+
+    public function mergeInformation(Profile $profile, $json, $oauth_type)
+    {
+        $last_name_key = null;
+        $first_name_key = null;
+        if($oauth_type == 'google') {
+            $last_name_key = 'family_name';
+            $first_name_key = 'given_name';
+        }
+        else if($oauth_type == 'facebook') {
+            $last_name_key = 'last_name';
+            $first_name_key = 'first_name';
+        }
+
+        if(isset($json['gender']) && $profile->gender == null) {
+            $profile->gender = $json['gender'];
+        }
+        if(isset($json[$first_name_key]) && $profile->first_name == null) {
+            $profile->first_name = $json[$first_name_key];
+        }
+        if(isset($json[$last_name_key]) && $profile->last_name == null) {
+            $profile->last_name = $json[$last_name_key];
+        }
+        $profile->update();
     }
 
 }
