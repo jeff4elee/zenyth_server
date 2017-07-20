@@ -37,7 +37,6 @@
 <div class="container">
 
     <div class="form-signin">
-<!--        <form class="form-horizontal" role="form" method="POST" action="{{ route('api_pw_reset', ['token' => $token]) }}">-->
 
         <h2 class="form-signin-heading">Reset your password</h2>
         <label for="password" class="sr-only">Password</label>
@@ -47,7 +46,6 @@
 
         <button class="btn btn-lg btn-primary btn-block" type="submit" id="Submit">Reset Password</button>
 
-<!--        </form>-->
     </div>
 
 
