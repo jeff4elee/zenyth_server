@@ -21,27 +21,8 @@ class OauthController extends RegisterController
                 'errors' => $validator->errors()->all()
             ]), 200);
 
-        // Validates token
-        $json = $this->oauthValidate($request);
-        $email = null;
-        if(isset($json['email'])) {
-            $email = $json['email'];
-        }
-        else if($json == null || isset($json['error']) || isset($json['error_description'])) {
-            return response(json_encode([
-                'success' => false,
-                'errors' => ['Invalid access token']
-            ]), 200);
-        }
-
-        if($email != $request['email']) {
-            return response(json_encode([
-                'success' => false,
-                'errors' => ['Invalid access token']
-            ]), 200);
-        }
-
         $oauth_type = strtolower($request['oauth_type']);
+        $email = $request['email'];
 
         $user = User::where('email', '=', $email)->first();
         if($user != null) {

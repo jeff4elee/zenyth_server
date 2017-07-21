@@ -79,36 +79,10 @@ class RegisterController extends Controller
                 'errors' => $validator->errors()->all()
             ]), 200);
 
-        $json = $this->oauthValidate($request);
-        if($json == null) {
-            return response(json_encode([
-                'success' => false,
-                'errors' => ['Invalid access token']
-            ]), 200);
-        }
         $oauth_type = strtolower($request['oauth_type']);
-        $email = null;
 
-        if(isset($json['email'])) {
-            $email = $json['email'];
-        }
-        else if(!isset($json['error'])) {
-            return response(json_encode([
-                'success' => true,
-                'data' => [
-                    'email_access' => false,
-                    'message' => 'No access to email'
-                ]
-            ]), 200);
-        }
-        else {
-            return response(json_encode([
-                'success' => false,
-                'errors' => ['Invalid access token']
-            ]), 200);
-        }
-
-        $user = User::where('email', '=', $request['email'])->first();
+        $email = $request['email'];
+        $user = User::where('email', '=', $email)->first();
         if($user != null && !$this->emailConfirmed($user)) {
             $user->delete();
         }

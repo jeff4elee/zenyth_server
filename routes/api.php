@@ -13,9 +13,12 @@ use Illuminate\Http\Request;
 | is assigned the "api" middleware group. Enjoy building your API!
 |
 */
+Route::group(['middleware' => 'oauth'], function() {
+    Route::post('oauth/register', 'Auth\RegisterController@oauthRegister');
+    Route::post('oauth/login', 'Auth\OauthController@oauthLogin');
+});
 
 Route::post('register', 'Auth\RegisterController@register');
-Route::post('oauth/register', 'Auth\RegisterController@oauthRegister');
 Route::get('email_taken/{email}', 'Auth\RegisterController@emailTaken');
 Route::get('username_taken/{username}', 'Auth\RegisterController@usernameTaken');
 Route::post('login', 'Auth\LoginController@login');
@@ -24,8 +27,6 @@ Route::post('password/send_reset_password',
             'Auth\ForgotPasswordController@sendResetPasswordEmail');
 Route::post('password/reset/{token}',
             'Auth\ResetPasswordController@restorePassword')->name('api_pw_reset');
-Route::post('oauth/login', 'Auth\OauthController@oauthLogin');
-
 Route::get('user/search_user/{name}', 'UserController@searchUser');
 Route::get('comment/read/{comment_id}', 'CommentController@read');
 Route::get('pinpost/read/{pinpost_id}', 'PinpostController@read');
