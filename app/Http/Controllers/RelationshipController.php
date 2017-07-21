@@ -33,8 +33,8 @@ class RelationshipController extends Controller
                 'errors' => $validator->errors()->all()
             ]), 200);
 
-        $api_token = $request->header('Authorization');
-        $user_id = User::where('api_token', $api_token)->first()->id;
+        $user = $request->get('user');
+        $user_id = $user->id;
 
         /* Verifies if they are already friends or if there is no pending
             request */
@@ -78,8 +78,8 @@ class RelationshipController extends Controller
     public function respondToRequest(Request $request, $requester_id)
     {
 
-        $api_token = $request->header('Authorization');
-        $requestee_id = User::where('api_token', $api_token)->first()->id;
+        $user = $request->get('user');
+        $requestee_id = $user->id;
 
         $relationship = Relationship::where([
             ['requester', $requester_id],
@@ -133,8 +133,8 @@ class RelationshipController extends Controller
     public function deleteFriend(Request $request, $user_id)
     {
 
-        $api_token = $request->header('Authorization');
-        $requester_id = User::where('api_token', $api_token)->first()->id;
+        $user = $request->get('user');
+        $requester_id = $user->id;
 
         $relationship = self::friended($requester_id, $user_id);
 
@@ -168,8 +168,8 @@ class RelationshipController extends Controller
     public function blockUser(Request $request, $user_id)
     {
 
-        $api_token = $request->header('Authorization') ;
-        $requester_id = User::where('api_token', $api_token)->first()->id;
+        $user = $request->get('user');
+        $requester_id = $user->id;
 
         $relationship = self::friended($requester_id, $user_id);
 

@@ -42,6 +42,7 @@ class AuthenticatedMiddleware
 
         $request->headers->set('Authorization', $api_token);
         if($user != null) {
+            $request->merge(['user' => $user]);
             return $next($request);
         }
 

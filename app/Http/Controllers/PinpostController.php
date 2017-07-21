@@ -62,9 +62,8 @@ class PinpostController extends Controller
 
         $pin->entity_id = $entity->id;
 
-        /* Sets creator id */
-        $api_token = $request->header('Authorization');
-        $pin->creator_id = User::where('api_token', $api_token)->first()->id;
+        $user = $request->get('user');
+        $pin->creator_id = $user->id;
 
         $pin->save();
 
@@ -216,6 +215,14 @@ class PinpostController extends Controller
         return response(json_encode([
             'success' => true
         ]), 200);
+
+    }
+
+    public function fetchPost(Request $request)
+    {
+
+        $api_token = $request->header('Authorization');
+
 
     }
 
