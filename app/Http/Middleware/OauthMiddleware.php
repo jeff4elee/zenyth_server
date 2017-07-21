@@ -3,15 +3,15 @@
 namespace App\Http\Middleware;
 
 use Closure;
-use App\User;
 use App;
+use Illuminate\Http\Request;
 use App\Http\Controllers\Auth\AuthenticationTrait;
 use App\Http\Requests\DataValidator;
 
 class OauthMiddleware {
     use AuthenticationTrait;
 
-    public function handle($request, Closure $next)
+    public function handle(Request $request, Closure $next)
     {
 
         // Invalid access token response
