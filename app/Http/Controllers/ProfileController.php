@@ -10,8 +10,8 @@ class ProfileController extends Controller
 {
     public function update(Request $request)
     {
-        $api_token = $request->header('Authorization');
-        $profile = User::where('api_token', '=', $api_token)->first()->profile;
+        $user = $request->get('user');
+        $profile = $user->profile;
 
         if($request->has('first_name'))
             $profile->first_name = $request['first_name'];

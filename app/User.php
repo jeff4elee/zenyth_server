@@ -57,5 +57,38 @@ class User extends Model implements Authenticatable
         return $this->hasOne('App\Oauth', 'user_id');
     }
 
+    /*
+     * Relationships where this user is the requestee
+     */
+    public function requesteeRelationships()
+    {
+        return $this->hasMany('App\Relationship', 'requestee');
+    }
+
+    /*
+     * Relationships where this user is the requester
+     */
+    public function requesterRelationships()
+    {
+        return $this->hasMany('App\Relationship', 'requester');
+    }
+
+    public function friendsId()
+    {
+        $requesterRelationships = $this->requesterRelationships();
+        $requesteeRelationships = $this->requesteeRelationships();
+        $idArray = array([]);
+
+        foreach($requesterRelationships as $relationship) {
+            if($relationship->status)
+                array_push($idArray, $relationship->requestee);
+        }
+        foreach($requesteeRelationships as $relationship) {
+            if($relationship->status)
+                array_push($idArray, $relationship->requester);
+        }
+        return $idArray;
+    }
+
 }
 

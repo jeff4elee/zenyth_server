@@ -218,11 +218,25 @@ class PinpostController extends Controller
 
     }
 
+    /**
+     * Fetches all pinposts of friends ordered by latest first
+     *
+     * @param Request $request
+     * @return mixed
+     */
     public function fetchPost(Request $request)
     {
 
-        $api_token = $request->header('Authorization');
+        $user = $request->get('user');
+        $idArray = $user->friendsId();
+        $pinposts = Pinpost::select('*')
+            ->whereIn('creator_id', $idArray)
+            ->latest()->get();
 
+        return response(json_encode([
+            'success' => true,
+            'data' => $pinposts
+        ]), 200);
 
     }
 

@@ -52,9 +52,9 @@ class CommentController extends Controller
             $entitys_picture->save();
         }
 
-        $api_token = $request->header('Authorization');
+        $user = $request->get('user');
 
-        $comment->user_id = User::where('api_token', $api_token)->first()->id;
+        $comment->user_id = $user->id;
         $comment->save();
 
         return response(json_encode([

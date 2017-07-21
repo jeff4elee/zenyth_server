@@ -34,8 +34,8 @@ class LikeController extends Controller
 
         $like->entity_id = $request->input('entity_id');
 
-        $api_token = $request->header('Authorization');
-        $user_id = User::where('api_token', $api_token)->first()->id;
+        $user = $request->get('user');
+        $user_id = $user->id;
         $like->user_id = $user_id;
 
         $like->save();
@@ -58,8 +58,8 @@ class LikeController extends Controller
     public function delete(Request $request, $entity_id)
     {
 
-        $api_token = $request->header('Authorization');
-        $user_id = User::where('api_token', $api_token)->first()->id;
+        $user = $request->get('user');
+        $user_id = $user->id;
         $like = Like::where([
             ['entity_id', '=', $entity_id],
             ['user_id', '=', $user_id]

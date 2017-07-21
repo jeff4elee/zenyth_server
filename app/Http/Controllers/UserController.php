@@ -24,15 +24,10 @@ class UserController extends Controller
     public function getFriends($user_id)
     {
 
-        $searchResult = User::select('users.*')
-            ->leftJoin('relationships', function ($join) use ($user_id) {
-                $join->on('users.id', '=', 'relationships.requestee')
-                    ->where('relationships.requester', '=', $user_id)
-                    ->orOn('users.id', '=', 'relationships.requester')
-                    ->where('relationships.requestee', '=', $user_id);
-            })
-            ->where('relationships.status', '=', true)
-            ->get();
+        $user = User::where('id', '=', $user_id);
+        $friends_id = $user->friendsId();
+        $searchResult = User::select('*')
+            ->whereIn('id', $friends_id)->get();
 
         return response(json_encode([
             'success' => true,
@@ -50,8 +45,8 @@ class UserController extends Controller
     public function blockedUsers(Request $request)
     {
 
-        $api_token = $request->header('Authorization');
-        $user_id = User::where('api_token', $api_token)->first()->id;
+        $user = $request->get('user');
+        $user_id = $user->id;
 
         $searchResult = User::select('users.*')
             ->leftJoin('relationships', function ($join) use ($user_id) {
@@ -77,8 +72,8 @@ class UserController extends Controller
     public function getFriendRequests(Request $request)
     {
 
-        $api_token = $request->header('Authorization');
-        $user_id = User::where('api_token', $api_token)->first()->id;
+        $user = $request->get('user');
+        $user_id = $user->id;
 
         $searchResult = User::select('users.*')
             ->leftJoin('relationships', function ($join) use ($user_id) {
