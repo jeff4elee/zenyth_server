@@ -52,7 +52,7 @@ class OauthMiddleware {
                 return $response;
             }
             else {
-                $next($request);
+                return $next($request);
             }
 
         } else {

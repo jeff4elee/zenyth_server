@@ -5,6 +5,7 @@ namespace App\Http\Middleware;
 use Closure;
 use App\User;
 use App;
+use Illuminate\Http\Request;
 use App\Http\Controllers\Auth\AuthenticationTrait;
 
 
@@ -19,7 +20,7 @@ class AuthenticatedMiddleware
      * @param  \Closure  $next
      * @return mixed
      */
-    public function handle($request, Closure $next)
+    public function handle(Request $request, Closure $next)
     {
 
         $api_token = $request->header('Authorization');
