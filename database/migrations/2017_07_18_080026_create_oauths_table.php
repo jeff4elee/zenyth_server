@@ -3,9 +3,8 @@
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
-use Carbon\Carbon;
 
-class CreateImagesTable extends Migration
+class CreateOauthsTable extends Migration
 {
     /**
      * Run the migrations.
@@ -14,11 +13,13 @@ class CreateImagesTable extends Migration
      */
     public function up()
     {
-        Schema::create('images', function (Blueprint $table) {
+        Schema::create('oauths', function (Blueprint $table) {
             $table->increments('id');
-            $table->string('filename', 37);
-            $table->timestamp('created_at')
-                ->default(DB::raw('CURRENT_TIMESTAMP'));
+            $table->unsignedInteger('user_id')
+                ->references('id')->on('users')
+                ->onDelete('cascade');
+            $table->boolean('facebook')->default(false);
+            $table->boolean('google')->default(false);
         });
     }
 
@@ -29,6 +30,6 @@ class CreateImagesTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('images');
+        Schema::dropIfExists('oauths');
     }
 }

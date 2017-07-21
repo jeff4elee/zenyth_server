@@ -13,6 +13,16 @@ class DataValidator
         return Validator::make($request->all(), Rules::registerRules());
     }
 
+    static public function validateOauthRegister($request)
+    {
+        return Validator::make($request->all(), Rules::oauthRegisterRules());
+    }
+
+    static public function validateOauthLogin($request)
+    {
+        return Validator::make($request->all(), Rules::oauthLoginRules());
+    }
+
     static public function validateLogin($request)
     {
         return Validator::make($request->all(), Rules::loginRules());

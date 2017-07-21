@@ -3,9 +3,15 @@
 namespace App\Http\Controllers\Auth;
 
 use App\User;
+use Illuminate\Http\Request;
+use GuzzleHttp\Client;
 
 trait AuthenticationTrait
 {
+
+    protected $facebookGraphApi = 'https://graph.facebook.com/me?fields=email,first_name,last_name,gender&access_token=';
+    protected $googleApi = 'https://www.googleapis.com/oauth2/v3/tokeninfo?id_token=';
+
     public function generateApiToken()
     {
         do {
@@ -28,5 +34,32 @@ trait AuthenticationTrait
             return null;
 
         return $api_token_arr[1];
+    }
+
+    public function oauthValidate(Request $request) {
+        $access_token = $request->header('Authorization');
+        if($access_token == null) {
+            return null;
+        }
+        $access_token = $this->stripBearerFromToken($access_token);
+
+        $client = new Client();
+
+        $oauth_type = strtolower($request['oauth_type']);
+        $res = null;
+
+        if($oauth_type == "facebook") {
+            $res = $client->get($this->facebookGraphApi . $access_token);
+        }
+
+        else if($oauth_type == "google") {
+            $res = $client->get($this->googleApi . $access_token);
+        }
+        if($res == null) {
+            return null;
+        }
+        $json = json_decode($res->getBody()->getContents(), true);
+        return $json;
+
     }
 }

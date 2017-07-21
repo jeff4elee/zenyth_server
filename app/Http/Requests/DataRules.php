@@ -8,17 +8,35 @@ class DataRules
     static public function registerRules()
     {
         return [
-            'username' => 'required|min:3|max:20|unique:users',
-            'email' => 'required|email|max:255|unique:users',
+            'username' => 'required|min:3|max:20|alpha_dash',
+            'email' => 'required|email|max:255',
             'password' => 'required|alpha_num|min:8|max:16|confirmed',
-            'gender' => 'required'
+            'birthday' => 'date_format:Y-m-d'
+        ];
+    }
+
+    static public function oauthRegisterRules()
+    {
+        return [
+            'username' => 'required|min:3|max:20',
+            'email' => 'required|email|max:255',
+            'oauth_type' => 'required'
+        ];
+    }
+
+    static public function oauthLoginRules()
+    {
+        return [
+            'oauth_type' => 'required',
+            'email' => 'required'
         ];
     }
 
     static public function loginRules()
     {
         return [
-            'username' => 'required',
+            'username' => 'required_without:email',
+            'email' => 'email',
             'password' => 'required'
         ];
     }
@@ -26,7 +44,8 @@ class DataRules
     static public function sendResetPWEmailRules()
     {
         return [
-            'email' => 'required|email'
+            'username' => 'required_without:email',
+            'email' => 'email'
         ];
     }
 

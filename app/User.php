@@ -22,7 +22,7 @@ class User extends Model implements Authenticatable
     ];
 
     protected $hidden = [
-        'password', 'token_expired_on', 'api_token'
+        'password', 'token_expired_on', 'api_token', 'confirmation_code'
     ];
 
     public $timestamps = false;
@@ -50,6 +50,11 @@ class User extends Model implements Authenticatable
     public function profile()
     {
         return $this->hasOne('App\Profile', 'user_id');
+    }
+
+    public function oauth()
+    {
+        return $this->hasOne('App\Oauth', 'user_id');
     }
 
 }

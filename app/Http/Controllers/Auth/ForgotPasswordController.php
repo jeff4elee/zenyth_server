@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Auth;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\DataValidator;
 use App\PasswordReset;
+use App\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Mail;
 
@@ -46,20 +47,31 @@ class ForgotPasswordController extends Controller
             $dup_token = PasswordReset::where('token', '=', $token)->first();
         } while ($dup_token != null);
 
-        PasswordReset::create([
-            'email' => $request['email'],
-            'token' => $token
-        ]);
+        $email = null;
+        if($request->has('email')) {
+            $email = $request['email'];
+            PasswordReset::create([
+                'email' => $email,
+                'token' => $token
+            ]);
+        } else if($request->has('username')) {
+            $email = User::where('username','=', $request['username'])->first()->email;
+            PasswordReset::create([
+                'email' => $email,
+                'token' => $token
+            ]);
+        }
 
         Mail::send('restore_password_email', ['token' => $token]
-            , function($message) use ($request) {
-                $message->to($request['email'], null)
+            , function($message) use ($email) {
+                $message->to($email, null)
                     ->subject('Reset your password');
             });
 
         return response(json_encode([
             'success' => true,
-            'message' => 'Check your email'
+            'message' => 'Check your email',
+            'data' => $email
         ]), 200);
     }
 }

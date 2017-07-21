@@ -43,6 +43,10 @@ class Kernel extends HttpKernel
 
         'authenticated' => [
             \App\Http\Middleware\AuthenticatedMiddleware::class
+        ],
+
+        'oauth' => [
+            \App\Http\Middleware\OauthMiddleware::class
         ]
     ];
 
@@ -60,6 +64,7 @@ class Kernel extends HttpKernel
         'can' => \Illuminate\Auth\Middleware\Authorize::class,
         'guest' => \App\Http\Middleware\RedirectIfAuthenticated::class,
         'throttle' => \Illuminate\Routing\Middleware\ThrottleRequests::class,
-        'authenticated' => \App\Http\Middleware\AuthenticatedMiddleware::class
+        'authenticated' => \App\Http\Middleware\AuthenticatedMiddleware::class,
+        'oauth' => \App\Http\Middleware\OauthMiddleware::class
     ];
 }

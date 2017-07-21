@@ -3,9 +3,11 @@
 namespace App\Http\Controllers\Auth;
 
 use App\User;
+use App\Oauth;
 use App\Profile;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\DataValidator;
+use Carbon\Carbon;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Foundation\Auth\RegistersUsers;
 use Illuminate\Http\Request;
@@ -38,12 +40,30 @@ class RegisterController extends Controller
                 'errors' => $validator->errors()->all()
             ]), 200);
 
-        $user = $this->create($request);
-        if($user != null)
+        $userArr = $this->create($request);
+
+        if($userArr != null)
         {
+            $user = $userArr[0];
+            $profile = $userArr[1];
+            $oauth = new Oauth();
+            $oauth->user_id = $user->id;
+            $oauth->save();
+
+            // Sends confirmation email
+            Mail::send('confirmation', ['confirmation_code' => $user->confirmation_code]
+                , function($message) use ($request, $profile) {
+                    $message->to($request['email'], $profile->first_name . " " . $profile->last_name)
+                        ->subject('Verify your email address');
+                });
+
             return response(json_encode([
                 'success' => true,
-                'data' => $user
+                'data' => [
+                    'user' => $user,
+                    'profile' => $profile
+                ]
+
             ]), 200);
         }
 
@@ -51,23 +71,112 @@ class RegisterController extends Controller
 
     }
 
-    public function emailExists($email)
+    public function oauthRegister(Request $request)
+    {
+
+        // Checks for email, username, oauth_type
+        $validator = DataValidator::validateOauthRegister($request);
+        if($validator->fails())
+            return response(json_encode([
+                'success' => false,
+                'errors' => $validator->errors()->all()
+            ]), 200);
+
+        // use for case insensitive check
+        $oauth_type = strtolower($request['oauth_type']);
+
+        $email = $request['email'];
+        $user = User::where('email', '=', $email)->first();
+        if($user != null && !$this->emailConfirmed($user)) {
+            $user->delete();
+        }
+
+        // Creates a user with random password
+        $user = User::create([
+            'email' => $email,
+            'username' => $request['username'],
+            'password' => Hash::make(str_random(16)),
+            'api_token' => $this->generateApiToken(),
+            'confirmation_code' => null
+        ]);
+
+        if($user != null) {
+            $user->token_expired_on = Carbon::now()->addDays(365);
+            $user->update();
+            $profile = $this->createProfile($request, $user);
+            $oauth = new Oauth();
+            $oauth->user_id = $user->id;
+
+            if($oauth_type == 'facebook')
+                $oauth->facebook = true;
+            else if ($oauth_type == 'google')
+                $oauth->google = true;
+
+            $oauth->save();
+
+            return response(json_encode([
+                'success' => true,
+                'data' => [
+                    'user' => $user,
+                    'api_token' => $user->api_token,
+                    'profile' => $profile
+                ]
+            ]), 200);
+        }
+    }
+
+    public function emailTaken($email)
     {
 
         $user = User::where('email', '=', $email)->first();
+        $confirmed = false;
+        if($user != null) {
+            if ($user->confirmation_code == null) {
+                $confirmed = true;
+            }
+        }
+        return $this->takenResponse($user, $confirmed);
+
+    }
+
+    public function usernameTaken($username)
+    {
+
+        $user = User::where('username', '=', $username)->first();
+        $confirmed = false;
+        if($user != null) {
+            if ($user->confirmation_code == null) {
+                $confirmed = true;
+            }
+        }
+        return $this->takenResponse($user, $confirmed);
+
+    }
+
+    public function takenResponse($user, $confirmed)
+    {
         if($user == null) {
             return response(json_encode([
                 'success' => true,
-                'data' => false
+                'data' => [
+                    'taken' => false
+                ]
             ]), 200);
         }
         else {
             return response(json_encode([
                 'success' => true,
-                'data' => true
+                'data' => [
+                    'taken' => true,
+                    'confirmed' => $confirmed
+                ]
             ]), 200);
         }
+    }
 
+    public function emailConfirmed($user)
+    {
+        return $user->confirmation_code == null;
     }
 
     public function confirm($confirmation_code)
@@ -88,6 +197,8 @@ class RegisterController extends Controller
             ]), 401);
 
         $user->confirmation_code = null;
+        $user->api_token = $this->generateApiToken();
+        $user->token_expired_on = Carbon::now()->addDays(365);
         $user->update();
 
         return response(json_encode([
@@ -120,7 +231,7 @@ class RegisterController extends Controller
      * @param  Request $request
      * @return User
      */
-    protected function create(Request $request)
+    public function create(Request $request)
     {
 
         $confirmation_code = str_random(30);
@@ -128,25 +239,38 @@ class RegisterController extends Controller
                 'email' => $request['email'],
                 'username' => $request['username'],
                 'password' => Hash::make($request['password']),
-                'api_token' => $this->generateApiToken(),
+                'api_token' => null,
                 'confirmation_code' => $confirmation_code
                 ]);
 
         if($user == null)
             return null;
 
+        $profile = $this->createProfile($request, $user);
+
+        return [$user, $profile];
+
+    }
+
+    public function createProfile(Request $request, $user)
+    {
+
         $profile = new Profile();
         $profile->user_id = $user->id;
-        $profile->gender = $request['gender'];
+
+        if($request->has('gender'))
+            $profile->gender = $request['gender'];
+        if($request->has('first_name'))
+            $profile->first_name = $request['first_name'];
+        if($request->has('last_name'))
+            $profile->last_name = $request['last_name'];
+        if($request->has('birthday')) {
+            $birthday = \DateTime::createFromFormat('Y-m-d', $request['birthday']);
+            $profile->birthday = $birthday;
+        }
+
         $profile->save();
-
-        Mail::send('confirmation', ['confirmation_code' => $confirmation_code]
-                    , function($message) use ($request) {
-            $message->to($request['email'], $request['username'])
-                ->subject('Verify your email address');
-        });
-
-        return $user;
+        return $profile;
 
     }
 
