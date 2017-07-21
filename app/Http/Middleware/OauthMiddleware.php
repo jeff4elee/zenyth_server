@@ -20,7 +20,7 @@ class OauthMiddleware {
             'errors' => ['Invalid access token']
         ]), 401);
 
-        $validator = DataValidator::validateOauthLogin();
+        $validator = DataValidator::validateOauthLogin($request);
 
         if($validator->fails())
             return response(json_encode([
