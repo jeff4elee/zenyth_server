@@ -6,8 +6,6 @@ use App\User;
 use Illuminate\Http\Request;
 use GuzzleHttp\Client;
 
-require_once __DIR__.'/../../../../vendor/autoload.php';
-
 trait AuthenticationTrait
 {
 

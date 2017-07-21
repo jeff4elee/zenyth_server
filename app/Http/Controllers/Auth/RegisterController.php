@@ -50,6 +50,7 @@ class RegisterController extends Controller
             $oauth->user_id = $user->id;
             $oauth->save();
 
+            // Sends confirmation email
             Mail::send('confirmation', ['confirmation_code' => $user->confirmation_code]
                 , function($message) use ($request, $profile) {
                     $message->to($request['email'], $profile->first_name . " " . $profile->last_name)
@@ -72,6 +73,8 @@ class RegisterController extends Controller
 
     public function oauthRegister(Request $request)
     {
+
+        // Checks for email, username, oauth_type
         $validator = DataValidator::validateOauthRegister($request);
         if($validator->fails())
             return response(json_encode([
@@ -79,6 +82,7 @@ class RegisterController extends Controller
                 'errors' => $validator->errors()->all()
             ]), 200);
 
+        // use for case insensitive check
         $oauth_type = strtolower($request['oauth_type']);
 
         $email = $request['email'];
@@ -87,6 +91,7 @@ class RegisterController extends Controller
             $user->delete();
         }
 
+        // Creates a user with random password
         $user = User::create([
             'email' => $email,
             'username' => $request['username'],
@@ -101,6 +106,7 @@ class RegisterController extends Controller
             $profile = $this->createProfile($request, $user);
             $oauth = new Oauth();
             $oauth->user_id = $user->id;
+
             if($oauth_type == 'facebook')
                 $oauth->facebook = true;
             else if ($oauth_type == 'google')

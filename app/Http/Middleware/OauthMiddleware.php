@@ -31,6 +31,7 @@ class OauthMiddleware {
         $token = $request->header('Authorization');
         if($token != null) {
             $json = $this->oauthValidate($request);
+
             if($json == null) {
                 return $response;
             }

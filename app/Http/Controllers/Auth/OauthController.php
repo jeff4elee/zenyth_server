@@ -5,7 +5,6 @@ namespace App\Http\Controllers\Auth;
 use App\User;
 use App\Profile;
 use Illuminate\Http\Request;
-use GuzzleHttp\Client;
 use App\Http\Requests\DataValidator;
 
 class OauthController extends RegisterController
@@ -14,6 +13,8 @@ class OauthController extends RegisterController
 
     public function oauthLogin(Request $request)
     {
+
+        // Validates to see if request contains email and oauth_type
         $validator = DataValidator::validateOauthLogin($request);
         if($validator->fails())
             return response(json_encode([
@@ -24,6 +25,7 @@ class OauthController extends RegisterController
         $oauth_type = strtolower($request['oauth_type']);
         $email = $request['email'];
 
+        // Gets user with the same email
         $user = User::where('email', '=', $email)->first();
         if($user != null) {
             $oauth = $user->oauth;
