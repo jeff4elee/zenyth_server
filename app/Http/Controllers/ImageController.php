@@ -44,7 +44,7 @@ class ImageController extends Controller
         );
 
         try {
-            $client = new Guzzle\Http\Client();
+            $client = new Client();
             $image = $client->request('GET', $url);
             $contentType = strtolower($image->getHeader('Content-Type'));
             $extension = $mimeTypes[$contentType];
