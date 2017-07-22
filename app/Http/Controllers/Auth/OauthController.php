@@ -4,7 +4,6 @@ namespace App\Http\Controllers\Auth;
 
 use App\User;
 use App\Profile;
-use App\Image;
 use App\Http\Controllers\ImageController;
 use Illuminate\Http\Request;
 use App\Http\Requests\DataValidator;
@@ -98,11 +97,6 @@ class OauthController extends RegisterController
             }
 
 
-        } else { // Not supposed to happen
-            return response(json_encode([
-                'success' => false,
-                'errors' => ['Invalid email']
-            ]), 200);
         }
 
     }

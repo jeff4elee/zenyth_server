@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers\Auth;
 
+use App\Exceptions\ResponseHandler as Response;
+use App\Exceptions\Exceptions;
 use App\Http\Controllers\ImageController;
 use App\User;
 use App\Oauth;
@@ -13,8 +15,6 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Foundation\Auth\RegistersUsers;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Auth\AuthenticationTrait;
-use Illuminate\Support\Facades\Mail;
-use App\Image;
 
 class RegisterController extends Controller
 {
@@ -37,10 +37,7 @@ class RegisterController extends Controller
 
         $validator = DataValidator::validateRegister($request);
         if($validator->fails())
-            return response(json_encode([
-                'success' => false,
-                'errors' => $validator->errors()->all()
-            ]), 200);
+            return Response::validatorErrorResponse($validator);
 
         $userArr = $this->create($request);
 
@@ -56,17 +53,11 @@ class RegisterController extends Controller
             $subject = 'Verify your email address';
             $this->sendEmail('confirmation', $infoArray, $user->email, $name, $subject);
 
-            return response(json_encode([
-                'success' => true,
-                'data' => [
-                    'user' => $user,
-                    'profile' => $profile
-                ]
-
-            ]), 200);
+            return Response::dataResponse(['user' => $user, 'profile' => $profile],
+                'Successfully registered');
         }
 
-        return response(json_encode(['success' => false]), 200);
+        return Response::errorResponse(Exceptions::nullException(), 'Unable to create user');
 
     }
 
