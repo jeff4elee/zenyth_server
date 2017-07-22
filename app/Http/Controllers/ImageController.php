@@ -47,6 +47,7 @@ class ImageController extends Controller
             $client = new Client();
             $image = $client->request('GET', $url);
             $contentType = strtolower($image->getHeader('Content-Type'));
+            return $contentType;
             $extension = $mimeTypes[$contentType];
             $filename = ImageController::generateImageName($extension);
 
