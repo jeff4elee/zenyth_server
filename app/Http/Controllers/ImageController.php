@@ -47,14 +47,12 @@ class ImageController extends Controller
         try {
             $client = new Client();
             $image = $client->request('GET', $url);
-            $contentType = strtolower($image->getHeader('Content-Type')[0]);
-            $extension = $mimeTypes[$contentType];
+            //$contentType = strtolower($image->getHeader('Content-Type')[0]);
+            //$extension = $mimeTypes[$contentType];
 
-            $filename = ImageController::generateImageName($extension);
-
-            if($extension != null) {
-                Storage::disk('profile_pictures')->put($filename, $image->getBody());
-            }
+            $filename = ImageController::generateImageName('jpeg');
+            
+            Storage::disk('profile_pictures')->put($filename, $image->getBody());
 
             return $filename;
         } catch (Exception $error) {
