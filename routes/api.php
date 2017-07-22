@@ -85,3 +85,4 @@ Route::group(['middleware' => 'authenticated'], function() {
 
 });
 
+Route::get('/picture/{user_id}', 'ImageController@showProfileImage');

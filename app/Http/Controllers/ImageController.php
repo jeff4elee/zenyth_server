@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\File;
 use Illuminate\Http\UploadedFile;
 use Intervention\Image\Facades\Image as InterventionImage;
 use App\Image;
+use App\Profile;
 use GuzzleHttp\Client;
 
 /**
@@ -71,6 +72,14 @@ class ImageController extends Controller
     public function showImage($filename)
     {
         return InterventionImage::make(storage_path('app/images/' . $filename))
+            ->response();
+    }
+
+    public function showProfileImage($user_id)
+    {
+        $profile = Profile::where('user_id', '=', $user_id);
+        $filename = $profile->profilePicture->filename;
+        return InterventionImage::make(storage_path('app/profile_pictures/' . $filename))
             ->response();
     }
 
