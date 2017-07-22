@@ -14,6 +14,7 @@ use Illuminate\Foundation\Auth\RegistersUsers;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Auth\AuthenticationTrait;
 use Illuminate\Support\Facades\Mail;
+use App\Image;
 
 class RegisterController extends Controller
 {
