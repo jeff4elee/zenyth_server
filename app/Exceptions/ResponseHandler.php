@@ -66,6 +66,7 @@ class ResponseHandler
         if($validator != null) {
             $message = ResponseHandler::formatErrors($validator);
             $exception = Exceptions::parameterException();
+            return $exception->type;
 
             return response(json_encode([
                 'success' => false,
