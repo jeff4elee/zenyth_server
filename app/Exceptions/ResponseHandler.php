@@ -23,10 +23,8 @@ class ResponseHandler
     static public function formatErrors(Validator $validator)
     {
         $errors = $validator->errors()->all();
-        $message = "";
-        foreach($errors as $error) {
-            $message = $message . "\n" . $error;
-        }
+        $message = implode("\n", $errors);
+        
         return $message;
     }
 
@@ -43,7 +41,7 @@ class ResponseHandler
                     'code' => $exception->statusCode,
                     'message' => $message
                 ]
-            ]), $exception->statusCode);
+            ]), 200);
         }
 
         $error = [
@@ -58,7 +56,7 @@ class ResponseHandler
         return response(json_encode([
             'success' => false,
             'error' => $error
-        ]), $exception->statusCode);
+        ]), 200);
     }
 
     static public function validatorErrorResponse(Validator $validator)
@@ -74,7 +72,7 @@ class ResponseHandler
                     'code' => $exception->statusCode,
                     'message' => $message
                 ]
-            ]), $exception->statusCode);
+            ]), 200);
         } else
             return response(json_encode(['success' => false]), 400);
     }
@@ -86,13 +84,13 @@ class ResponseHandler
                 'success' => true,
                 'data' => $data,
                 'message' => $message
-            ]));
+            ]), 200);
         }
 
         return response(json_encode([
             'success' => true,
             'data' => $data
-        ]));
+        ]), 200);
     }
 
     static public function successResponse($message = null)
