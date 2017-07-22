@@ -9,7 +9,7 @@ use GuzzleHttp\Client;
 trait AuthenticationTrait
 {
 
-    protected $facebookGraphApi = 'https://graph.facebook.com/me?fields=email,first_name,last_name,gender,picture&access_token=';
+    protected $facebookGraphApi = 'https://graph.facebook.com/me?fields=email,first_name,last_name,gender,picture.type(large)&access_token=';
     protected $googleApi = 'https://www.googleapis.com/oauth2/v3/tokeninfo?id_token=';
 
     public function generateApiToken()
