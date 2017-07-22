@@ -3,7 +3,6 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use App\Http\Controllers\Response;
 use App\User;
 use App\Http\Traits\SearchUserTrait;
 

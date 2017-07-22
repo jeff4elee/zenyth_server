@@ -155,7 +155,8 @@ class PinpostController extends Controller
             $old_filename = $image->filename;
             ImageController::storeImage($request->file('thumbnail'), $image);
 
-            Storage::disk('images')->delete($old_filename);
+            if($old_filename != null)
+                Storage::disk('images')->delete($old_filename);
             $image->update();
         }
 

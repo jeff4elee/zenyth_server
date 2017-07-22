@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\PhoneNumber;
 use App\Address;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 
 class ProfileController extends Controller
 {
@@ -47,6 +48,16 @@ class ProfileController extends Controller
             ]);
         }
 
+        if($request->file('image')) {
+            $image = Image::find($pin->thumbnail_id);
+            $old_filename = $image->filename;
+            ImageController::storeImage($request->file('thumbnail'), $image, 'profile_pictures');
+
+            if($old_filename != null)
+                Storage::disk('profile_pictures')->delete($old_filename);
+            $image->update();
+        }
+
         if($request->has('birthday')) {
             $birthdate = \DateTime::createFromFormat('Y-m-d', $request['birthday']);
             $profile->date_of_birth = $birthdate;
@@ -59,4 +70,5 @@ class ProfileController extends Controller
             'data' => $profile
         ]), 200);
     }
+
 }

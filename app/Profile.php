@@ -24,4 +24,10 @@ class Profile extends Model
     {
         return $this->hasMany('App\PhoneNumber', 'profile_id');
     }
+
+    public function profilePicture()
+    {
+        return $this->belongsTo('App\Image', 'image_id');
+    }
 }
+
