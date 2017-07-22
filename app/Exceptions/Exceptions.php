@@ -11,7 +11,7 @@ class Exceptions
 
     static public function parameterException()
     {
-        return new Exception('InvalidParameterException', 100);
+        return new Exception('InvalidParameterException', 200);
     }
 
     static public function unauthenticatedException()
