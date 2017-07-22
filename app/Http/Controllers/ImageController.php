@@ -51,7 +51,7 @@ class ImageController extends Controller
             //$extension = $mimeTypes[$contentType];
 
             $filename = ImageController::generateImageName('jpeg');
-            
+
             Storage::disk('profile_pictures')->put($filename, $image->getBody());
 
             return $filename;

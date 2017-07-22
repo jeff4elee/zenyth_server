@@ -274,8 +274,8 @@ class RegisterController extends Controller
             $image = new Image();
             $filename = ImageController::storeProfileImage($request['picture_url']);
             $image->filename = $filename;
-            $profile->image_id = $image->id;
             $image->save();
+            $profile->image_id = $image->id;
         }
 
         $profile->save();
