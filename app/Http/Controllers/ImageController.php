@@ -40,15 +40,16 @@ class ImageController extends Controller
         $mimeTypes = array(
             'image/png' => 'png',
             'image/jpg' => 'jpeg',
+            'image/jpeg' => 'jpeg',
             'image/gif' => 'gif'
         );
 
         try {
             $client = new Client();
             $image = $client->request('GET', $url);
-            $contentType = strtolower($image->getHeader('Content-Type'));
-            return $contentType;
+            $contentType = strtolower($image->getHeader('Content-Type')[0]);
             $extension = $mimeTypes[$contentType];
+
             $filename = ImageController::generateImageName($extension);
 
             if($extension != null) {
