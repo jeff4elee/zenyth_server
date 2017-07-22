@@ -53,6 +53,7 @@ class OauthMiddleware {
                 return $response;
             }
             else {
+                $request->merge(['json' => $json]);
                 return $next($request);
             }
 

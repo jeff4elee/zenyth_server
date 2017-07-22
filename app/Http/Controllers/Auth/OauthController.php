@@ -26,6 +26,7 @@ class OauthController extends RegisterController
 
         $oauth_type = strtolower($request['oauth_type']);
         $email = $request['email'];
+        $json = $request['json'];
 
         // Gets user with the same email
         $user = User::where('email', '=', $email)->first();
