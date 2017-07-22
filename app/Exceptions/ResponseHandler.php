@@ -3,6 +3,7 @@
 namespace App\Exceptions;
 
 use App\Exceptions\Exception;
+use Illuminate\Validation\Validator;
 use Intervention\Image\Facades\Image as InterventionImage;
 
 class ResponseHandler
@@ -60,7 +61,7 @@ class ResponseHandler
         ]), $exception->statusCode);
     }
 
-    static public function validatorErrorResponse($validator)
+    static public function validatorErrorResponse(Validator $validator)
     {
         if($validator != null) {
             $message = ResponseHandler::formatErrors($validator);
