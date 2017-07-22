@@ -20,7 +20,7 @@ class ResponseHandler
         $responseArr[$key] = $value;
     }
 
-    static public function formatErrors($validator)
+    static public function formatErrors(Validator $validator)
     {
         $errors = $validator->errors()->all();
         $message = "";
@@ -75,7 +75,8 @@ class ResponseHandler
                     'message' => $message
                 ]
             ]), $exception->statusCode);
-        }
+        } else
+            return response(json_encode(['success' => false]), 400);
     }
 
     static public function dataResponse($data, $message = null)
