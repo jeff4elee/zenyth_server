@@ -79,12 +79,11 @@ class OauthController extends RegisterController
             // Previously created an account on the app but now logging in through oauth
             else if(!$oauth->facebook && !$oauth->google) {
                 if($request->has('merge') && $request['merge']) {
-                    if($oauth_type == 'google') {
-                        $oauth->google = true;
-                    } else if($oauth_type == 'facebook') {
-                        $oauth->facebook = true;
-                    }
-                    $oauth->update();
+                    if($oauth_type == 'google')
+                        $oauth->setGoogle(true);
+                    else if($oauth_type == 'facebook')
+                        $oauth->setFacebook(true);
+
                     $this->mergeInformation($profile, $json, $oauth_type);
                     return $response;
                 }
