@@ -51,6 +51,10 @@ class ImageController extends Controller
             $contentType = strtolower($image->getHeader('Content-Type')[0]);
             $extension = $mimeTypes[$contentType];
 
+            if($extension == null) {
+                return null;
+            }
+
             $filename = ImageController::generateImageName($extension);
 
             Storage::disk('profile_pictures')->put($filename, $image->getBody());
