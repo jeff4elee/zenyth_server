@@ -274,25 +274,6 @@ class RegisterController extends Controller
             'image_id' => $image_id
         ]);
 
-        /*
-        if($request->has('gender'))
-            $profile->gender = $request['gender'];
-        if($request->has('first_name'))
-            $profile->first_name = $request['first_name'];
-        if($request->has('last_name'))
-            $profile->last_name = $request['last_name'];
-        if($request->has('birthday')) {
-            $birthday = \DateTime::createFromFormat('Y-m-d', $request['birthday']);
-            $profile->birthday = $birthday;
-        }
-        if($request->has('picture_url')) {
-            $image = ImageController::storeProfileImage($request['picture_url']);
-            if($image != null)
-                $profile->image_id = $image->id;
-        }
-
-        $profile->save();
-        */
         return $profile;
 
     }

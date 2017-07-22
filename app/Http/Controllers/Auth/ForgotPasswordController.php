@@ -11,6 +11,7 @@ use Illuminate\Support\Facades\Mail;
 
 class ForgotPasswordController extends Controller
 {
+    use AuthenticationTrait;
     /*
     |--------------------------------------------------------------------------
     | Password Reset Controller
@@ -62,11 +63,9 @@ class ForgotPasswordController extends Controller
             ]);
         }
 
-        Mail::send('restore_password_email', ['token' => $token]
-            , function($message) use ($email) {
-                $message->to($email, null)
-                    ->subject('Reset your password');
-            });
+        $subject = 'Reset your password';
+        $infoArray = ['token' => $token];
+        $this->sendEmail('restore_password_email', $infoArray, $email, null, $subject);
 
         return response(json_encode([
             'success' => true,

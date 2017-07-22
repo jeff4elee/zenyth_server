@@ -12,6 +12,9 @@ use App\Http\Requests\DataValidator;
 class OauthController extends RegisterController
 {
     use AuthenticationTrait;
+    protected $mergeGoogle = 'A Google account with the same email has already been created. Do you want to merge?';
+    protected $mergeFacebook = 'A Facebook account with the same email has already been created. Do you want to merge?';
+    protected $mergeAccount = 'An account with the same email has already been created. Do you want to merge?';
 
     public function oauthLogin(Request $request)
     {
@@ -47,8 +50,7 @@ class OauthController extends RegisterController
                 !$oauth->facebook && $oauth->google) {
                 if($request->has('merge') && $request['merge']) {
                     // merges to facebook account
-                    $oauth->facebook = true;
-                    $oauth->update();
+                    $oauth->setFacebook(true);
                     $this->mergeInformation($profile, $json, $oauth_type);
                     return $response;
                 }
@@ -63,8 +65,7 @@ class OauthController extends RegisterController
                 !$oauth->google && $oauth->facebook) {
                 if($request->has('merge') && $request['merge']) {
                     // merges to google account
-                    $oauth->google = true;
-                    $oauth->update();
+                    $oauth->setGoogle(true);
                     $this->mergeInformation($profile, $json, $oauth_type);
                     return $response;
                 }
