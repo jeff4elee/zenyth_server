@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Auth;
 
+use App\Http\Controllers\ImageController;
 use App\User;
 use App\Oauth;
 use App\Profile;
@@ -13,6 +14,7 @@ use Illuminate\Foundation\Auth\RegistersUsers;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Auth\AuthenticationTrait;
 use Illuminate\Support\Facades\Mail;
+use App\Image;
 
 class RegisterController extends Controller
 {
@@ -267,6 +269,15 @@ class RegisterController extends Controller
         if($request->has('birthday')) {
             $birthday = \DateTime::createFromFormat('Y-m-d', $request['birthday']);
             $profile->birthday = $birthday;
+        }
+        if($request->has('picture_url')) {
+            $image = new Image();
+            $filename = ImageController::storeProfileImage($request['picture_url']);
+            if($filename != null) {
+                $image->filename = $filename;
+                $image->save();
+                $profile->image_id = $image->id;
+            }
         }
 
         $profile->save();

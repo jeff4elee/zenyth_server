@@ -66,6 +66,11 @@ return [
         'images' => [
             'driver' => 'local',
             'root' => storage_path('app/images'),
+        ],
+
+        'profile_pictures' => [
+            'driver' => 'local',
+            'root' => storage_path('app/profile_pictures'),
         ]
 
     ],

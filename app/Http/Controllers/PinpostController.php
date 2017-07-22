@@ -62,9 +62,8 @@ class PinpostController extends Controller
 
         $pin->entity_id = $entity->id;
 
-        /* Sets creator id */
-        $api_token = $request->header('Authorization');
-        $pin->creator_id = User::where('api_token', $api_token)->first()->id;
+        $user = $request->get('user');
+        $pin->creator_id = $user->id;
 
         $pin->save();
 
@@ -156,7 +155,8 @@ class PinpostController extends Controller
             $old_filename = $image->filename;
             ImageController::storeImage($request->file('thumbnail'), $image);
 
-            Storage::disk('images')->delete($old_filename);
+            if($old_filename != null)
+                Storage::disk('images')->delete($old_filename);
             $image->update();
         }
 
@@ -215,6 +215,28 @@ class PinpostController extends Controller
 
         return response(json_encode([
             'success' => true
+        ]), 200);
+
+    }
+
+    /**
+     * Fetches all pinposts of friends ordered by latest first
+     *
+     * @param Request $request
+     * @return mixed
+     */
+    public function fetchPost(Request $request)
+    {
+
+        $user = $request->get('user');
+        $idArray = $user->friendsId();
+        $pinposts = Pinpost::select('*')
+            ->whereIn('creator_id', $idArray)
+            ->latest()->get();
+
+        return response(json_encode([
+            'success' => true,
+            'data' => $pinposts
         ]), 200);
 
     }

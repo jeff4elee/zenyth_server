@@ -63,6 +63,7 @@ Route::group(['middleware' => 'authenticated'], function() {
     Route::post('pinpost/create', 'PinpostController@create');
     Route::post('pinpost/update/{pinpost_id}', 'PinpostController@update');
     Route::delete('pinpost/delete/{pinpost_id}', 'PinpostController@delete');
+    Route::get('pinpost/fetch', 'PinpostController@fetchPost');
 
 
     Route::post('pinvite/create', 'PinviteController@create');
@@ -84,3 +85,4 @@ Route::group(['middleware' => 'authenticated'], function() {
 
 });
 
+Route::get('/picture/{user_id}', 'ImageController@showProfileImage');

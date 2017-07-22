@@ -4,6 +4,8 @@ namespace App\Http\Controllers\Auth;
 
 use App\User;
 use App\Profile;
+use App\Image;
+use App\Http\Controllers\ImageController;
 use Illuminate\Http\Request;
 use App\Http\Requests\DataValidator;
 
@@ -24,6 +26,7 @@ class OauthController extends RegisterController
 
         $oauth_type = strtolower($request['oauth_type']);
         $email = $request['email'];
+        $json = $request['json'];
 
         // Gets user with the same email
         $user = User::where('email', '=', $email)->first();
@@ -108,6 +111,7 @@ class OauthController extends RegisterController
     {
         $last_name_key = null;
         $first_name_key = null;
+
         if($oauth_type == 'google') {
             $last_name_key = 'family_name';
             $first_name_key = 'given_name';
@@ -126,6 +130,23 @@ class OauthController extends RegisterController
         if(isset($json[$last_name_key]) && $profile->last_name == null) {
             $profile->last_name = $json[$last_name_key];
         }
+        if(isset($json['picture']) && $profile->image_id == null) {
+            $image = new Image();
+            $url = null;
+            if($oauth_type == 'facebook') {
+                $url = $json['picture']['data']['url'];
+            }
+            else if($oauth_type == 'google') {
+                $url = $json['picture'];
+            }
+            $filename = ImageController::storeProfileImage($url);
+            if ($filename != null) {
+                $image->filename = $filename;
+                $image->save();
+                $profile->image_id = $image->id;
+            }
+        }
+
         $profile->update();
     }
 
