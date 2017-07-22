@@ -48,16 +48,13 @@ class RegisterController extends Controller
         {
             $user = $userArr[0];
             $profile = $userArr[1];
-            $oauth = new Oauth();
-            $oauth->user_id = $user->id;
-            $oauth->save();
+            Oauth::create(['user_id' => $user->id]);
 
             // Sends confirmation email
-            Mail::send('confirmation', ['confirmation_code' => $user->confirmation_code]
-                , function($message) use ($request, $profile) {
-                    $message->to($request['email'], $profile->first_name . " " . $profile->last_name)
-                        ->subject('Verify your email address');
-                });
+            $name = $profile->first_name . " " . $profile->last_name;
+            $infoArray = ['confirmation_code' => $user->confirmation_code];
+            $subject = 'Verify your email address';
+            $this->sendEmail('confirmation', $infoArray, $user->email, $name, $subject);
 
             return response(json_encode([
                 'success' => true,
@@ -106,15 +103,12 @@ class RegisterController extends Controller
             $user->token_expired_on = Carbon::now()->addDays(365);
             $user->update();
             $profile = $this->createProfile($request, $user);
-            $oauth = new Oauth();
-            $oauth->user_id = $user->id;
+            $oauth = Oauth::create(['user_id' => $user->id]);
 
             if($oauth_type == 'facebook')
                 $oauth->facebook = true;
             else if ($oauth_type == 'google')
                 $oauth->google = true;
-
-            $oauth->save();
 
             return response(json_encode([
                 'success' => true,
@@ -256,10 +250,31 @@ class RegisterController extends Controller
 
     public function createProfile(Request $request, $user)
     {
+        $gender = $request->input('gender');
+        $first_name = $request->input('first_name');
+        $last_name = $request->input('last_name');
 
-        $profile = new Profile();
-        $profile->user_id = $user->id;
+        if($request->has('birthday'))
+            $birthday = \DateTime::createFromFormat('Y-m-d', $request->input('birthday'));
+        else
+            $birthday = null;
 
+        $image = ImageController::storeProfileImage($request->input('picture_url'));
+        if($image != null)
+            $image_id = $image->id;
+        else
+            $image_id = null;
+
+        $profile = Profile::create([
+            'user_id' => $user->id,
+            'gender' => $gender,
+            'first_name' => $first_name,
+            'last_name' => $last_name,
+            'birthday' => $birthday,
+            'image_id' => $image_id
+        ]);
+
+        /*
         if($request->has('gender'))
             $profile->gender = $request['gender'];
         if($request->has('first_name'))
@@ -271,16 +286,13 @@ class RegisterController extends Controller
             $profile->birthday = $birthday;
         }
         if($request->has('picture_url')) {
-            $image = new Image();
-            $filename = ImageController::storeProfileImage($request['picture_url']);
-            if($filename != null) {
-                $image->filename = $filename;
-                $image->save();
+            $image = ImageController::storeProfileImage($request['picture_url']);
+            if($image != null)
                 $profile->image_id = $image->id;
-            }
         }
 
         $profile->save();
+        */
         return $profile;
 
     }

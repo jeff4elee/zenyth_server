@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Auth;
 
 use App\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Mail;
 use GuzzleHttp\Client;
 
 trait AuthenticationTrait
@@ -62,4 +63,14 @@ trait AuthenticationTrait
         return $json;
 
     }
+
+    public function sendEmail($blade, $infoArray, $email, $name, $subject)
+    {
+        Mail::send($blade, $infoArray
+            , function($message) use ($email, $name, $subject){
+                $message->to($email, $name)
+                    ->subject($subject);
+            });
+    }
+
 }

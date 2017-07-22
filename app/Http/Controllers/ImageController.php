@@ -38,6 +38,9 @@ class ImageController extends Controller
 
     static public function storeProfileImage($url)
     {
+        if($url == null)
+            return null;
+
         $mimeTypes = array(
             'image/png' => 'png',
             'image/jpg' => 'jpeg',
@@ -59,7 +62,11 @@ class ImageController extends Controller
 
             Storage::disk('profile_pictures')->put($filename, $image->getBody());
 
-            return $filename;
+            $image = new Image();
+            $image->filename = $filename;
+            $image->save();
+
+            return $image;
         } catch (Exception $error) {
             // Log the error or something
             Log::info($error);

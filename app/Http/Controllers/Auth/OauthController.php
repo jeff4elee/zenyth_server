@@ -131,20 +131,15 @@ class OauthController extends RegisterController
             $profile->last_name = $json[$last_name_key];
         }
         if(isset($json['picture']) && $profile->image_id == null) {
-            $image = new Image();
             $url = null;
-            if($oauth_type == 'facebook') {
+            if($oauth_type == 'facebook')
                 $url = $json['picture']['data']['url'];
-            }
-            else if($oauth_type == 'google') {
+            else if($oauth_type == 'google')
                 $url = $json['picture'];
-            }
-            $filename = ImageController::storeProfileImage($url);
-            if ($filename != null) {
-                $image->filename = $filename;
-                $image->save();
+
+            $image = ImageController::storeProfileImage($url);
+            if($image != null)
                 $profile->image_id = $image->id;
-            }
         }
 
         $profile->update();
