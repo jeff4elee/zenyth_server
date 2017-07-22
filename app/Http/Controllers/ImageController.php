@@ -78,7 +78,16 @@ class ImageController extends Controller
     public function showProfileImage($user_id)
     {
         $profile = Profile::where('user_id', '=', $user_id)->first();
-        $filename = $profile->profilePicture->image_id;
+        $image = $profile->profilePicture;
+        if($image == null) {
+            return response(json_encode([
+                'success' => true,
+                'data' => [
+                    'message' => 'No profile picture'
+                ]
+            ]), 200);
+        }
+        $filename = $image->filename;
         return InterventionImage::make(storage_path('app/profile_pictures/' . $filename))
             ->response();
     }
