@@ -2,14 +2,13 @@
 
 namespace App\Http\Controllers\Auth;
 
-use App\Exceptions\ResponseHandler as Response;
 use App\Exceptions\Exceptions;
+use App\Exceptions\ResponseHandler as Response;
 use App\Http\Controllers\Controller;
+use App\User;
 use Illuminate\Foundation\Auth\AuthenticatesUsers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
-use App\User;
-use App\Http\Requests\DataValidator;
 
 class LoginController extends Controller
 {

@@ -2,7 +2,6 @@
 
 namespace App\Exceptions;
 
-use App\Exceptions\Exception;
 use Illuminate\Validation\Validator;
 use Intervention\Image\Facades\Image as InterventionImage;
 

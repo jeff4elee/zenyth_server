@@ -3,9 +3,8 @@
 namespace App\Http\Controllers;
 
 
-use App\Exceptions\ResponseHandler as Response;
-use App\Exceptions\Exceptions;
 use App\Entity;
+use App\Exceptions\ResponseHandler as Response;
 
 /**
  * Class EntityController

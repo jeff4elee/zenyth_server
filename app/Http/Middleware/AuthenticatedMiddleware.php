@@ -2,13 +2,13 @@
 
 namespace App\Http\Middleware;
 
-use App\Exceptions\ResponseHandler as Response;
-use App\Exceptions\Exceptions;
-use Closure;
-use App\User;
 use App;
-use Illuminate\Http\Request;
+use App\Exceptions\Exceptions;
+use App\Exceptions\ResponseHandler as Response;
 use App\Http\Controllers\Auth\AuthenticationTrait;
+use App\User;
+use Closure;
+use Illuminate\Http\Request;
 
 
 class AuthenticatedMiddleware

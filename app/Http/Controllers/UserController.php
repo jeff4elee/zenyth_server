@@ -3,10 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\Exceptions\ResponseHandler as Response;
-use App\Exceptions\Exceptions;
-use Illuminate\Http\Request;
-use App\User;
 use App\Http\Traits\SearchUserTrait;
+use App\User;
+use Illuminate\Http\Request;
 
 /**
  * Class UserController

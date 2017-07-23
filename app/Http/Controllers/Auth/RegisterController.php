@@ -2,19 +2,17 @@
 
 namespace App\Http\Controllers\Auth;
 
-use App\Exceptions\ResponseHandler as Response;
 use App\Exceptions\Exceptions;
+use App\Exceptions\ResponseHandler as Response;
+use App\Http\Controllers\Controller;
 use App\Http\Controllers\ImageController;
-use App\User;
 use App\Oauth;
 use App\Profile;
-use App\Http\Controllers\Controller;
-use App\Http\Requests\DataValidator;
+use App\User;
 use Carbon\Carbon;
-use Illuminate\Support\Facades\Hash;
 use Illuminate\Foundation\Auth\RegistersUsers;
 use Illuminate\Http\Request;
-use App\Http\Controllers\Auth\AuthenticationTrait;
+use Illuminate\Support\Facades\Hash;
 
 class RegisterController extends Controller
 {

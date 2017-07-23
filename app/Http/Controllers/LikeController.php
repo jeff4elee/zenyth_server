@@ -2,12 +2,10 @@
 
 namespace App\Http\Controllers;
 
-use App\Exceptions\ResponseHandler as Response;
 use App\Exceptions\Exceptions;
-use App\Http\Requests\DataValidator;
-use Illuminate\Http\Request;
+use App\Exceptions\ResponseHandler as Response;
 use App\Like;
-use App\User;
+use Illuminate\Http\Request;
 
 /**
  * Class LikeController

@@ -2,10 +2,9 @@
 
 namespace App\Http\Controllers;
 
-use App\Exceptions\ResponseHandler as Response;
-use App\Exceptions\Exceptions;
-use App\PhoneNumber;
 use App\Address;
+use App\Exceptions\ResponseHandler as Response;
+use App\PhoneNumber;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 

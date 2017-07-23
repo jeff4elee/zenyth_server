@@ -2,18 +2,14 @@
 
 namespace App\Http\Controllers;
 
-use App\Exceptions\ResponseHandler as Response;
-use App\Exceptions\Exceptions;
-use App\Http\Controllers\Auth\AuthenticationTrait;
-use App\Http\Requests\DataValidator;
-use Illuminate\Http\Request;
-use App\Pinpost;
-use App\User;
 use App\Entity;
 use App\EntitysPicture;
+use App\Exceptions\Exceptions;
+use App\Exceptions\ResponseHandler as Response;
+use App\Http\Controllers\Auth\AuthenticationTrait;
 use App\Image;
-use App\Http\Controllers\ImageController;
-use Illuminate\Support\Facades\Validator;
+use App\Pinpost;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 
 /**

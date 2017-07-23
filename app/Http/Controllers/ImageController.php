@@ -2,16 +2,15 @@
 
 namespace App\Http\Controllers;
 
-use App\Exceptions\ResponseHandler as Response;
 use App\Exceptions\Exceptions;
-use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Facades\File;
-use Illuminate\Http\UploadedFile;
-use Intervention\Image\Facades\Image as InterventionImage;
+use App\Exceptions\ResponseHandler as Response;
 use App\Image;
 use App\Profile;
 use GuzzleHttp\Client;
+use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\File;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Storage;
 
 /**
  * Class ImageController

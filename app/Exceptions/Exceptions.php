@@ -16,7 +16,7 @@ class Exceptions
 
     static public function unauthenticatedException()
     {
-        return new Exception('UnauthenticatedException', 401, 'Unauthenticated');
+        return new Exception('UnauthenticatedException', 401, 'unauthenticated');
     }
 
     static public function invalidConfirmationException()
@@ -27,7 +27,7 @@ class Exceptions
 
     static public function invalidTokenException()
     {
-        return new Exception('InvalidTokenException', 200, 'Invalid Token');
+        return new Exception('InvalidTokenException', 200, 'invalid Token');
     }
 
     static public function nullException()

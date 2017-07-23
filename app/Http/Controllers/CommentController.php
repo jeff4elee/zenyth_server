@@ -2,16 +2,13 @@
 
 namespace App\Http\Controllers;
 
-use App\Exceptions\ResponseHandler as Response;
-use App\Exceptions\Exceptions;
-use App\Http\Requests\DataValidator;
-use App\Entity;
-use Illuminate\Http\Request;
 use App\Comment;
-use App\User;
+use App\Entity;
 use App\EntitysPicture;
+use App\Exceptions\Exceptions;
+use App\Exceptions\ResponseHandler as Response;
 use App\Image;
-use Illuminate\Support\Facades\Validator;
+use Illuminate\Http\Request;
 
 /**
  * Class CommentController

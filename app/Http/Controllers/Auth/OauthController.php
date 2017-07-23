@@ -3,12 +3,10 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Exceptions\ResponseHandler as Response;
-use App\Exceptions\Exceptions;
-use App\User;
-use App\Profile;
 use App\Http\Controllers\ImageController;
+use App\Profile;
+use App\User;
 use Illuminate\Http\Request;
-use App\Http\Requests\DataValidator;
 
 class OauthController extends RegisterController
 {

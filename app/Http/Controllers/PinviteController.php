@@ -2,14 +2,13 @@
 
 namespace App\Http\Controllers;
 
-use App\EntitysPicture;
-use Illuminate\Http\Request;
-use App\Pinvite;
 use App\Entity;
-use App\User;
-use App\Image;
-use App\Http\Controllers\ImageController;
+use App\EntitysPicture;
 use App\Http\Requests\DataValidator;
+use App\Image;
+use App\Pinvite;
+use App\User;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
 

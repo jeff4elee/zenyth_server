@@ -2,13 +2,11 @@
 
 namespace App\Http\Controllers;
 
-use App\Exceptions\ResponseHandler as Response;
 use App\Exceptions\Exceptions;
-use App\Http\Requests\DataValidator;
+use App\Exceptions\ResponseHandler as Response;
+use App\Relationship;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
-use App\Relationship;
-use App\User;
 
 /**
  * Class RelationshipController

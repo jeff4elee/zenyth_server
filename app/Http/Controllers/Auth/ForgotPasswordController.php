@@ -3,13 +3,10 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Exceptions\ResponseHandler as Response;
-use App\Exceptions\Exceptions;
 use App\Http\Controllers\Controller;
-use App\Http\Requests\DataValidator;
 use App\PasswordReset;
 use App\User;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Mail;
 
 class ForgotPasswordController extends Controller
 {
