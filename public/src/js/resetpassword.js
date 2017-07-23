@@ -10,11 +10,11 @@ $(document).ready(function() {
             },
             success: function(msg) {
                 if(msg['success'] == true) {
-                    var html = "<div>" + msg['message']
+                    var html = "<div>" + msg['data'] +
                     "</div>";
                     document.documentElement.innerHTML = html;
                 } else {
-                    alert(msg['message']);
+                    alert(msg['error']['message']);
                 }
             },
             error: function (xmlHttpRequest, textStatus, errorThrown) {
