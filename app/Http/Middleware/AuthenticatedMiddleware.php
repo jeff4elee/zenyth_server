@@ -27,24 +27,25 @@ class AuthenticatedMiddleware
 
         $api_token = $request->header('Authorization');
         if($api_token == null)
-            return Response::errorResponse(Exceptions::unauthenticatedException(),
-                'request requires an access token');
+            Exceptions::unauthenticatedException('This request requires an access token');
 
         $api_token = $this->stripBearerFromToken($api_token);
 
         if($api_token == null)
-            return Response::errorResponse(Exceptions::unauthenticatedException(),
-                'invalid access token');
+            Exceptions::invalidTokenException('Invalid access token');
 
         $user = User::where('api_token', $api_token)->first();
 
+        // Removes bearer from the front of api_token
         $request->headers->set('Authorization', $api_token);
         if($user != null) {
+            // Inject the user object into the request in order for the
+            // controllers to use it
             $request->merge(['user' => $user]);
             return $next($request);
         }
 
-        return Response::errorResponse(Exceptions::unauthenticatedException());
+        Exceptions::unauthenticatedException();
 
     }
 }

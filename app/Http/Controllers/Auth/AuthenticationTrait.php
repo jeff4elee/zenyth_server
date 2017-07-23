@@ -28,7 +28,6 @@ trait AuthenticationTrait
         do {
 
             $api_token = str_random(60);
-
             $dup_token_user = User::where('api_token', $api_token)
                 ->first();
 
@@ -47,9 +46,10 @@ trait AuthenticationTrait
     {
         $api_token_arr = explode(" ", $api_token);
 
+        // If the token does not start with bearer and if the array does not
+        // contain 2 strings then return null
         if (strtolower($api_token_arr[0]) != "bearer" ||
-            count($api_token_arr) != 2
-        )
+            count($api_token_arr) != 2)
             return null;
 
         return $api_token_arr[1];

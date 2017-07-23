@@ -34,7 +34,7 @@ class ImageController extends Controller
 
         Storage::disk($directory)->put($filename, File::get($file));
         $image->filename = $filename;
-        $image->update();
+        $image->save();
 
     }
 

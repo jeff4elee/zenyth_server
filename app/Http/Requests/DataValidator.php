@@ -27,8 +27,8 @@ class DataValidator
         else if($request->is('api/pinpost/create'))
             return Validator::make($request->all(), Rules::createPinpostRules());
 
-        else if($request->is('api/pinpost/update'))
-            return Validator::make($request->all(), Rules::updatePinviteRules());
+        else if($request->is('api/pinpost/update/*'))
+            return Validator::make($request->all(), Rules::updatePinpostRules());
 
         else if($request->is('api/pinvite/create'))
             return Validator::make($request->all(), Rules::createPinviteRules());
@@ -40,7 +40,10 @@ class DataValidator
             return Validator::make($request->all(), Rules::likeRules());
 
         else if($request->is('api/comment/create'))
-            return Validator::make($request->all(), Rules::commentRules());
+            return Validator::make($request->all(), Rules::createCommentRules());
+
+        else if($request->is('api/comment/update/*'))
+            return Validator::make($request->all(), Rules::updateCommentRules());
 
         else if($request->is('api/relationship/friend_request'))
             return Validator::make($request->all(), Rules::friendRequestRules());

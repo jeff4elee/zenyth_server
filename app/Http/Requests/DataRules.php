@@ -96,11 +96,18 @@ class DataRules
         return ['entity_id' => 'required'];
     }
 
-    static public function commentRules()
+    static public function createCommentRules()
     {
         return [
             'comment' => 'required|min:1',
             'on_entity_id' => 'required'
+        ];
+    }
+
+    static public function updateCommentRules()
+    {
+        return [
+            'comment' => 'required|min:1'
         ];
     }
 

@@ -35,12 +35,11 @@ class CommentController extends Controller
 
         if($request->has('picture')) {
             $image = new Image();
-            $entitys_picture = new EntitysPicture();
             ImageController::storeImage($request->file('picture'), $image);
-            $image->save();
-            $entitys_picture->entity_id = $entity->id;
-            $entitys_picture->image_id = $image->id;
-            $entitys_picture->save();
+            EntitysPicture::create([
+                'entity_id' => $entity->id,
+                'image_id' => $image->id
+            ]);
         }
 
         $user = $request->get('user');
