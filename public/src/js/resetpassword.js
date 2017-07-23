@@ -9,6 +9,9 @@ $(document).ready(function() {
                 _token: token
             },
             success: function(msg) {
+                console.log(msg['success']);
+                console.log(msg['message']);
+                console.log(msg['error']['message']);
                 if(msg['success'] == true) {
                     var html = "<div>" + msg['message'] +
                     "</div>";
