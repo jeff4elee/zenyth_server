@@ -4,12 +4,14 @@ namespace App\Http\Controllers\Auth;
 
 use App\Exceptions\Exceptions;
 use App\Exceptions\ResponseHandler as Response;
+use App\Exceptions\ResponseHandler;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\DataValidator;
 use App\PasswordReset;
 use App\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use Symfony\Component\Routing\Exception\InvalidParameterException;
 
 class ResetPasswordController extends Controller
 {
@@ -68,7 +70,14 @@ class ResetPasswordController extends Controller
 
         $validator = DataValidator::validateRestorePassword($request);
         if($validator->fails())
-            return $jsonResponse;
+            return response()->json([
+                'success' => false,
+                'error' => [
+                    'type' => 'InvalidParameterException',
+                    'code' => 200,
+                    'message' => ResponseHandler::formatErrors($validator)
+                ]
+            ]);
 
         $password_reset = PasswordReset::where('token', '=', $token)->first();
 

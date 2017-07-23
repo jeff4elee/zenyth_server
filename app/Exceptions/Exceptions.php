@@ -27,7 +27,7 @@ class Exceptions
 
     static public function invalidTokenException()
     {
-        return new Exception('InvalidTokenException', 200, 'invalid Token');
+        return new Exception('InvalidTokenException', 200, 'invalid token');
     }
 
     static public function nullException()
