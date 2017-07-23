@@ -25,10 +25,13 @@ class DataValidator
             return Validator::make($request->all(), Rules::sendResetPWEmailRules());
 
         else if($request->is('api/pinpost/create'))
-            return Validator::make($request->all(), Rules::pinpostRules());
+            return Validator::make($request->all(), Rules::createPinpostRules());
+
+        else if($request->is('api/pinpost/update'))
+            return Validator::make($request->all(), Rules::updatePinviteRules());
 
         else if($request->is('api/pinvite/create'))
-            return Validator::make($request->all(), Rules::pinviteRules());
+            return Validator::make($request->all(), Rules::createPinviteRules());
 
         else if($request->is('api/pinvite/uploadPicture/*'))
             return Validator::make($request->all(), Rules::pictureRules());

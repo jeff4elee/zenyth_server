@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Address;
 use App\Exceptions\ResponseHandler as Response;
 use App\PhoneNumber;
+use App\Image;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 
@@ -50,13 +51,12 @@ class ProfileController extends Controller
         }
 
         if($request->file('image')) {
-            $image = Image::find($pin->thumbnail_id);
+            $image = Image::find($profile->profilePicture->id);
             $old_filename = $image->filename;
-            ImageController::storeImage($request->file('thumbnail'), $image, 'profile_pictures');
+            ImageController::storeImage($request->file('image'), $image, 'profile_pictures');
 
             if($old_filename != null)
                 Storage::disk('profile_pictures')->delete($old_filename);
-            $image->update();
         }
 
         if($request->has('birthday')) {

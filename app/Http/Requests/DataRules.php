@@ -56,7 +56,7 @@ class DataRules
         ];
     }
 
-    static public function pinpostRules()
+    static public function createPinpostRules()
     {
         return [
             'title' => 'required',
@@ -67,7 +67,14 @@ class DataRules
         ];
     }
 
-    static public function pinviteRules()
+    static public function updatePinpostRules()
+    {
+        return [
+            'thumbnail' => 'image'
+        ];
+    }
+
+    static public function createPinviteRules()
     {
         return [
             'title' => 'required',
