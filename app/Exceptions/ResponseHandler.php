@@ -24,7 +24,7 @@ class ResponseHandler
     {
         $errors = $validator->errors()->all();
         $message = implode("\n", $errors);
-        
+
         return $message;
     }
 
@@ -77,18 +77,18 @@ class ResponseHandler
             return response(json_encode(['success' => false]), 400);
     }
 
-    static public function dataResponse($data, $message = null)
+    static public function dataResponse($success, $data, $message = null)
     {
         if($message != null) {
             return response(json_encode([
-                'success' => true,
+                'success' => $success,
                 'data' => $data,
                 'message' => $message
             ]), 200);
         }
 
         return response(json_encode([
-            'success' => true,
+            'success' => $success,
             'data' => $data
         ]), 200);
     }

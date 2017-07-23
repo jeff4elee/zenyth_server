@@ -2,6 +2,8 @@
 
 namespace App\Http\Middleware;
 
+use App\Exceptions\ResponseHandler as Response;
+use App\Exceptions\Exceptions;
 use Closure;
 use App\User;
 use App;
@@ -25,18 +27,14 @@ class AuthenticatedMiddleware
 
         $api_token = $request->header('Authorization');
         if($api_token == null)
-            return response(json_encode([
-                'success' => false,
-                'errors' => ['Unauthenticated']
-            ]), 401);
+            return Response::errorResponse(Exceptions::unauthenticatedException(),
+                'request requires an access token');
 
         $api_token = $this->stripBearerFromToken($api_token);
 
         if($api_token == null)
-            return response(json_encode([
-                'success' => false,
-                'errors' => ['Unauthenticated']
-            ]), 401);
+            return Response::errorResponse(Exceptions::unauthenticatedException(),
+                'invalid access token');
 
         $user = User::where('api_token', $api_token)->first();
 
@@ -46,10 +44,7 @@ class AuthenticatedMiddleware
             return $next($request);
         }
 
-        return response(json_encode([
-            'success' => false,
-            'errors' => ['Unauthenticated']
-        ]), 401);
+        return Response::errorResponse(Exceptions::unauthenticatedException());
 
     }
 }

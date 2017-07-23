@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers\Auth;
 
+use App\Exceptions\ResponseHandler as Response;
+use App\Exceptions\Exceptions;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\DataValidator;
 use App\PasswordReset;
@@ -37,10 +39,7 @@ class ForgotPasswordController extends Controller
     {
         $validator = DataValidator::validateResetPasswordEmail($request);
         if($validator->fails())
-            return response(json_encode([
-                'success' => false,
-                'errors' => $validator->errors()->all()
-            ]), 200);
+            return Response::validatorErrorResponse($validator);
 
         // Generate unique token
         do {
@@ -67,10 +66,7 @@ class ForgotPasswordController extends Controller
         $infoArray = ['token' => $token];
         $this->sendEmail('restore_password_email', $infoArray, $email, null, $subject);
 
-        return response(json_encode([
-            'success' => true,
-            'message' => 'Check your email',
-            'data' => $email
-        ]), 200);
+        return Response::dataResponse(true, ['email' => $email],
+            'Check your email');
     }
 }

@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers\Auth;
 
+use App\Exceptions\ResponseHandler as Response;
+use App\Exceptions\Exceptions;
 use App\User;
 use App\Profile;
 use App\Http\Controllers\ImageController;
@@ -21,10 +23,7 @@ class OauthController extends RegisterController
         // Validates to see if request contains email and oauth_type
         $validator = DataValidator::validateOauthLogin($request);
         if($validator->fails())
-            return response(json_encode([
-                'success' => false,
-                'errors' => $validator->errors()->all()
-            ]), 200);
+            return Response::validatorErrorResponse($validator);
 
         $oauth_type = strtolower($request['oauth_type']);
         $email = $request['email'];
@@ -35,70 +34,58 @@ class OauthController extends RegisterController
         if($user != null) {
             $oauth = $user->oauth;
             $profile = $user->profile;
-            $response = response(json_encode([
-                'success' => true,
-                'data' => [
-                    'user' => $user,
-                    'api_token' => $user->api_token,
-                    'oauth_type' => $oauth_type
-                ]
-            ]), 200);
+            $data = [
+                'user' => $user,
+                'api_token' => $user->api_token,
+                'oauth_type' => $oauth_type
+            ];
 
-            // Previously logged in with google but now logging in with facebook
-            if($oauth_type == 'facebook' &&
-                !$oauth->facebook && $oauth->google) {
-                if($request->has('merge') && $request['merge']) {
-                    // merges to facebook account
-                    $oauth->setFacebook(true);
-                    $this->mergeInformation($profile, $json, $oauth_type);
-                    return $response;
-                }
-                return response(json_encode([
-                    'success' => false,
-                    'errors' => ['A Google account with the same email has already been created. Do you want to merge?'],
-                    'data' => ['mergeable' => true]
-                ]), 200);
-            }
-            // Previously logged in with facebook but now logging in with google
-            else if($oauth_type == 'google' &&
-                !$oauth->google && $oauth->facebook) {
-                if($request->has('merge') && $request['merge']) {
-                    // merges to google account
-                    $oauth->setGoogle(true);
-                    $this->mergeInformation($profile, $json, $oauth_type);
-                    return $response;
-                }
-                return response(json_encode([
-                    'success' => false,
-                    'errors' => ['A Facebook account with the same email has already been created. Do you want to merge?'],
-                    'data' => ['mergeable' => true]
-                ]), 200);
-            }
-
-            // Previously created an account on the app but now logging in through oauth
-            else if(!$oauth->facebook && !$oauth->google) {
-                if($request->has('merge') && $request['merge']) {
-                    if($oauth_type == 'google')
-                        $oauth->setGoogle(true);
-                    else if($oauth_type == 'facebook')
-                        $oauth->setFacebook(true);
-
-                    $this->mergeInformation($profile, $json, $oauth_type);
-                    return $response;
-                }
-                return response(json_encode([
-                    'success' => false,
-                    'errors' => ['An account with the same email has already been created. Do you want to merge?'],
-                    'data' => ['mergeable' => true]
-                ]), 200);
-            }
-            else {
-                return $response;
-            }
-
+            return $this->processOauth($oauth_type, $profile, $json, $oauth, $data, $request);
 
         }
 
+    }
+
+    public function processOauth($oauth_type, $profile, $json, $oauth, $data, $request) {
+        // Previously logged in with google but now logging in with facebook
+        if($oauth_type == 'facebook' &&
+            !$oauth->facebook && $oauth->google) {
+            if($request->has('merge') && $request['merge']) {
+                // merges to facebook account
+                $oauth->setFacebook(true);
+                $this->mergeInformation($profile, $json, $oauth_type);
+                return Response::dataResponse($data, 'Successfully merged account');
+            }
+            return Response::dataResponse(false, ['mergeable' => true], $this->mergeGoogle);
+        }
+        // Previously logged in with facebook but now logging in with google
+        else if($oauth_type == 'google' &&
+            !$oauth->google && $oauth->facebook) {
+            if($request->has('merge') && $request['merge']) {
+                // merges to google account
+                $oauth->setGoogle(true);
+                $this->mergeInformation($profile, $json, $oauth_type);
+                return Response::dataResponse($data, 'Successfully merged account');
+            }
+            return Response::dataResponse(false, ['mergeable' => true], $this->mergeFacebook);
+        }
+
+        // Previously created an account on the app but now logging in through oauth
+        else if(!$oauth->facebook && !$oauth->google) {
+            if($request->has('merge') && $request['merge']) {
+                if($oauth_type == 'google')
+                    $oauth->setGoogle(true);
+                else if($oauth_type == 'facebook')
+                    $oauth->setFacebook(true);
+
+                $this->mergeInformation($profile, $json, $oauth_type);
+                return Response::dataResponse($data, 'Successfully merged account');
+            }
+            return Response::dataResponse(false, ['mergeable' => true], $this->mergeAccount);
+        }
+        else {
+            return Response::dataResponse(true, $data, 'Successfully logged in');
+        }
     }
 
     public function mergeInformation(Profile $profile, $json, $oauth_type)

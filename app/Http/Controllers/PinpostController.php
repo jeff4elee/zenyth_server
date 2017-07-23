@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Exceptions\ResponseHandler as Response;
+use App\Exceptions\Exceptions;
 use App\Http\Controllers\Auth\AuthenticationTrait;
 use App\Http\Requests\DataValidator;
 use Illuminate\Http\Request;
@@ -35,10 +37,7 @@ class PinpostController extends Controller
 
         $validator = DataValidator::validatePinpost($request);
         if ($validator->fails())
-            return response(json_encode([
-                'success' => false,
-                'errors' => $validator->errors()->all()
-            ]), 200);
+            return Response::validatorErrorResponse($validator);
 
         $pin = new Pinpost();
         $entity = Entity::create([]);
@@ -67,10 +66,8 @@ class PinpostController extends Controller
 
         $pin->save();
 
-        return response(json_encode([
-            'success' => true,
-            'data' => $pin
-        ]), 200);
+        return Response::dataResponse(true, ['pinpost' => $pin],
+            'successfully created pinpost');
 
     }
 
@@ -85,17 +82,11 @@ class PinpostController extends Controller
 
         $pin = Pinpost::find($pinpost_id);
 
-        if ($pin == null) {
-            return response(json_encode([
-                'success' => false,
-                'errors' => ['not found']
-            ]), 200);
-        }
+        if ($pin == null)
+            return Response::errorResponse(Exceptions::notFoundException(),
+                'pinpost not found');
 
-        return response(json_encode([
-            'success' => true,
-            'data' => $pin
-        ]), 202);
+        return Response::dataResponse(true, ['pinpost' => $pin]);
 
     }
 
@@ -113,33 +104,23 @@ class PinpostController extends Controller
             'thumbnail' => 'image'
         ]);
         if ($validator->fails())
-            return response(json_encode([
-                'success' => false,
-                'errors' => $validator->errors()->all()
-            ]), 200);
+            return Response::validatorErrorResponse($validator);
 
         /* Checks if pinpost is there */
         $pin = Pinpost::find($pinpost_id);
 
-        if ($pin == null) {
-            return response(json_encode([
-                'success' => false,
-                'errors' => ['not found']
-            ]), 200);
-        }
+        if ($pin == null)
+            return Response::errorResponse(Exceptions::notFoundException(),
+                'pinpost not found');
 
         /* Checks if pinpost being updated belongs to the user making the
             request */
         $api_token = $pin->creator->api_token;
         $headerToken = $request->header('Authorization');
 
-        if ($api_token != $headerToken) {
-            return response(json_encode([
-                'success' => false,
-                'errors' => ['Unauthenticated']
-                ])
-                , 401);
-        }
+        if ($api_token != $headerToken)
+            return Response::errorResponse(Exceptions::unauthenticatedException(),
+                'pinpost does not associate with this token');
 
         /* Updates title */
         if ($request->has('title'))
@@ -170,10 +151,8 @@ class PinpostController extends Controller
 
         $pin->update();
 
-        return response(json_encode([
-            'success' => true,
-            'data' => $pin
-        ]), 200);
+        return Response::dataResponse(true, ['pinpost' => $pin],
+            'successfully updated pinpost');
 
     }
 
@@ -190,32 +169,23 @@ class PinpostController extends Controller
         /* Checks if pinpost is there */
         $pin = Pinpost::find($pinpost_id);
 
-        if ($pin == null) {
-            return response(json_encode([
-                'success' => false,
-                'errors' => ['not found']
-            ]), 200);
-        }
+        if ($pin == null)
+            return Response::errorResponse(Exceptions::notFoundException(),
+                'pinpost not found');
 
         /* Checks if pinpost being deleted belongs to the user making the
             request */
         $api_token = $pin->creator->api_token;
         $headerToken = $request->header('Authorization');
 
-        if ($api_token != $headerToken) {
-            return response(json_encode([
-                'success' => false,
-                'errors' => ['Unauthenticated']
-                ])
-                , 401);
-        }
+        if ($api_token != $headerToken)
+            return Response::errorResponse(Exceptions::unauthenticatedException(),
+                'pinpost does not associate with this token');
 
         $pin->thumbnail->delete();
         $pin->entity->delete();
 
-        return response(json_encode([
-            'success' => true
-        ]), 200);
+        return Response::successResponse('successfully deleted pinpost');
 
     }
 
@@ -234,10 +204,7 @@ class PinpostController extends Controller
             ->whereIn('creator_id', $idArray)
             ->latest()->get();
 
-        return response(json_encode([
-            'success' => true,
-            'data' => $pinposts
-        ]), 200);
+        return Response::dataResponse(true, ['pinposts' => $pinposts]);
 
     }
 

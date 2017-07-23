@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers\Auth;
 
+use App\Exceptions\ResponseHandler as Response;
+use App\Exceptions\Exceptions;
 use App\Http\Controllers\Controller;
 use Illuminate\Foundation\Auth\AuthenticatesUsers;
 use Illuminate\Http\Request;
@@ -37,10 +39,7 @@ class LoginController extends Controller
     {
         $validator = DataValidator::validateLogin($request);
         if ($validator->fails())
-            return response(json_encode([
-                'success' => false,
-                'errors' => $validator->errors()->all()
-            ]), 200);
+            return Response::validatorErrorResponse($validator);
 
         $password = $request['password'];
 
@@ -53,35 +52,25 @@ class LoginController extends Controller
 
 
         if ($user == null) {
-            return response(json_encode([
-                'success' => false,
-                'errors' => ['Incorrect email or password']
-            ]), 200);
+            return Response::errorResponse(Exceptions::invalidCredentialException(),
+                'Incorrect email or password');
         }
 
         if (Hash::check($password, $user->password)) {   // checks password
             // against hashed pw
 
             if($user->confirmation_code != null)
-                return response(json_encode([
-                    'success' => false,
-                    'errors' => ['Account has not been confirmed']
-                ]), 200);
+                return Response::errorResponse(Exceptions::unconfirmedAccountException());
             else
-                return response(json_encode([
-                    'success' => true,
-                    'data' => [
-                        'user' => $user,
-                        'api_token' => $user->api_token
-                    ]
-                ]), 200);
+                return Response::dataResponse(true, [
+                    'user' => $user,
+                    'api_token' => $user->api_token
+                ], 'Successfully logged in');
 
         }
 
-        return response(json_encode([
-            'success' => false,
-            'errors' => ['Incorrect email or password']
-        ]), 200);
+        return Response::errorResponse(Exceptions::invalidCredentialException(),
+            'Incorrect email or password');
 
     }
 

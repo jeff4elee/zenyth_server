@@ -2,6 +2,8 @@
 
 namespace App\Http\Middleware;
 
+use App\Exceptions\ResponseHandler as Response;
+use App\Exceptions\Exceptions;
 use Closure;
 use App;
 use Illuminate\Http\Request;
@@ -14,43 +16,28 @@ class OauthMiddleware {
     public function handle(Request $request, Closure $next)
     {
 
-        // Invalid access token response
-        $response = response(json_encode([
-            'success' => false,
-            'errors' => ['Invalid access token']
-        ]), 401);
-
         $validator = DataValidator::validateOauthLogin($request);
-
         if($validator->fails())
-            return response(json_encode([
-                'success' => false,
-                'errors' => $validator->errors()->all()
-            ]), 200);
+            return Response::validatorErrorResponse($validator);
 
         $token = $request->header('Authorization');
         if($token != null) {
             $json = $this->oauthValidate($request);
 
-            if($json == null) {
-                return $response;
-            }
+            if($json == null)
+                return Response::errorResponse(Exceptions::unauthenticatedException());
 
             // If we don't have access to email
-            if(!isset($json['email'])) {
-                return response(json_encode([
-                    'success' => true,
-                    'data' => [
-                        'email_access' => false,
-                        'message' => 'No access to email'
-                    ]
-                ]), 200);
-            }
+            if(!isset($json['email']))
+                return Response::dataResponse(true, [
+                    'email_access' => false
+                ], 'no access to email');
+
             // If token is invalid or if email sent in the request is not the
             // same as one found from the token
             else if(isset($json['error']) || isset($json['error_description'])
                 || $request['email'] != $json['email']) {
-                return $response;
+                return Response::errorResponse(Exceptions::unauthenticatedException());
             }
             else {
                 $request->merge(['json' => $json]);
@@ -58,7 +45,7 @@ class OauthMiddleware {
             }
 
         } else {
-            return $response;
+            return Response::errorResponse(Exceptions::unauthenticatedException());
         }
 
     }

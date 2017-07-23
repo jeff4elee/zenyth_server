@@ -67,10 +67,7 @@ class RegisterController extends Controller
         // Checks for email, username, oauth_type
         $validator = DataValidator::validateOauthRegister($request);
         if($validator->fails())
-            return response(json_encode([
-                'success' => false,
-                'errors' => $validator->errors()->all()
-            ]), 200);
+            return Response::validatorErrorResponse($validator);
 
         // use for case insensitive check
         $oauth_type = strtolower($request['oauth_type']);
@@ -101,14 +98,11 @@ class RegisterController extends Controller
             else if ($oauth_type == 'google')
                 $oauth->google = true;
 
-            return response(json_encode([
-                'success' => true,
-                'data' => [
-                    'user' => $user,
-                    'api_token' => $user->api_token,
-                    'profile' => $profile
-                ]
-            ]), 200);
+            return Response::dataResponse(true, [
+                'user' => $user,
+                'api_token' => $user->api_token,
+                'profile' => $profile
+            ], 'Successfully registered');
         }
     }
 
@@ -131,11 +125,9 @@ class RegisterController extends Controller
 
         $user = User::where('username', '=', $username)->first();
         $confirmed = false;
-        if($user != null) {
-            if ($user->confirmation_code == null) {
-                $confirmed = true;
-            }
-        }
+        if($user != null && $user->confirmation_code == null)
+            $confirmed = true;
+
         return $this->takenResponse($user, $confirmed);
 
     }
@@ -143,21 +135,14 @@ class RegisterController extends Controller
     public function takenResponse($user, $confirmed)
     {
         if($user == null) {
-            return response(json_encode([
-                'success' => true,
-                'data' => [
-                    'taken' => false
-                ]
-            ]), 200);
+            return Response::dataResponse(true, ['taken' => false]);
+
         }
         else {
-            return response(json_encode([
-                'success' => true,
-                'data' => [
-                    'taken' => true,
-                    'confirmed' => $confirmed
-                ]
-            ]), 200);
+            return Response::dataResponse(true, [
+                'taken' => false,
+                'confirmed' => $confirmed
+            ]);
         }
     }
 
@@ -169,29 +154,20 @@ class RegisterController extends Controller
     public function confirm($confirmation_code)
     {
 
-        if( ! $confirmation_code)
-            return response(json_encode([
-                'success' => false,
-                'errors' => ['Invalid confirmation code']
-            ]), 401);
+        if($confirmation_code == null)
+            return Response::errorResponse(Exceptions::invalidConfirmationException());
 
         $user = User::where('confirmation_code', '=', $confirmation_code)->first();
 
         if($user == null)
-            return response(json_encode([
-                'success' => false,
-                'errors' => ['Invalid confirmation code']
-            ]), 401);
+            return Response::errorResponse(Exceptions::invalidConfirmationException());
 
         $user->confirmation_code = null;
         $user->api_token = $this->generateApiToken();
         $user->token_expired_on = Carbon::now()->addDays(365);
         $user->update();
 
-        return response(json_encode([
-            'success' => true,
-            'message' => 'Account verified'
-        ]), 200);
+        return Response::successResponse('Account verified');
 
     }
 
@@ -216,7 +192,7 @@ class RegisterController extends Controller
      * Create a new user instance after a valid registration.
      *
      * @param  Request $request
-     * @return User
+     * @return Array containing User and Profile
      */
     public function create(Request $request)
     {

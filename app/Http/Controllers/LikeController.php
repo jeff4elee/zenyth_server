@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Exceptions\ResponseHandler as Response;
+use App\Exceptions\Exceptions;
 use App\Http\Requests\DataValidator;
 use Illuminate\Http\Request;
 use App\Like;
@@ -25,10 +27,7 @@ class LikeController extends Controller
     {
         $validator = DataValidator::validateLike($request);
         if($validator->fails())
-            return response(json_encode([
-                'success' => false,
-                'errors' => $validator->errors()->all()
-            ]), 200);
+            return Response::validatorErrorResponse($validator);
 
         $like = new Like();
 
@@ -40,11 +39,7 @@ class LikeController extends Controller
 
         $like->save();
 
-        return response(json_encode([
-            'success' => true,
-            'like' => $like
-        ]), 202);
-
+        return Response::dataResponse(true, ['like' => $like]);
     }
 
     /**
@@ -66,17 +61,12 @@ class LikeController extends Controller
         ]);
 
         if ($like == null) {
-            return response(json_encode([
-                'success' => false,
-                'errors' => ['not found']
-            ]), 404);
+            return Response::errorResponse(Exceptions::notFoundException());
         }
 
         $like->delete();
 
-        return response(json_encode([
-            'success' => true
-        ]), 202);
+        return Response::successResponse();
 
     }
 

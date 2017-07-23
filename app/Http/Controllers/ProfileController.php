@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Exceptions\ResponseHandler as Response;
+use App\Exceptions\Exceptions;
 use App\PhoneNumber;
 use App\Address;
 use Illuminate\Http\Request;
@@ -65,10 +67,8 @@ class ProfileController extends Controller
 
         $profile->update();
 
-        return response(json_encode([
-            'success' => true,
-            'data' => $profile
-        ]), 200);
+        return Response::dataResponse(true, ['profile' => $profile],
+            'Successfully updated profile');
     }
 
 }

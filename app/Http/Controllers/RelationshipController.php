@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Exceptions\ResponseHandler as Response;
+use App\Exceptions\Exceptions;
 use App\Http\Requests\DataValidator;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
@@ -28,10 +30,7 @@ class RelationshipController extends Controller
 
         $validator = DataValidator::validateFriendRequest($request);
         if ($validator->fails())
-            return response(json_encode([
-                'success' => false,
-                'errors' => $validator->errors()->all()
-            ]), 200);
+            return Response::validatorErrorResponse($validator);
 
         $user = $request->get('user');
         $user_id = $user->id;
@@ -47,20 +46,16 @@ class RelationshipController extends Controller
         ])->first();
 
         if ($check != null)
-            return response(json_encode([
-                'success' => false,
-                'errors' => ['friends or pending request']
-            ]), 200);
+            return Response::errorResponse(Exceptions::invalidRequestException(),
+                'friends or pending request');
 
         $relationship = Relationship::create([
             'requester' => $user_id,
             'requestee' => $request->input('requestee_id')
         ]);
 
-        return response(json_encode([
-            'success' => true,
-            'data' => $relationship
-        ]), 200);
+        return Response::dataResponse(true, ['relationship' => $relationship],
+            'successfully created a friend request');
 
     }
 
@@ -87,37 +82,23 @@ class RelationshipController extends Controller
         ])->first();
 
         if ($relationship == null || $relationship->status == true)
-            return response(json_encode([
-                'success' => false,
-                'errors' => ['No pending request']
-            ]),
-                200);
+            return Response::errorResponse(Exceptions::invalidRequestException(),
+                'No pending request');
 
         $validator = Validator::make($request->all(), [
             'status' => 'required'
         ]);
 
-        if ($validator->fails()) {
-            return response(json_encode([
-                'success' => false,
-                'errors' => $validator->errors()->all()
-            ]), 200);
-        }
+        if ($validator->fails())
+            return Response::validatorErrorResponse($validator);
 
         if ($request->input('status')) {
             $relationship->update(['status' => true]);
-            return response(json_encode([
-                'success' => true,
-                'data' => $relationship
-            ]), 200);
+            return Response::dataResponse(true, ['relationship' => $relationship],
+                'friendship created');
         } else {
             $relationship->delete();
-            return response(json_encode([
-                'success' => true,
-                'data' => [
-                    'relationship' => 'deleted'
-                ]
-            ]), 200);
+            return Response::successResponse('friend request ignored');
         }
 
     }
@@ -186,10 +167,8 @@ class RelationshipController extends Controller
                 'blocked' => true
             ]);
         }
-        return response(json_encode([
-            'success' => true,
-            'data' => $relationship
-        ]), 200);
+        return Response::dataResponse(true, ['relationship' => $relationship],
+            'successfully blocked user');
     }
 
     /**

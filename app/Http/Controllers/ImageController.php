@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Exceptions\ResponseHandler as Response;
+use App\Exceptions\Exceptions;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\File;
@@ -80,10 +82,13 @@ class ImageController extends Controller
      * @param $filename, name of image file
      * @return mixed, an image response
      */
-    public function showImage($filename)
+    public function showImage($image_id)
     {
-        return InterventionImage::make(storage_path('app/images/' . $filename))
-            ->response();
+        $image = Image::find($image_id);
+        if($image == null)
+            return Response::errorResponse(Exceptions::notFoundException(), 'Image not found');
+        $path = 'app/images/' . $image->filename;
+        return Response::rawImageResponse($path);
     }
 
     public function showProfileImage($user_id)
@@ -99,8 +104,8 @@ class ImageController extends Controller
             ]), 200);
         }
         $filename = $image->filename;
-        return InterventionImage::make(storage_path('app/profile_pictures/' . $filename))
-            ->response();
+        $path = 'app/profile_pictures/' . $filename;
+        return Response::rawImageResponse($path);
     }
 
     static public function generateImageName($extension)

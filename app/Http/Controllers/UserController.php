@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Exceptions\ResponseHandler as Response;
+use App\Exceptions\Exceptions;
 use Illuminate\Http\Request;
 use App\User;
 use App\Http\Traits\SearchUserTrait;
@@ -25,13 +27,13 @@ class UserController extends Controller
 
         $user = User::where('id', '=', $user_id);
         $friends_id = $user->friendsId();
+        if(count($friends_id) == 0)
+            return Response::dataResponse(true, ['users' => null]);
+
         $searchResult = User::select('*')
             ->whereIn('id', $friends_id)->get();
 
-        return response(json_encode([
-            'success' => true,
-            'data' => $searchResult
-        ]), 200);
+        return Response::dataResponse(true, ['users' => $searchResult]);
 
     }
 
@@ -55,10 +57,7 @@ class UserController extends Controller
             ->where('relationships.blocked', true)
             ->get();
 
-        return response(json_encode([
-            'success' => true,
-            'data' => $searchResult
-        ]), 200);
+        return Response::dataResponse(true, ['users' => $searchResult]);
 
     }
 
@@ -82,10 +81,7 @@ class UserController extends Controller
             ->where('relationships.status', false)
             ->get();
 
-        return response(json_encode([
-            'success' => true,
-            'data' => $searchResult
-        ]), 200);
+        return Response::dataResponse(true, ['users' => $searchResult]);
 
     }
 
@@ -120,10 +116,7 @@ class UserController extends Controller
             ->whereIn('id', $result_id)
             ->orderByRaw('FIELD(`id`,' . $result_id_string . ')')->get();
 
-        return response(json_encode([
-            'success' => true,
-            'data' => $searchResult
-        ]), 200);
+        return Response::dataResponse(true, ['users' => $searchResult]);
 
     }
 
