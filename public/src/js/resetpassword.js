@@ -10,7 +10,7 @@ $(document).ready(function() {
             },
             success: function(msg) {
                 if(msg['success'] == true) {
-                    var html = "<div>" + msg['data'] +
+                    var html = "<div>" + msg['message'] +
                     "</div>";
                     document.documentElement.innerHTML = html;
                 } else {
