@@ -40,11 +40,6 @@ class RegisterController extends Controller
      */
     public function register(Request $request)
     {
-
-        $validator = DataValidator::validateRegister($request);
-        if($validator->fails())
-            return Response::validatorErrorResponse($validator);
-
         $userArr = $this->create($request);
 
         if($userArr != null)
@@ -64,7 +59,6 @@ class RegisterController extends Controller
         }
 
         return Response::errorResponse(Exceptions::nullException(), 'Unable to create user');
-
     }
 
     /**

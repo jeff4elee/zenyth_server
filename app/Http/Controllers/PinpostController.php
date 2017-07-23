@@ -100,12 +100,6 @@ class PinpostController extends Controller
     public function update(Request $request, $pinpost_id)
     {
 
-        $validator = Validator::make($request->all(), [
-            'thumbnail' => 'image'
-        ]);
-        if ($validator->fails())
-            return Response::validatorErrorResponse($validator);
-
         /* Checks if pinpost is there */
         $pin = Pinpost::find($pinpost_id);
 

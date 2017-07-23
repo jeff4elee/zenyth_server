@@ -21,7 +21,12 @@ class ValidationMiddleware
     public function handle(Request $request, Closure $next)
     {
 
-        $validator = DataValidator::
+        $validator = DataValidator::validate($request);
+        if($validator != null && $validator->fails()) {
+            return Response::validatorErrorResponse($validator);
+        }
+        else
+            return $next($request);
 
     }
 }

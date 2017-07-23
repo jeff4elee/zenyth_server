@@ -91,12 +91,6 @@ class CommentController extends Controller
     public function update(Request $request, $comment_id)
     {
 
-        $validator = Validator::make($request->all(), [
-            'comment' => 'required|min:1'
-        ]);
-        if ($validator->fails())
-            return Response::validatorErrorResponse($validator);
-
         $comment = Comment::find($comment_id);
         if ($comment == null)
             return Response::errorResponse(Exceptions::notFoundException(),
