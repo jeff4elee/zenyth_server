@@ -9,40 +9,41 @@ class DataValidator
 {
     static public function validate($request)
     {
-        if($request->is('/api/oauth/register'))
-            return Validator::make($request->all(), Rules::registerRules());
-
-        else if($request->is('api/register'))
+        if($request->is('api/oauth/register'))
             return Validator::make($request->all(), Rules::oauthRegisterRules());
 
-        else if($request->is('/api/oauth/login'))
+
+        else if($request->is('api/register'))
+            return Validator::make($request->all(), Rules::registerRules());
+
+        else if($request->is('api/oauth/login'))
             return Validator::make($request->all(), Rules::oauthLoginRules());
 
-        else if($request->is('/api/login'))
+        else if($request->is('api/login'))
             return Validator::make($request->all(), Rules::loginRules());
 
-        else if($request->is('/api/password/send_reset_password'))
+        else if($request->is('api/password/send_reset_password'))
             return Validator::make($request->all(), Rules::sendResetPWEmailRules());
 
-        else if($request->is('/api/password/reset/*'))
+        else if($request->is('api/password/reset/*'))
             return Validator::make($request->all(), Rules::resetPasswordRules());
 
-        else if($request->is('/api/pinpost/create'))
+        else if($request->is('api/pinpost/create'))
             return Validator::make($request->all(), Rules::pinpostRules());
 
-        else if($request->is('/api/pinvite/create'))
+        else if($request->is('api/pinvite/create'))
             return Validator::make($request->all(), Rules::pinviteRules());
 
-        else if($request->is('/api/pinvite/uploadPicture/*'))
+        else if($request->is('api/pinvite/uploadPicture/*'))
             return Validator::make($request->all(), Rules::pictureRules());
 
-        else if($request->is('/api/like/create'))
+        else if($request->is('api/like/create'))
             return Validator::make($request->all(), Rules::likeRulesRules());
 
-        else if($request->is('/api/comment/create'))
+        else if($request->is('api/comment/create'))
             return Validator::make($request->all(), Rules::commentRules());
 
-        else if($request->is('/api/relationship/friend_request'))
+        else if($request->is('api/relationship/friend_request'))
             return Validator::make($request->all(), Rules::friendRequestRules());
 
         else
