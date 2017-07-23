@@ -3,11 +3,12 @@
 namespace App\Http\Requests;
 
 use App\Http\Requests\DataRules as Rules;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 
 class DataValidator
 {
-    static public function validate($request)
+    static public function validate(Request $request)
     {
         if($request->is('api/oauth/register'))
             return Validator::make($request->all(), Rules::oauthRegisterRules());
