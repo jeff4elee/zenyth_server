@@ -64,7 +64,7 @@ class ResetPasswordController extends Controller
                 'code' => $exception->statusCode,
                 'message' => $exception->message
             ]
-        ]);
+        ], 200);
         if($token == null)
             return $jsonResponse;
 
@@ -77,7 +77,7 @@ class ResetPasswordController extends Controller
                     'code' => 200,
                     'message' => ResponseHandler::formatErrors($validator)
                 ]
-            ]);
+            ], 200);
 
         $password_reset = PasswordReset::where('token', '=', $token)->first();
 
@@ -94,7 +94,7 @@ class ResetPasswordController extends Controller
         return response()->json([
             'success' => true,
             'message' => 'Successfully reset password'
-        ]);
+        ], 200);
 
     }
 }
