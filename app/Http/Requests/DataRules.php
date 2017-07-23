@@ -56,7 +56,7 @@ class DataRules
         ];
     }
 
-    static public function pinpostRules()
+    static public function createPinpostRules()
     {
         return [
             'title' => 'required',
@@ -67,7 +67,14 @@ class DataRules
         ];
     }
 
-    static public function pinviteRules()
+    static public function updatePinpostRules()
+    {
+        return [
+            'thumbnail' => 'image'
+        ];
+    }
+
+    static public function createPinviteRules()
     {
         return [
             'title' => 'required',
@@ -89,7 +96,7 @@ class DataRules
         return ['entity_id' => 'required'];
     }
 
-    static public function commentRules()
+    static public function createCommentRules()
     {
         return [
             'comment' => 'required|min:1',
@@ -97,10 +104,24 @@ class DataRules
         ];
     }
 
+    static public function updateCommentRules()
+    {
+        return [
+            'comment' => 'required|min:1'
+        ];
+    }
+
     static public function friendRequestRules()
     {
         return [
             'requestee_id' => 'required|exists:users,id'
+        ];
+    }
+
+    static public function responseToFriendRequestRules()
+    {
+        return [
+            'status' => 'required'
         ];
     }
 

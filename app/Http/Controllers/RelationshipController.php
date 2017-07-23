@@ -2,11 +2,11 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\DataValidator;
+use App\Exceptions\Exceptions;
+use App\Exceptions\ResponseHandler as Response;
+use App\Relationship;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
-use App\Relationship;
-use App\User;
 
 /**
  * Class RelationshipController
@@ -25,14 +25,6 @@ class RelationshipController extends Controller
      */
     public function friendRequest(Request $request)
     {
-
-        $validator = DataValidator::validateFriendRequest($request);
-        if ($validator->fails())
-            return response(json_encode([
-                'success' => false,
-                'errors' => $validator->errors()->all()
-            ]), 200);
-
         $user = $request->get('user');
         $user_id = $user->id;
 
@@ -47,20 +39,15 @@ class RelationshipController extends Controller
         ])->first();
 
         if ($check != null)
-            return response(json_encode([
-                'success' => false,
-                'errors' => ['friends or pending request']
-            ]), 200);
+            Exceptions::invalidRequestException('Existed friendship or pending friend request');
 
         $relationship = Relationship::create([
             'requester' => $user_id,
             'requestee' => $request->input('requestee_id')
         ]);
 
-        return response(json_encode([
-            'success' => true,
-            'data' => $relationship
-        ]), 200);
+        return Response::dataResponse(true, ['relationship' => $relationship],
+            'successfully created a friend request');
 
     }
 
@@ -87,37 +74,15 @@ class RelationshipController extends Controller
         ])->first();
 
         if ($relationship == null || $relationship->status == true)
-            return response(json_encode([
-                'success' => false,
-                'errors' => ['No pending request']
-            ]),
-                200);
-
-        $validator = Validator::make($request->all(), [
-            'status' => 'required'
-        ]);
-
-        if ($validator->fails()) {
-            return response(json_encode([
-                'success' => false,
-                'errors' => $validator->errors()->all()
-            ]), 200);
-        }
+            Exceptions::invalidRequestException('No pending request');
 
         if ($request->input('status')) {
             $relationship->update(['status' => true]);
-            return response(json_encode([
-                'success' => true,
-                'data' => $relationship
-            ]), 200);
+            return Response::dataResponse(true, ['relationship' => $relationship],
+                'Friendship created');
         } else {
             $relationship->delete();
-            return response(json_encode([
-                'success' => true,
-                'data' => [
-                    'relationship' => 'deleted'
-                ]
-            ]), 200);
+            return Response::successResponse('Friend request ignored');
         }
 
     }
@@ -139,22 +104,11 @@ class RelationshipController extends Controller
         $relationship = self::friended($requester_id, $user_id);
 
         if ($relationship == null)
-            return response(json_encode([
-
-                'success' => false,
-                'errors' => ['not friends']
-
-            ]), 200);
+            Exceptions::notFoundException('Relationship not found');
 
         $relationship->delete();
-        return response(json_encode([
 
-            'success' => true,
-            'data' => [
-                'relationship' => 'unfriended'
-            ]
-
-        ]), 200);
+        return Response::successResponse('Unfriended');
 
     }
 
@@ -186,10 +140,8 @@ class RelationshipController extends Controller
                 'blocked' => true
             ]);
         }
-        return response(json_encode([
-            'success' => true,
-            'data' => $relationship
-        ]), 200);
+        return Response::dataResponse(true, ['relationship' => $relationship],
+            'Successfully blocked user');
     }
 
     /**

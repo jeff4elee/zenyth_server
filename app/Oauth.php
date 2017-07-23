@@ -15,4 +15,23 @@ class Oauth extends Model
     {
         return $this->belongsTo('App\User', 'user_id');
     }
+
+    public function setUserId($user_id)
+    {
+        $this->user_id = $user_id;
+        $this->update();
+    }
+
+    public function setFacebook($boolean)
+    {
+        $this->facebook = $boolean;
+        $this->update();
+    }
+
+    public function setGoogle($boolean)
+    {
+        $this->google = $boolean;
+        $this->update();
+    }
+
 }

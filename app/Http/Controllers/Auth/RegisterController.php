@@ -2,19 +2,17 @@
 
 namespace App\Http\Controllers\Auth;
 
+use App\Exceptions\Exceptions;
+use App\Exceptions\ResponseHandler as Response;
+use App\Http\Controllers\Controller;
 use App\Http\Controllers\ImageController;
-use App\User;
 use App\Oauth;
 use App\Profile;
-use App\Http\Controllers\Controller;
-use App\Http\Requests\DataValidator;
+use App\User;
 use Carbon\Carbon;
-use Illuminate\Support\Facades\Hash;
 use Illuminate\Foundation\Auth\RegistersUsers;
 use Illuminate\Http\Request;
-use App\Http\Controllers\Auth\AuthenticationTrait;
-use Illuminate\Support\Facades\Mail;
-use App\Image;
+use Illuminate\Support\Facades\Hash;
 
 class RegisterController extends Controller
 {
@@ -32,66 +30,52 @@ class RegisterController extends Controller
     use RegistersUsers;
     use AuthenticationTrait;
 
+    /**
+     * Registers user
+     *
+     * @param Request $request
+     * @return \Illuminate\Contracts\Routing\ResponseFactory|\Symfony\Component\HttpFoundation\Response
+     */
     public function register(Request $request)
     {
-
-        $validator = DataValidator::validateRegister($request);
-        if($validator->fails())
-            return response(json_encode([
-                'success' => false,
-                'errors' => $validator->errors()->all()
-            ]), 200);
-
         $userArr = $this->create($request);
 
         if($userArr != null)
         {
             $user = $userArr[0];
             $profile = $userArr[1];
-            $oauth = new Oauth();
-            $oauth->user_id = $user->id;
-            $oauth->save();
+            Oauth::create(['user_id' => $user->id]);
 
-            // Sends confirmation email
-            Mail::send('confirmation', ['confirmation_code' => $user->confirmation_code]
-                , function($message) use ($request, $profile) {
-                    $message->to($request['email'], $profile->first_name . " " . $profile->last_name)
-                        ->subject('Verify your email address');
-                });
+            // Send confirmation email
+            $name = $profile->first_name . " " . $profile->last_name;
+            $infoArray = ['confirmation_code' => $user->confirmation_code];
+            $subject = 'Verify your email address';
+            $this->sendEmail('confirmation', $infoArray, $user->email, $name, $subject);
 
-            return response(json_encode([
-                'success' => true,
-                'data' => [
-                    'user' => $user,
-                    'profile' => $profile
-                ]
-
-            ]), 200);
+            return Response::dataResponse(true, ['user' => $user, 'profile' => $profile],
+                'Successfully registered');
         }
 
-        return response(json_encode(['success' => false]), 200);
-
+        Exceptions::nullException('Unable to create user');
     }
 
+    /**
+     * Registers user with oauth
+     *
+     * @param Request $request
+     * @return \Illuminate\Contracts\Routing\ResponseFactory|\Symfony\Component\HttpFoundation\Response
+     */
     public function oauthRegister(Request $request)
     {
-
-        // Checks for email, username, oauth_type
-        $validator = DataValidator::validateOauthRegister($request);
-        if($validator->fails())
-            return response(json_encode([
-                'success' => false,
-                'errors' => $validator->errors()->all()
-            ]), 200);
-
-        // use for case insensitive check
+        // Use for case insensitive check
         $oauth_type = strtolower($request['oauth_type']);
 
         $email = $request['email'];
         $user = User::where('email', '=', $email)->first();
-        if($user != null && !$this->emailConfirmed($user)) {
+
+        // Override the user with oauth account if user has not been confirmed
+        if($user != null && !$this->emailConfirmed($user))
             $user->delete();
-        }
 
         // Creates a user with random password
         $user = User::create([
@@ -106,107 +90,115 @@ class RegisterController extends Controller
             $user->token_expired_on = Carbon::now()->addDays(365);
             $user->update();
             $profile = $this->createProfile($request, $user);
-            $oauth = new Oauth();
-            $oauth->user_id = $user->id;
 
+            // Setting the appropriate oauth for the user
+            $oauth = Oauth::create(['user_id' => $user->id]);
             if($oauth_type == 'facebook')
                 $oauth->facebook = true;
             else if ($oauth_type == 'google')
                 $oauth->google = true;
 
-            $oauth->save();
-
-            return response(json_encode([
-                'success' => true,
-                'data' => [
-                    'user' => $user,
-                    'api_token' => $user->api_token,
-                    'profile' => $profile
-                ]
-            ]), 200);
+            return Response::dataResponse(true, [
+                'user' => $user,
+                'api_token' => $user->api_token,
+                'profile' => $profile
+            ], 'Successfully registered');
         }
     }
 
+
+    /**
+     * Checks if email is taken
+     *
+     * @param $email
+     * @return \Illuminate\Contracts\Routing\ResponseFactory|\Symfony\Component\HttpFoundation\Response
+     */
     public function emailTaken($email)
     {
 
         $user = User::where('email', '=', $email)->first();
         $confirmed = false;
-        if($user != null) {
-            if ($user->confirmation_code == null) {
-                $confirmed = true;
-            }
-        }
+        if($user != null && $user->confirmation_code == null)
+            $confirmed = true;
+
         return $this->takenResponse($user, $confirmed);
 
     }
 
+    /**
+     * Checks if username is taken
+     *
+     * @param $username
+     * @return \Illuminate\Contracts\Routing\ResponseFactory|\Symfony\Component\HttpFoundation\Response
+     */
     public function usernameTaken($username)
     {
 
         $user = User::where('username', '=', $username)->first();
         $confirmed = false;
-        if($user != null) {
-            if ($user->confirmation_code == null) {
-                $confirmed = true;
-            }
-        }
+        if($user != null && $user->confirmation_code == null)
+            $confirmed = true;
+
         return $this->takenResponse($user, $confirmed);
 
     }
 
+    /**
+     * Helper method returning a response for usernameTaken and emailTaken
+     *
+     * @param $user
+     * @param $confirmed
+     * @return \Illuminate\Contracts\Routing\ResponseFactory|\Symfony\Component\HttpFoundation\Response
+     */
     public function takenResponse($user, $confirmed)
     {
         if($user == null) {
-            return response(json_encode([
-                'success' => true,
-                'data' => [
-                    'taken' => false
-                ]
-            ]), 200);
+            return Response::dataResponse(true, ['taken' => false]);
+
         }
-        else {
-            return response(json_encode([
-                'success' => true,
-                'data' => [
-                    'taken' => true,
-                    'confirmed' => $confirmed
-                ]
-            ]), 200);
-        }
+        else
+            return Response::dataResponse(true, [
+                'taken' => true,
+                'confirmed' => $confirmed
+            ]);
     }
 
+
+    /**
+     * Checks if user is confirmed
+     *
+     * @param $user
+     * @return bool
+     */
     public function emailConfirmed($user)
     {
         return $user->confirmation_code == null;
     }
 
+    /**
+     * Confirms user
+     *
+     * @param $confirmation_code
+     * @return \Illuminate\Contracts\Routing\ResponseFactory|\Symfony\Component\HttpFoundation\Response
+     */
     public function confirm($confirmation_code)
     {
 
-        if( ! $confirmation_code)
-            return response(json_encode([
-                'success' => false,
-                'errors' => ['Invalid confirmation code']
-            ]), 401);
+        if($confirmation_code == null)
+            Exceptions::invalidConfirmationException();
 
         $user = User::where('confirmation_code', '=', $confirmation_code)->first();
 
         if($user == null)
-            return response(json_encode([
-                'success' => false,
-                'errors' => ['Invalid confirmation code']
-            ]), 401);
+            Exceptions::invalidConfirmationException();
 
         $user->confirmation_code = null;
         $user->api_token = $this->generateApiToken();
+        // Token will expire in 1 year
         $user->token_expired_on = Carbon::now()->addDays(365);
         $user->update();
 
-        return response(json_encode([
-            'success' => true,
-            'message' => 'Account verified'
-        ]), 200);
+        return Response::successResponse('Account verified');
 
     }
 
@@ -231,7 +223,7 @@ class RegisterController extends Controller
      * Create a new user instance after a valid registration.
      *
      * @param  Request $request
-     * @return User
+     * @return Array containing User and Profile
      */
     public function create(Request $request)
     {
@@ -254,33 +246,40 @@ class RegisterController extends Controller
 
     }
 
+    /**
+     * Creates a profile for a user
+     *
+     * @param Request $request
+     * @param $user
+     * @return mixed
+     */
     public function createProfile(Request $request, $user)
     {
+        $gender = $request->input('gender');
+        $first_name = $request->input('first_name');
+        $last_name = $request->input('last_name');
 
-        $profile = new Profile();
-        $profile->user_id = $user->id;
+        if($request->has('birthday')) // Format birthday
+            $birthday = \DateTime::createFromFormat('Y-m-d', $request->input('birthday'));
+        else
+            $birthday = null;
 
-        if($request->has('gender'))
-            $profile->gender = $request['gender'];
-        if($request->has('first_name'))
-            $profile->first_name = $request['first_name'];
-        if($request->has('last_name'))
-            $profile->last_name = $request['last_name'];
-        if($request->has('birthday')) {
-            $birthday = \DateTime::createFromFormat('Y-m-d', $request['birthday']);
-            $profile->birthday = $birthday;
-        }
-        if($request->has('picture_url')) {
-            $image = new Image();
-            $filename = ImageController::storeProfileImage($request['picture_url']);
-            if($filename != null) {
-                $image->filename = $filename;
-                $image->save();
-                $profile->image_id = $image->id;
-            }
-        }
+        // Stores image into local storage
+        $image = ImageController::storeProfileImage($request->input('picture_url'));
+        if($image != null)
+            $image_id = $image->id;
+        else
+            $image_id = null;
 
-        $profile->save();
+        $profile = Profile::create([
+            'user_id' => $user->id,
+            'gender' => $gender,
+            'first_name' => $first_name,
+            'last_name' => $last_name,
+            'birthday' => $birthday,
+            'image_id' => $image_id
+        ]);
+
         return $profile;
 
     }

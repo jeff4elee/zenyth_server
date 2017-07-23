@@ -2,14 +2,13 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\DataValidator;
-use App\Entity;
-use Illuminate\Http\Request;
 use App\Comment;
-use App\User;
+use App\Entity;
 use App\EntitysPicture;
+use App\Exceptions\Exceptions;
+use App\Exceptions\ResponseHandler as Response;
 use App\Image;
-use Illuminate\Support\Facades\Validator;
+use Illuminate\Http\Request;
 
 /**
  * Class CommentController
@@ -27,14 +26,6 @@ class CommentController extends Controller
      */
     public function create(Request $request)
     {
-
-        $validator = DataValidator::validateComment($request);
-        if ($validator->fails())
-            return response(json_encode([
-                'success' => false,
-                'errors' => $validator->errors()->all()
-            ]), 200);
-
         $entity = Entity::create([]);
         $comment = new Comment();
 
@@ -44,12 +35,11 @@ class CommentController extends Controller
 
         if($request->has('picture')) {
             $image = new Image();
-            $entitys_picture = new EntitysPicture();
             ImageController::storeImage($request->file('picture'), $image);
-            $image->save();
-            $entitys_picture->entity_id = $entity->id;
-            $entitys_picture->image_id = $image->id;
-            $entitys_picture->save();
+            EntitysPicture::create([
+                'entity_id' => $entity->id,
+                'image_id' => $image->id
+            ]);
         }
 
         $user = $request->get('user');
@@ -57,10 +47,8 @@ class CommentController extends Controller
         $comment->user_id = $user->id;
         $comment->save();
 
-        return response(json_encode([
-            'success' => true,
-            'data' => $comment
-        ]), 200);
+        return Response::dataResponse(true, ['comment' => $comment],
+            'Successfully created comment');
 
     }
 
@@ -75,17 +63,10 @@ class CommentController extends Controller
 
         $comment = Comment::find($comment_id);
 
-        if ($comment == null) {
-            return response(json_encode([
-                'success' => false,
-                'errors' => ['not found']
-            ]), 200);
-        }
+        if ($comment == null)
+            Exceptions::notFoundException('Comment not found');
 
-        return response(json_encode([
-            'success' => true,
-            'data' => $comment
-        ]), 202);
+        return Response::dataResponse(true, ['comment' => $comment]);
 
     }
 
@@ -100,43 +81,26 @@ class CommentController extends Controller
     public function update(Request $request, $comment_id)
     {
 
-        $validator = Validator::make($request->all(), [
-            'comment' => 'required|min:1'
-        ]);
-        if ($validator->fails())
-            return response(json_encode([
-                'success' => false,
-                'errors' => $validator->errors()->all()
-            ]), 200);
-
         $comment = Comment::find($comment_id);
+        if ($comment == null)
+            Exceptions::notFoundException('Comment not found');
+
         $api_token = $comment->user->api_token;
         $headerToken = $request->header('Authorization');
 
-        if ($api_token != $headerToken) {
-            return response(json_encode([
-                'success' => false,
-                'errors' => ['Unauthenticated']
-            ]),
-                401);
-        }
+        if ($api_token != $headerToken)
+            Exceptions::invalidTokenException('Comment does not associate with this token');
 
-        if ($comment == null) {
-            return response(json_encode([
-                'success' => false,
-                'errors' => ['not found']
-            ]), 200);
-        }
+        if ($comment == null)
+            Exceptions::notFoundException('Comment not found');
 
         if ($request->has('comment'))
             $comment->comment = $request->input('comment');
 
         $comment->update();
 
-        return response(json_encode([
-            'success' => true,
-            'data' => $comment
-        ]), 200);
+        return Response::dataResponse(true, ['comment' => $comment],
+            'successfully updated comment');
 
     }
 
@@ -155,30 +119,21 @@ class CommentController extends Controller
 
         $comment = Comment::find($comment_id);
 
-        if ($comment == null) {
-            return response(json_encode([
-                'success' => false,
-                'errors' => ['not found']
-            ]), 200);
-        }
+        if ($comment == null)
+            Exceptions::notFoundException('Comment not found');
 
         $api_token = $comment->user->api_token;
         $headerToken = $request->header('Authorization');
 
-        if ($api_token != $headerToken) {
-            return response(json_encode([
-                'success' => false,
-                'errors' => ['Unauthenticated']
-            ]),
-                401);
-        }
+        if ($api_token != $headerToken)
+            Exceptions::invalidTokenException('Comment does not associate with this token');
 
         $pictures = $comment->entity->pictures;
         foreach ($pictures as $picture) {
             $picture->image->delete();
         }
         $comment->entity->delete();
-        return response(json_encode(['success' => true]), 200);
+        return Response::successResponse('successfully deleted comment');
 
     }
 

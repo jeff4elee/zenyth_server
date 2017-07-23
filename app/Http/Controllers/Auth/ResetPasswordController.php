@@ -2,12 +2,16 @@
 
 namespace App\Http\Controllers\Auth;
 
-use Illuminate\Http\Request;
-use App\PasswordReset;
-use App\User;
+use App\Exceptions\Exceptions;
+use App\Exceptions\ResponseHandler as Response;
+use App\Exceptions\ResponseHandler;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\DataValidator;
+use App\PasswordReset;
+use App\User;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use Symfony\Component\Routing\Exception\InvalidParameterException;
 
 class ResetPasswordController extends Controller
 {
@@ -44,7 +48,7 @@ class ResetPasswordController extends Controller
         if(PasswordReset::where('token', '=', $token)->first() == null)
             return response(json_encode([
                 'success' => false,
-                'message' => 'Invalid token'
+                'message' => 'invalid token'
             ]), 200);
 
         return view('restore_password_web')->with(['token' => $token]);
@@ -52,14 +56,13 @@ class ResetPasswordController extends Controller
 
     public function restorePassword(Request $request, $token)
     {
-        if( ! $token)
+        if(!$token)
             return response()->json([
                 'success' => false,
-                'message' => 'Invalid token'
+                'message' => 'invalid token'
             ], 200);
 
-        $validator = DataValidator::validateResetPassword($request);
-
+        $validator = DataValidator::validateRestorePassword($request);
         if($validator->fails()) {
             return response()->json([
                 'success' => false,
@@ -67,22 +70,18 @@ class ResetPasswordController extends Controller
             ], 200);
         }
 
-
         $password_reset = PasswordReset::where('token', '=', $token)->first();
-
         if($password_reset == null)
             return response()->json([
                 'success' => false,
-                'message' => 'Invalid token'
+                'message' => 'invalid token'
             ], 200);
 
         $user = User::where('email', '=', $password_reset->email)->first();
-
-
         $user->password = Hash::make($request['password']);
         $user->update();
-
         $password_reset->delete();
+
         return response()->json([
             'success' => true,
             'message' => 'Successfully reset password'

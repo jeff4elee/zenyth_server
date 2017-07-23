@@ -2,15 +2,15 @@
 
 namespace App\Http\Controllers\Auth;
 
+use App\Exceptions\ResponseHandler as Response;
 use App\Http\Controllers\Controller;
-use App\Http\Requests\DataValidator;
 use App\PasswordReset;
 use App\User;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Mail;
 
 class ForgotPasswordController extends Controller
 {
+    use AuthenticationTrait;
     /*
     |--------------------------------------------------------------------------
     | Password Reset Controller
@@ -34,13 +34,6 @@ class ForgotPasswordController extends Controller
 
     public function sendResetPasswordEmail(Request $request)
     {
-        $validator = DataValidator::validateResetPasswordEmail($request);
-        if($validator->fails())
-            return response(json_encode([
-                'success' => false,
-                'errors' => $validator->errors()->all()
-            ]), 200);
-
         // Generate unique token
         do {
             $token = str_random(30);
@@ -62,16 +55,11 @@ class ForgotPasswordController extends Controller
             ]);
         }
 
-        Mail::send('restore_password_email', ['token' => $token]
-            , function($message) use ($email) {
-                $message->to($email, null)
-                    ->subject('Reset your password');
-            });
+        $subject = 'Reset your password';
+        $infoArray = ['token' => $token];
+        $this->sendEmail('restore_password_email', $infoArray, $email, null, $subject);
 
-        return response(json_encode([
-            'success' => true,
-            'message' => 'Check your email',
-            'data' => $email
-        ]), 200);
+        return Response::dataResponse(true, ['email' => $email],
+            'Check your email');
     }
 }

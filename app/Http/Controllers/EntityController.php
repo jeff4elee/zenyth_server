@@ -3,8 +3,8 @@
 namespace App\Http\Controllers;
 
 
-use App\Http\Controllers\Response;
 use App\Entity;
+use App\Exceptions\ResponseHandler as Response;
 
 /**
  * Class EntityController
@@ -23,10 +23,7 @@ class EntityController extends Controller
     {
 
         $count = Entity::find($entity_id)->likesCount();
-        return response(json_encode([
-            'success' => true,
-            'data' => $count
-        ]), 200);
+        return Response::dataResponse(true, ['count' => $count]);
 
     }
 
@@ -40,10 +37,7 @@ class EntityController extends Controller
     {
 
         $count = Entity::find($entity_id)->commentsCount();
-        return response(json_encode([
-            'success' => true,
-            'data' => $count
-        ]), 200);
+        return Response::dataResponse(true, ['count' => $count]);
 
     }
 
@@ -65,10 +59,7 @@ class EntityController extends Controller
             array_push($users_arr, $like->user);
         }
 
-        return response(json_encode([
-            'success' => true,
-            'data' => $users_arr
-        ]), 200);
+        return Response::dataResponse(true, ['users' => $users_arr]);
 
     }
 

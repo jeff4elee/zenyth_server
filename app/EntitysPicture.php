@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class EntitysPicture extends Model
 {
-    public $timestamps = false;
+    protected $fillable = ['entity_id', 'image_id'];
     protected $table = 'entitys_pictures';
 
     public function entity()

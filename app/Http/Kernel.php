@@ -47,6 +47,10 @@ class Kernel extends HttpKernel
 
         'oauth' => [
             \App\Http\Middleware\OauthMiddleware::class
+        ],
+
+        'validation' => [
+            'validation' => \App\Http\Middleware\ValidationMiddleware::class
         ]
     ];
 
@@ -65,6 +69,7 @@ class Kernel extends HttpKernel
         'guest' => \App\Http\Middleware\RedirectIfAuthenticated::class,
         'throttle' => \Illuminate\Routing\Middleware\ThrottleRequests::class,
         'authenticated' => \App\Http\Middleware\AuthenticatedMiddleware::class,
-        'oauth' => \App\Http\Middleware\OauthMiddleware::class
+        'oauth' => \App\Http\Middleware\OauthMiddleware::class,
+        'validation' => \App\Http\Middleware\ValidationMiddleware::class
     ];
 }

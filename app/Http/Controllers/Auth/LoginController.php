@@ -2,12 +2,13 @@
 
 namespace App\Http\Controllers\Auth;
 
+use App\Exceptions\Exceptions;
+use App\Exceptions\ResponseHandler as Response;
 use App\Http\Controllers\Controller;
+use App\User;
 use Illuminate\Foundation\Auth\AuthenticatesUsers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
-use App\User;
-use App\Http\Requests\DataValidator;
 
 class LoginController extends Controller
 {
@@ -35,13 +36,6 @@ class LoginController extends Controller
      */
     public function login(Request $request)
     {
-        $validator = DataValidator::validateLogin($request);
-        if ($validator->fails())
-            return response(json_encode([
-                'success' => false,
-                'errors' => $validator->errors()->all()
-            ]), 200);
-
         $password = $request['password'];
 
         if($request->has('username'))
@@ -53,35 +47,23 @@ class LoginController extends Controller
 
 
         if ($user == null) {
-            return response(json_encode([
-                'success' => false,
-                'errors' => ['Incorrect email or password']
-            ]), 200);
+            Exceptions::invalidCredentialException('Incorrect email or password');
         }
 
         if (Hash::check($password, $user->password)) {   // checks password
             // against hashed pw
 
             if($user->confirmation_code != null)
-                return response(json_encode([
-                    'success' => false,
-                    'errors' => ['Account has not been confirmed']
-                ]), 200);
+                Exceptions::unconfirmedAccountException();
             else
-                return response(json_encode([
-                    'success' => true,
-                    'data' => [
-                        'user' => $user,
-                        'api_token' => $user->api_token
-                    ]
-                ]), 200);
+                return Response::dataResponse(true, [
+                    'user' => $user,
+                    'api_token' => $user->api_token
+                ], 'Successfully logged in');
 
         }
 
-        return response(json_encode([
-            'success' => false,
-            'errors' => ['Incorrect email or password']
-        ]), 200);
+        Exceptions::invalidCredentialException('Incorrect email or password');
 
     }
 

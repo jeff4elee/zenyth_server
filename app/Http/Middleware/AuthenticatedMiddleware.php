@@ -2,11 +2,13 @@
 
 namespace App\Http\Middleware;
 
-use Closure;
-use App\User;
 use App;
-use Illuminate\Http\Request;
+use App\Exceptions\Exceptions;
+use App\Exceptions\ResponseHandler as Response;
 use App\Http\Controllers\Auth\AuthenticationTrait;
+use App\User;
+use Closure;
+use Illuminate\Http\Request;
 
 
 class AuthenticatedMiddleware
@@ -25,31 +27,25 @@ class AuthenticatedMiddleware
 
         $api_token = $request->header('Authorization');
         if($api_token == null)
-            return response(json_encode([
-                'success' => false,
-                'errors' => ['Unauthenticated']
-            ]), 401);
+            Exceptions::unauthenticatedException('This request requires an access token');
 
         $api_token = $this->stripBearerFromToken($api_token);
 
         if($api_token == null)
-            return response(json_encode([
-                'success' => false,
-                'errors' => ['Unauthenticated']
-            ]), 401);
+            Exceptions::invalidTokenException('Invalid access token');
 
         $user = User::where('api_token', $api_token)->first();
 
+        // Removes bearer from the front of api_token
         $request->headers->set('Authorization', $api_token);
         if($user != null) {
+            // Inject the user object into the request in order for the
+            // controllers to use it
             $request->merge(['user' => $user]);
             return $next($request);
         }
 
-        return response(json_encode([
-            'success' => false,
-            'errors' => ['Unauthenticated']
-        ]), 401);
+        Exceptions::unauthenticatedException();
 
     }
 }

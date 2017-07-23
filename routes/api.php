@@ -13,26 +13,27 @@ use Illuminate\Http\Request;
 | is assigned the "api" middleware group. Enjoy building your API!
 |
 */
-Route::group(['middleware' => 'oauth'], function() {
+Route::group(['middleware' => ['oauth', 'validation']], function() {
     Route::post('oauth/register', 'Auth\RegisterController@oauthRegister');
     Route::post('oauth/login', 'Auth\OauthController@oauthLogin');
 });
 
-Route::post('register', 'Auth\RegisterController@register');
+Route::group(['middleware' => 'validation'], function () {
+    Route::post('register', 'Auth\RegisterController@register');
+    Route::post('login', 'Auth\LoginController@login');
+    Route::post('password/send_reset_password',
+        'Auth\ForgotPasswordController@sendResetPasswordEmail');
+});
+Route::post('password/reset/{token}',
+    'Auth\ResetPasswordController@restorePassword')->name('api_pw_reset');
 Route::get('email_taken/{email}', 'Auth\RegisterController@emailTaken');
 Route::get('username_taken/{username}', 'Auth\RegisterController@usernameTaken');
-Route::post('login', 'Auth\LoginController@login');
-Route::get('logout', 'Auth\LogoutController@logout');
-Route::post('password/send_reset_password',
-            'Auth\ForgotPasswordController@sendResetPasswordEmail');
-Route::post('password/reset/{token}',
-            'Auth\ResetPasswordController@restorePassword')->name('api_pw_reset');
 Route::get('user/search_user/{name}', 'UserController@searchUser');
 Route::get('comment/read/{comment_id}', 'CommentController@read');
 Route::get('pinpost/read/{pinpost_id}', 'PinpostController@read');
 Route::get('pinvite/read/{pinvite_id}', 'PinviteController@read');
 
-Route::group(['middleware' => 'authenticated'], function() {
+Route::group(['middleware' => ['authenticated', 'validation']], function() {
 
     Route::get('user/get_friends/{user_id}', 'UserController@getFriends');
     Route::get('user/blocked_users', 'UserController@blockedUsers');
@@ -81,8 +82,8 @@ Route::group(['middleware' => 'authenticated'], function() {
     Route::post('like/create', 'LikeController@create');
     Route::delete('like/delete/{entity_id}', 'LikeController@delete');
 
-    Route::get('storage/{filename}', 'ImageController@showImage');
+    Route::get('picture/{image_id}', 'ImageController@showImage');
 
 });
 
-Route::get('/picture/{user_id}', 'ImageController@showProfileImage');
+Route::get('/picture/profile/{user_id}', 'ImageController@showProfileImage');

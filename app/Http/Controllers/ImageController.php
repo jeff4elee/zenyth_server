@@ -2,14 +2,15 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Facades\File;
-use Illuminate\Http\UploadedFile;
-use Intervention\Image\Facades\Image as InterventionImage;
+use App\Exceptions\Exceptions;
+use App\Exceptions\ResponseHandler as Response;
 use App\Image;
 use App\Profile;
 use GuzzleHttp\Client;
+use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\File;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Storage;
 
 /**
  * Class ImageController
@@ -33,11 +34,15 @@ class ImageController extends Controller
 
         Storage::disk($directory)->put($filename, File::get($file));
         $image->filename = $filename;
+        $image->save();
 
     }
 
     static public function storeProfileImage($url)
     {
+        if($url == null)
+            return null;
+
         $mimeTypes = array(
             'image/png' => 'png',
             'image/jpg' => 'jpeg',
@@ -59,8 +64,12 @@ class ImageController extends Controller
 
             Storage::disk('profile_pictures')->put($filename, $image->getBody());
 
-            return $filename;
-        } catch (Exception $error) {
+            $image = new Image();
+            $image->filename = $filename;
+            $image->save();
+
+            return $image;
+        } catch (\Exception $error) {
             // Log the error or something
             Log::info($error);
             return null;
@@ -73,10 +82,14 @@ class ImageController extends Controller
      * @param $filename, name of image file
      * @return mixed, an image response
      */
-    public function showImage($filename)
+    public function showImage($image_id)
     {
-        return InterventionImage::make(storage_path('app/images/' . $filename))
-            ->response();
+        $image = Image::find($image_id);
+        if($image == null)
+            Exceptions::notFoundException('Image not found');
+
+        $path = 'app/images/' . $image->filename;
+        return Response::rawImageResponse($path);
     }
 
     public function showProfileImage($user_id)
@@ -84,16 +97,11 @@ class ImageController extends Controller
         $profile = Profile::where('user_id', '=', $user_id)->first();
         $image = $profile->profilePicture;
         if($image == null) {
-            return response(json_encode([
-                'success' => true,
-                'data' => [
-                    'message' => 'No profile picture'
-                ]
-            ]), 200);
+            Response::successResponse('No profile picture');
         }
         $filename = $image->filename;
-        return InterventionImage::make(storage_path('app/profile_pictures/' . $filename))
-            ->response();
+        $path = 'app/profile_pictures/' . $filename;
+        return Response::rawImageResponse($path);
     }
 
     static public function generateImageName($extension)
