@@ -35,9 +35,9 @@ class ResponseHandler
             return response(json_encode([
                 'success' => false,
                 'error' => [
+                    'message' => $exception->getMessage(),
                     'type' => (string)$exception,
-                    'code' => $exception->getCode(),
-                    'message' => $exception->getMessage()
+                    'code' => $exception->getCode()
                 ]
             ]), 200);
         else
