@@ -3,7 +3,8 @@
 namespace App\Http\Middleware;
 
 use App;
-use App\Exceptions\ResponseHandler as Response;
+use App\Exceptions\Exceptions;
+use App\Exceptions\InvalidParameterException;
 use App\Exceptions\ResponseHandler;
 use App\Http\Requests\DataValidator;
 use Closure;
@@ -25,8 +26,7 @@ class ValidationMiddleware
         $validator = DataValidator::validate($request);
         if($validator != null && $validator->fails()) {
             $message = ResponseHandler::formatErrors($validator);
-            throw new App\Exceptions\InvalidParameterException($message, 201);
-            //return Response::validatorErrorResponse($validator);
+            Exceptions::parameterException($message);
         }
         else
             return $next($request);

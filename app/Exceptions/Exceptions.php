@@ -4,56 +4,54 @@ namespace App\Exceptions;
 
 class Exceptions
 {
-    static public function oauthException()
+    static public function oauthException($message)
     {
-        return new Exception('OAuthException', 401);
+        throw new OAuthException($message, 401);
     }
 
-    static public function parameterException()
+    static public function parameterException($message)
     {
-        return new Exception('InvalidParameterException', 200);
+        throw new InvalidParameterException($message, 200);
     }
 
-    static public function unauthenticatedException()
+    static public function unauthenticatedException($message)
     {
-        return new Exception('UnauthenticatedException', 401, 'unauthenticated');
+        return new UnauthenticatedException($message, 401);
     }
 
-    static public function invalidConfirmationException()
+    static public function invalidConfirmationException($message)
     {
-        return new Exception('InvalidConfirmationCodeException', 200,
-            'invalid confirmation code');
+        return new InvalidConfirmationCodeException($message, 200);
     }
 
-    static public function invalidTokenException()
+    static public function invalidTokenException($message)
     {
-        return new Exception('InvalidTokenException', 200, 'invalid token');
+        return new InvalidTokenException($message, 200);
     }
 
-    static public function nullException()
+    static public function nullException($message)
     {
-        return new Exception('NullException', 200);
+        return new NullException($message, 200);
     }
 
-    static public function notFoundException()
+    static public function notFoundException($message)
     {
-        return new Exception('NotFoundException', 200, 'not found');
+        return new NotFoundException($message, 200);
     }
 
-    static public function invalidCredentialException()
+    static public function invalidCredentialException($message)
     {
-        return new Exception('InvalidCredentialException', 200);
+        return new InvalidCredentialException($message, 200);
     }
 
-    static public function unconfirmedAccountException()
+    static public function unconfirmedAccountException($message)
     {
-        return new Exception('UnconfirmedAccountException', 200,
-            'account has not been confirmed');
+        return new UnconfirmedAccountException($message, 200);
     }
 
-    static public function invalidRequestException()
+    static public function invalidRequestException($message)
     {
-        return new Exception('InvalidRequestException', 200);
+        return new InvalidRequestException($message, 200);
     }
 
 }
