@@ -158,7 +158,7 @@ class RegisterController extends Controller
         }
         else
             return Response::dataResponse(true, [
-                'taken' => false,
+                'taken' => true,
                 'confirmed' => $confirmed
             ]);
     }
