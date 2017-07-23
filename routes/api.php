@@ -81,8 +81,8 @@ Route::group(['middleware' => 'authenticated'], function() {
     Route::post('like/create', 'LikeController@create');
     Route::delete('like/delete/{entity_id}', 'LikeController@delete');
 
-    Route::get('storage/{filename}', 'ImageController@showImage');
+    Route::get('picture/{image_id}', 'ImageController@showImage');
 
 });
 
-Route::get('/picture/{user_id}', 'ImageController@showProfileImage');
+Route::get('/picture/profile/{user_id}', 'ImageController@showProfileImage');

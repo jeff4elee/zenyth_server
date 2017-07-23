@@ -17,6 +17,12 @@ class OauthController extends RegisterController
     protected $mergeFacebook = 'A Facebook account with the same email has already been created. Do you want to merge?';
     protected $mergeAccount = 'An account with the same email has already been created. Do you want to merge?';
 
+    /**
+     * Logs the user in with oauth
+     *
+     * @param Request $request
+     * @return \Illuminate\Contracts\Routing\ResponseFactory|\Symfony\Component\HttpFoundation\Response
+     */
     public function oauthLogin(Request $request)
     {
 
@@ -46,6 +52,18 @@ class OauthController extends RegisterController
 
     }
 
+
+    /**
+     * Processes an oauth request
+     *
+     * @param $oauth_type
+     * @param $profile
+     * @param $json
+     * @param $oauth
+     * @param $data
+     * @param $request
+     * @return \Illuminate\Contracts\Routing\ResponseFactory|\Symfony\Component\HttpFoundation\Response
+     */
     public function processOauth($oauth_type, $profile, $json, $oauth, $data, $request) {
         // Previously logged in with google but now logging in with facebook
         if($oauth_type == 'facebook' &&
@@ -88,6 +106,13 @@ class OauthController extends RegisterController
         }
     }
 
+    /**
+     * Merges information when logged in with oauth
+     *
+     * @param Profile $profile
+     * @param $json
+     * @param $oauth_type
+     */
     public function mergeInformation(Profile $profile, $json, $oauth_type)
     {
         $last_name_key = null;

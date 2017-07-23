@@ -200,6 +200,8 @@ class PinpostController extends Controller
 
         $user = $request->get('user');
         $idArray = $user->friendsId();
+
+        // Get all pinposts that belong to friends
         $pinposts = Pinpost::select('*')
             ->whereIn('creator_id', $idArray)
             ->latest()->get();
