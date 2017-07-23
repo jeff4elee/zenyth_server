@@ -23,10 +23,9 @@ Route::group(['middleware' => 'validation'], function () {
     Route::post('login', 'Auth\LoginController@login');
     Route::post('password/send_reset_password',
         'Auth\ForgotPasswordController@sendResetPasswordEmail');
-    Route::post('password/reset/{token}',
-        'Auth\ResetPasswordController@restorePassword')->name('api_pw_reset');
 });
-
+Route::post('password/reset/{token}',
+    'Auth\ResetPasswordController@restorePassword')->name('api_pw_reset');
 Route::get('email_taken/{email}', 'Auth\RegisterController@emailTaken');
 Route::get('username_taken/{username}', 'Auth\RegisterController@usernameTaken');
 Route::get('user/search_user/{name}', 'UserController@searchUser');

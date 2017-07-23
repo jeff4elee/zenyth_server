@@ -24,9 +24,6 @@ class DataValidator
         else if($request->is('api/password/send_reset_password'))
             return Validator::make($request->all(), Rules::sendResetPWEmailRules());
 
-        else if($request->is('api/password/reset/*'))
-            return Validator::make($request->all(), Rules::resetPasswordRules());
-
         else if($request->is('api/pinpost/create'))
             return Validator::make($request->all(), Rules::pinpostRules());
 
@@ -37,7 +34,7 @@ class DataValidator
             return Validator::make($request->all(), Rules::pictureRules());
 
         else if($request->is('api/like/create'))
-            return Validator::make($request->all(), Rules::likeRulesRules());
+            return Validator::make($request->all(), Rules::likeRules());
 
         else if($request->is('api/comment/create'))
             return Validator::make($request->all(), Rules::commentRules());
@@ -47,6 +44,10 @@ class DataValidator
 
         else
             return null;
+    }
+
+    static public function validateRestorePassword($request) {
+        return Validator::make($request->all(), Rules::resetPasswordRules());
     }
 
 }

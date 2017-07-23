@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Auth;
 use App\Exceptions\Exceptions;
 use App\Exceptions\ResponseHandler as Response;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\DataValidator;
 use App\PasswordReset;
 use App\User;
 use Illuminate\Http\Request;
@@ -53,14 +54,26 @@ class ResetPasswordController extends Controller
 
     public function restorePassword(Request $request, $token)
     {
+        $exception = Exceptions::invalidTokenException();
+        $jsonResponse = response()->json([
+            'success' => false,
+            'error' => [
+                'type' => $exception->type,
+                'code' => $exception->statusCode,
+                'message' => $exception->message
+            ]
+        ]);
         if($token == null)
-            return Response::errorResponse(Exceptions::invalidTokenException());
+            return $jsonResponse;
+
+        $validator = DataValidator::validateRestorePassword($request);
+        if($validator->fails())
+            return $jsonResponse;
 
         $password_reset = PasswordReset::where('token', '=', $token)->first();
 
         if($password_reset == null)
-            return Response::errorResponse(Exceptions::invalidTokenException(),
-                'Invalid Reset Password Token');
+            return $jsonResponse;
 
         $user = User::where('email', '=', $password_reset->email)->first();
 
@@ -69,7 +82,10 @@ class ResetPasswordController extends Controller
         $user->update();
 
         $password_reset->delete();
-        return Response::successResponse('Successfully reset password');
+        return response()->json([
+            'success' => true,
+            'message' => 'Successfully reset password'
+        ]);
 
     }
 }
