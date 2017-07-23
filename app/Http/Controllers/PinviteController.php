@@ -30,14 +30,6 @@ class PinviteController extends Controller
      */
     public function create(Request $request)
     {
-
-        $validator = DataValidator::validatePinvite($request);
-        if ($validator->fails())
-            return response(json_encode([
-                'success' => false,
-                'errors' => $validator->errors()->all()
-            ]), 200);
-
         $pin = new Pinvite();
         $entity = Entity::create([]);
 

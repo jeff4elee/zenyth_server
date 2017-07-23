@@ -25,12 +25,6 @@ class OauthController extends RegisterController
      */
     public function oauthLogin(Request $request)
     {
-
-        // Validates to see if request contains email and oauth_type
-        $validator = DataValidator::validateOauthLogin($request);
-        if($validator->fails())
-            return Response::validatorErrorResponse($validator);
-
         $oauth_type = strtolower($request['oauth_type']);
         $email = $request['email'];
         $json = $request['json'];
@@ -45,9 +39,7 @@ class OauthController extends RegisterController
                 'api_token' => $user->api_token,
                 'oauth_type' => $oauth_type
             ];
-
             return $this->processOauth($oauth_type, $profile, $json, $oauth, $data, $request);
-
         }
 
     }

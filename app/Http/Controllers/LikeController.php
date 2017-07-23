@@ -25,10 +25,6 @@ class LikeController extends Controller
      */
     public function create(Request $request)
     {
-        $validator = DataValidator::validateLike($request);
-        if($validator->fails())
-            return Response::validatorErrorResponse($validator);
-
         $like = new Like();
 
         $like->entity_id = $request->input('entity_id');

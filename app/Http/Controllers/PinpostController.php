@@ -34,11 +34,6 @@ class PinpostController extends Controller
      */
     public function create(Request $request)
     {
-
-        $validator = DataValidator::validatePinpost($request);
-        if ($validator->fails())
-            return Response::validatorErrorResponse($validator);
-
         $pin = new Pinpost();
         $entity = Entity::create([]);
 

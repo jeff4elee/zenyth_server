@@ -54,18 +54,8 @@ class ResetPasswordController extends Controller
 
     public function restorePassword(Request $request, $token)
     {
-        if( ! $token)
-            return response()->json([
-                'success' => false,
-                'message' => 'Invalid token'
-            ], 200);
-
-        $validator = DataValidator::validateResetPassword($request);
-
-        if($validator->fails()) {
-            return Response::validatorErrorResponse($validator);
-        }
-
+        if($token == null)
+            return Response::errorResponse(Exceptions::invalidTokenException());
 
         $password_reset = PasswordReset::where('token', '=', $token)->first();
 

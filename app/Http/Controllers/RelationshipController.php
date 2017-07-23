@@ -27,7 +27,6 @@ class RelationshipController extends Controller
      */
     public function friendRequest(Request $request)
     {
-
         $user = $request->get('user');
         $user_id = $user->id;
 

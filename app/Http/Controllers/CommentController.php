@@ -29,11 +29,6 @@ class CommentController extends Controller
      */
     public function create(Request $request)
     {
-
-        $validator = DataValidator::validateComment($request);
-        if ($validator->fails())
-            return Response::validatorErrorResponse($validator);
-
         $entity = Entity::create([]);
         $comment = new Comment();
 
