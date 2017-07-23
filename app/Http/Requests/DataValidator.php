@@ -42,6 +42,9 @@ class DataValidator
         else if($request->is('api/relationship/friend_request'))
             return Validator::make($request->all(), Rules::friendRequestRules());
 
+        else if($request->is('api/relationship/response/*'))
+            return Validator::make($request->all(), Rules::responseToFriendRequestRules());
+
         else
             return null;
     }

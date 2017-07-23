@@ -3,6 +3,7 @@
 namespace App\Exceptions;
 
 use Exception;
+use App\Exceptions\ResponseHandler;
 use Illuminate\Auth\AuthenticationException;
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
 
@@ -44,14 +45,7 @@ class Handler extends ExceptionHandler
      */
     public function render($request, Exception $exception)
     {
-        return response(json_encode([
-            'success' => false,
-            'error' => [
-                'type' => (string)($exception),
-                'code' => $exception->getCode(),
-                'message' => $exception->getMessage()
-            ]
-        ]), 200);
+        return ResponseHandler::errorResponse($exception);
     }
 
     /**

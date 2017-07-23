@@ -49,7 +49,7 @@ class CommentController extends Controller
         $comment->save();
 
         return Response::dataResponse(true, ['comment' => $comment],
-            'successfully created comment');
+            'Successfully created comment');
 
     }
 
@@ -65,8 +65,7 @@ class CommentController extends Controller
         $comment = Comment::find($comment_id);
 
         if ($comment == null)
-            return Response::errorResponse(Exceptions::notFoundException(),
-                'comment not found');
+            Exceptions::notFoundException('Comment not found');
 
         return Response::dataResponse(true, ['comment' => $comment]);
 
@@ -85,21 +84,16 @@ class CommentController extends Controller
 
         $comment = Comment::find($comment_id);
         if ($comment == null)
-            return Response::errorResponse(Exceptions::notFoundException(),
-                'comment not found');
+            Exceptions::notFoundException('Comment not found');
 
         $api_token = $comment->user->api_token;
         $headerToken = $request->header('Authorization');
 
-        if ($api_token != $headerToken) {
-            return Response::errorResponse(Exceptions::unauthenticatedException(),
-                'comment does not associate with this token');
-        }
+        if ($api_token != $headerToken)
+            Exceptions::invalidTokenException('Comment does not associate with this token');
 
-        if ($comment == null) {
-            return Response::errorResponse(Exceptions::notFoundException(),
-                'comment not found');
-        }
+        if ($comment == null)
+            Exceptions::notFoundException('Comment not found');
 
         if ($request->has('comment'))
             $comment->comment = $request->input('comment');
@@ -127,15 +121,13 @@ class CommentController extends Controller
         $comment = Comment::find($comment_id);
 
         if ($comment == null)
-            return Response::errorResponse(Exceptions::notFoundException(),
-            'comment not found');
+            Exceptions::notFoundException('Comment not found');
 
         $api_token = $comment->user->api_token;
         $headerToken = $request->header('Authorization');
 
         if ($api_token != $headerToken)
-            return Response::errorResponse(Exceptions::unauthenticatedException(),
-                'comment does not associate with this token');
+            Exceptions::invalidTokenException('Comment does not associate with this token');
 
         $pictures = $comment->entity->pictures;
         foreach ($pictures as $picture) {

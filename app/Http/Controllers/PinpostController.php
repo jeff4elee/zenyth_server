@@ -74,8 +74,7 @@ class PinpostController extends Controller
         $pin = Pinpost::find($pinpost_id);
 
         if ($pin == null)
-            return Response::errorResponse(Exceptions::notFoundException(),
-                'pinpost not found');
+            Exceptions::notFoundException('Pinpost not found');
 
         return Response::dataResponse(true, ['pinpost' => $pin]);
 
@@ -95,8 +94,7 @@ class PinpostController extends Controller
         $pin = Pinpost::find($pinpost_id);
 
         if ($pin == null)
-            return Response::errorResponse(Exceptions::notFoundException(),
-                'pinpost not found');
+            Exceptions::notFoundException('Pinpost not found');
 
         /* Checks if pinpost being updated belongs to the user making the
             request */
@@ -104,8 +102,7 @@ class PinpostController extends Controller
         $headerToken = $request->header('Authorization');
 
         if ($api_token != $headerToken)
-            return Response::errorResponse(Exceptions::unauthenticatedException(),
-                'pinpost does not associate with this token');
+            Exceptions::invalidTokenException('Pinpost does not associate with this token');
 
         /* Updates title */
         if ($request->has('title'))
@@ -137,7 +134,7 @@ class PinpostController extends Controller
         $pin->update();
 
         return Response::dataResponse(true, ['pinpost' => $pin],
-            'successfully updated pinpost');
+            'Successfully updated pinpost');
 
     }
 
@@ -155,8 +152,7 @@ class PinpostController extends Controller
         $pin = Pinpost::find($pinpost_id);
 
         if ($pin == null)
-            return Response::errorResponse(Exceptions::notFoundException(),
-                'pinpost not found');
+            Exceptions::notFoundException('Pinpost not found');
 
         /* Checks if pinpost being deleted belongs to the user making the
             request */
@@ -164,13 +160,12 @@ class PinpostController extends Controller
         $headerToken = $request->header('Authorization');
 
         if ($api_token != $headerToken)
-            return Response::errorResponse(Exceptions::unauthenticatedException(),
-                'pinpost does not associate with this token');
+            Exceptions::invalidTokenException('Pinpost does not associate with this token');
 
         $pin->thumbnail->delete();
         $pin->entity->delete();
 
-        return Response::successResponse('successfully deleted pinpost');
+        return Response::successResponse('Successfully deleted pinpost');
 
     }
 

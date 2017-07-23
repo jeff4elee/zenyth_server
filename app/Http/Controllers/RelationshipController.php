@@ -39,8 +39,7 @@ class RelationshipController extends Controller
         ])->first();
 
         if ($check != null)
-            return Response::errorResponse(Exceptions::invalidRequestException(),
-                'friends or pending request');
+            Exceptions::invalidRequestException('Existed friendship or pending friend request');
 
         $relationship = Relationship::create([
             'requester' => $user_id,
@@ -75,23 +74,15 @@ class RelationshipController extends Controller
         ])->first();
 
         if ($relationship == null || $relationship->status == true)
-            return Response::errorResponse(Exceptions::invalidRequestException(),
-                'No pending request');
-
-        $validator = Validator::make($request->all(), [
-            'status' => 'required'
-        ]);
-
-        if ($validator->fails())
-            return Response::validatorErrorResponse($validator);
+            Exceptions::invalidRequestException('No pending request');
 
         if ($request->input('status')) {
             $relationship->update(['status' => true]);
             return Response::dataResponse(true, ['relationship' => $relationship],
-                'friendship created');
+                'Friendship created');
         } else {
             $relationship->delete();
-            return Response::successResponse('friend request ignored');
+            return Response::successResponse('Friend request ignored');
         }
 
     }
@@ -113,22 +104,11 @@ class RelationshipController extends Controller
         $relationship = self::friended($requester_id, $user_id);
 
         if ($relationship == null)
-            return response(json_encode([
-
-                'success' => false,
-                'errors' => ['not friends']
-
-            ]), 200);
+            Exceptions::notFoundException('Relationship not found');
 
         $relationship->delete();
-        return response(json_encode([
 
-            'success' => true,
-            'data' => [
-                'relationship' => 'unfriended'
-            ]
-
-        ]), 200);
+        return Response::successResponse('Unfriended');
 
     }
 
@@ -161,7 +141,7 @@ class RelationshipController extends Controller
             ]);
         }
         return Response::dataResponse(true, ['relationship' => $relationship],
-            'successfully blocked user');
+            'Successfully blocked user');
     }
 
     /**

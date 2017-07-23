@@ -104,4 +104,11 @@ class DataRules
         ];
     }
 
+    static public function responseToFriendRequestRules()
+    {
+        return [
+            'status' => 'required'
+        ];
+    }
+
 }

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Auth;
 
+use App\Exceptions\Exceptions;
 use App\User;
 use GuzzleHttp\Client;
 use Illuminate\Http\Request;
@@ -64,7 +65,7 @@ trait AuthenticationTrait
     {
         $access_token = $request->header('Authorization');
         if ($access_token == null) {
-            return null;
+            Exceptions::oauthException('Invalid access token');
         }
         $access_token = $this->stripBearerFromToken($access_token);
 
@@ -73,14 +74,14 @@ trait AuthenticationTrait
         $oauth_type = strtolower($request['oauth_type']);
         $res = null;
 
-        if ($oauth_type == "facebook") {
+        if ($oauth_type == "facebook")
             $res = $client->get($this->facebookGraphApi . $access_token);
-        } else if ($oauth_type == "google") {
+        else if ($oauth_type == "google")
             $res = $client->get($this->googleApi . $access_token);
-        }
-        if ($res == null) {
-            return null;
-        }
+        
+        if ($res == null)
+            Exceptions::invalidRequestException('Unable to get a response');
+
         $json = json_decode($res->getBody()->getContents(), true);
         return $json;
 

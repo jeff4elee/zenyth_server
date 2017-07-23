@@ -47,15 +47,14 @@ class LoginController extends Controller
 
 
         if ($user == null) {
-            return Response::errorResponse(Exceptions::invalidCredentialException(),
-                'Incorrect email or password');
+            Exceptions::invalidCredentialException('Incorrect email or password');
         }
 
         if (Hash::check($password, $user->password)) {   // checks password
             // against hashed pw
 
             if($user->confirmation_code != null)
-                return Response::errorResponse(Exceptions::unconfirmedAccountException());
+                Exceptions::unconfirmedAccountException();
             else
                 return Response::dataResponse(true, [
                     'user' => $user,
@@ -64,8 +63,7 @@ class LoginController extends Controller
 
         }
 
-        return Response::errorResponse(Exceptions::invalidCredentialException(),
-            'Incorrect email or password');
+        Exceptions::invalidCredentialException('Incorrect email or password');
 
     }
 

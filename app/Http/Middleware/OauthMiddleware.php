@@ -24,28 +24,25 @@ class OauthMiddleware {
         if($token != null) {
             $json = $this->oauthValidate($request);
 
-            if($json == null)
-                return Response::errorResponse(Exceptions::unauthenticatedException());
-
             // If we don't have access to email
             if(!isset($json['email']))
-                return Response::dataResponse(true, [
-                    'email_access' => false
-                ], 'no access to email');
+                Exceptions::oauthException('No access to email');
 
             // If token is invalid or if email sent in the request is not the
             // same as one found from the token
-            else if(isset($json['error']) || isset($json['error_description'])
-                || $request['email'] != $json['email']) {
-                return Response::errorResponse(Exceptions::unauthenticatedException());
-            }
+            else if(isset($json['error']) || isset($json['error_description']))
+                Exceptions::oauthException('Invalid oauth token');
+
+            else if($request['email'] != $json['email'])
+                Exceptions::oauthException('Email provided in the request does not match email retrieved from access token');
+
             else {
                 $request->merge(['json' => $json]);
                 return $next($request);
             }
 
         } else {
-            return Response::errorResponse(Exceptions::unauthenticatedException());
+            Exceptions::oauthException('Invalid oauth token');
         }
 
     }

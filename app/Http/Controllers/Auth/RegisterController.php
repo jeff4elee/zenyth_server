@@ -56,7 +56,7 @@ class RegisterController extends Controller
                 'Successfully registered');
         }
 
-        return Response::errorResponse(Exceptions::nullException(), 'Unable to create user');
+        Exceptions::nullException('Unable to create user');
     }
 
     /**
@@ -185,12 +185,12 @@ class RegisterController extends Controller
     {
 
         if($confirmation_code == null)
-            return Response::errorResponse(Exceptions::invalidConfirmationException());
+            Exceptions::invalidConfirmationException();
 
         $user = User::where('confirmation_code', '=', $confirmation_code)->first();
 
         if($user == null)
-            return Response::errorResponse(Exceptions::invalidConfirmationException());
+            Exceptions::invalidConfirmationException();
 
         $user->confirmation_code = null;
         $user->api_token = $this->generateApiToken();

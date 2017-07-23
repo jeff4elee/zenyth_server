@@ -27,53 +27,27 @@ class ResponseHandler
         return $message;
     }
 
-    static public function errorResponse(Exception $exception, $message = null)
+    static public function errorResponse(\Exception $exception)
     {
         // Prioritize the passed in message if there is one
         // If there is none, use the exception's message
-        if($message != null)
-        {
+        if($exception->getMessage() != "")
             return response(json_encode([
                 'success' => false,
                 'error' => [
-                    'type' => $exception->type,
-                    'code' => $exception->statusCode,
-                    'message' => $message
+                    'type' => (string)$exception,
+                    'code' => $exception->getCode(),
+                    'message' => $exception->getMessage()
                 ]
             ]), 200);
-        }
-
-        $error = [
-            'type' => $exception->type,
-            'code' => $exception->statusCode
-        ];
-
-        // If there is an exception message, add it to the error array
-        if($exception->message != null)
-            $error['message'] = $exception->message;
-
-        return response(json_encode([
-            'success' => false,
-            'error' => $error
-        ]), 200);
-    }
-
-    static public function validatorErrorResponse(Validator $validator)
-    {
-        if($validator != null) {
-            $message = ResponseHandler::formatErrors($validator);
-            $exception = Exceptions::parameterException();
-
+        else
             return response(json_encode([
                 'success' => false,
                 'error' => [
-                    'type' => $exception->type,
-                    'code' => $exception->statusCode,
-                    'message' => $message
+                    'type' => (string)$exception,
+                    'code' => $exception->getCode(),
                 ]
             ]), 200);
-        } else
-            return response(json_encode(['success' => false]), 400);
     }
 
     static public function dataResponse($success, $data, $message = null)

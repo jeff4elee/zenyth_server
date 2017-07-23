@@ -54,9 +54,8 @@ class LikeController extends Controller
             ['user_id', '=', $user_id]
         ]);
 
-        if ($like == null) {
-            return Response::errorResponse(Exceptions::notFoundException());
-        }
+        if ($like == null)
+            Exceptions::notFoundException();
 
         $like->delete();
 

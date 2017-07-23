@@ -68,7 +68,7 @@ class ImageController extends Controller
             $image->save();
 
             return $image;
-        } catch (Exception $error) {
+        } catch (\Exception $error) {
             // Log the error or something
             Log::info($error);
             return null;
@@ -85,7 +85,8 @@ class ImageController extends Controller
     {
         $image = Image::find($image_id);
         if($image == null)
-            return Response::errorResponse(Exceptions::notFoundException(), 'Image not found');
+            Exceptions::notFoundException('Image not found');
+
         $path = 'app/images/' . $image->filename;
         return Response::rawImageResponse($path);
     }
@@ -95,12 +96,7 @@ class ImageController extends Controller
         $profile = Profile::where('user_id', '=', $user_id)->first();
         $image = $profile->profilePicture;
         if($image == null) {
-            return response(json_encode([
-                'success' => true,
-                'data' => [
-                    'message' => 'No profile picture'
-                ]
-            ]), 200);
+            Response::successResponse('No profile picture');
         }
         $filename = $image->filename;
         $path = 'app/profile_pictures/' . $filename;
