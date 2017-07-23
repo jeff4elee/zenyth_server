@@ -14,7 +14,7 @@ $(document).ready(function() {
                     "</div>";
                     document.documentElement.innerHTML = html;
                 } else {
-                    alert(msg['error']['message']);
+                    alert(msg['message']);
                 }
             },
             error: function (xmlHttpRequest, textStatus, errorThrown) {
