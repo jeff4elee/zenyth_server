@@ -25,7 +25,7 @@ class ValidationMiddleware
         $validator = DataValidator::validate($request);
         if($validator != null && $validator->fails()) {
             $message = ResponseHandler::formatErrors($validator);
-            throw new App\Exceptions\InvalidParameterException($message, 200);
+            throw new App\Exceptions\InvalidParameterException($message, 201);
             //return Response::validatorErrorResponse($validator);
         }
         else
