@@ -69,12 +69,6 @@ class RegisterController extends Controller
      */
     public function oauthRegister(Request $request)
     {
-
-        // Check for email, username, oauth_type
-        $validator = DataValidator::validateOauthRegister($request);
-        if($validator->fails())
-            return Response::validatorErrorResponse($validator);
-
         // Use for case insensitive check
         $oauth_type = strtolower($request['oauth_type']);
 

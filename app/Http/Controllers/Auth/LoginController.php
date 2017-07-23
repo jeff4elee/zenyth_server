@@ -37,10 +37,6 @@ class LoginController extends Controller
      */
     public function login(Request $request)
     {
-        $validator = DataValidator::validateLogin($request);
-        if ($validator->fails())
-            return Response::validatorErrorResponse($validator);
-
         $password = $request['password'];
 
         if($request->has('username'))

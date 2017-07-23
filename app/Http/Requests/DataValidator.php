@@ -12,7 +12,6 @@ class DataValidator
         if($request->is('api/oauth/register'))
             return Validator::make($request->all(), Rules::oauthRegisterRules());
 
-
         else if($request->is('api/register'))
             return Validator::make($request->all(), Rules::registerRules());
 

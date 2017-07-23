@@ -28,10 +28,6 @@ class RelationshipController extends Controller
     public function friendRequest(Request $request)
     {
 
-        $validator = DataValidator::validateFriendRequest($request);
-        if ($validator->fails())
-            return Response::validatorErrorResponse($validator);
-
         $user = $request->get('user');
         $user_id = $user->id;
 
