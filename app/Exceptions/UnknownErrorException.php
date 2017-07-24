@@ -9,7 +9,10 @@
 namespace App\Exceptions;
 
 
-class UnknownErrorException
+class UnknownErrorException extends \Exception
 {
-
+    public function __toString()
+    {
+        return 'UnknownErrorException';
+    }
 }

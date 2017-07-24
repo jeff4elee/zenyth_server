@@ -13,7 +13,7 @@ use Illuminate\Http\Request;
 | is assigned the "api" middleware group. Enjoy building your API!
 |
 */
-Route::group(['middleware' => ['oauth', 'validation']], function() {
+Route::group(['middleware' => ['validation', 'oauth']], function() {
     Route::post('oauth/register', 'Auth\RegisterController@oauthRegister');
     Route::post('oauth/login', 'Auth\OauthController@oauthLogin');
 });

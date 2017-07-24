@@ -56,7 +56,7 @@ class RegisterController extends Controller
                 'Successfully registered');
         }
 
-        Exceptions::nullException('Unable to create user');
+        Exceptions::unknownErrorException('Unable to create user');
     }
 
     /**

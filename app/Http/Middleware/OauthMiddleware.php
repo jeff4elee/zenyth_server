@@ -16,10 +16,6 @@ class OauthMiddleware {
     public function handle(Request $request, Closure $next)
     {
 
-        $validator = DataValidator::validateOauthLogin($request);
-        if($validator->fails())
-            return Response::validatorErrorResponse($validator);
-
         $token = $request->header('Authorization');
         if($token != null) {
             $json = $this->oauthValidate($request);
