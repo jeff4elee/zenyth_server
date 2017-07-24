@@ -4,7 +4,7 @@
 namespace App\Exceptions;
 
 
-class InvalidParameterException extends \Exception
+class InvalidParameterException extends CustomException
 {
     public function __toString()
     {

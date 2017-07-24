@@ -9,7 +9,7 @@
 namespace App\Exceptions;
 
 
-class InvalidConfirmationCodeException extends \Exception
+class InvalidConfirmationCodeException extends CustomException
 {
     public function __toString()
     {

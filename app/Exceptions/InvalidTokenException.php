@@ -9,7 +9,7 @@
 namespace App\Exceptions;
 
 
-class InvalidTokenException extends \Exception
+class InvalidTokenException extends CustomException
 {
     public function __toString()
     {

@@ -9,7 +9,7 @@
 namespace App\Exceptions;
 
 
-class NullException extends \Exception
+class NullException extends CustomException
 {
     public function __toString()
     {

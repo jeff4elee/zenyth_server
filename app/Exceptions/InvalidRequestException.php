@@ -9,7 +9,7 @@
 namespace App\Exceptions;
 
 
-class InvalidRequestException extends \Exception
+class InvalidRequestException extends CustomException
 {
     public function __toString()
     {

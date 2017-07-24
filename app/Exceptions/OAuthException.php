@@ -9,7 +9,7 @@
 namespace App\Exceptions;
 
 
-class OAuthException extends \Exception
+class OAuthException extends CustomException
 {
     public function __toString()
     {
