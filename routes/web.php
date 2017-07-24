@@ -11,13 +11,6 @@
 |
 */
 
-
-Route::get('new-post', 'PostController@create');
-
-Route::post('new-post', 'PostController@store');
-
-Route::get('/home', 'PostController@index');
-
 Auth::routes();
 
 Route::get('register/verify/{confirmation_code}', [
