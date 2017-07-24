@@ -4,6 +4,7 @@ namespace App\Http\Traits;
 
 use App\Profile;
 use App\Relationship;
+use App\User;
 
 /**
  * Trait SearchUserTrait
@@ -20,17 +21,7 @@ trait SearchUserTrait
      */
     public function getAllFriendsId($user_id)
     {
-        $friends1 = Relationship::select('requestee as user_id')
-            ->where([
-                ['requester', '=', $user_id],
-                ['status', '=', true]
-            ]);
-        $friends2 = Relationship::select('requester as user_id')
-            ->where([
-                ['requestee', '=', $user_id],
-                ['status', '=', true]
-            ]);
-        return $friends1->union($friends2)->get()->pluck('user_id');
+        return User::find($user_id)->friendsId();
     }
 
     /**

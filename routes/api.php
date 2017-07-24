@@ -49,8 +49,6 @@ Route::group(['middleware' => ['authenticated', 'validation']], function() {
                 'RelationshipController@deleteFriend');
     Route::get('relationship/block/{user_id}',
                 'RelationshipController@blockUser');
-    Route::get('relationship/friended/{user1_id}/{user2_id}',
-                'RelationshipController@friended');
 
     Route::get('entity/likes_count/{entity_id}',
                 'EntityController@likesCount');
@@ -83,5 +81,7 @@ Route::group(['middleware' => ['authenticated', 'validation']], function() {
     Route::delete('like/delete/{entity_id}', 'LikeController@delete');
 
 });
+Route::get('relationship/is_friend/{user1_id}/{user2_id}',
+    'RelationshipController@isFriend');
 Route::get('picture/{image_id}', 'ImageController@showImage');
 Route::get('/picture/profile/{user_id}', 'ImageController@showProfileImage');
