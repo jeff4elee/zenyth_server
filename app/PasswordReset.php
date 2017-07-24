@@ -8,4 +8,9 @@ class PasswordReset extends Model
 {
     protected $table = 'password_resets';
     protected $fillable = ['email', 'token'];
+
+    public function user()
+    {
+        return $this->belongsTo('App\User', 'email');
+    }
 }

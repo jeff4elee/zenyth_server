@@ -95,13 +95,17 @@ class ImageController extends Controller
     public function showProfileImage($user_id)
     {
         $profile = Profile::where('user_id', '=', $user_id)->first();
-        $image = $profile->profilePicture;
-        if($image == null) {
-            Response::successResponse('No profile picture');
+        if($profile) {
+            $image = $profile->profilePicture;
+            if ($image == null) {
+                Exceptions::notFoundException('User does not have a profile picture');
+            }
+            $filename = $image->filename;
+            $path = 'app/profile_pictures/' . $filename;
+            return Response::rawImageResponse($path);
         }
-        $filename = $image->filename;
-        $path = 'app/profile_pictures/' . $filename;
-        return Response::rawImageResponse($path);
+
+        Exceptions::notFoundException('Invalid user id');
     }
 
     static public function generateImageName($extension)

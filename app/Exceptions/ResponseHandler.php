@@ -32,49 +32,55 @@ class ResponseHandler
         // Prioritize the passed in message if there is one
         // If there is none, use the exception's message
         if($exception->getMessage() != "")
-            return response(json_encode([
+            return response()->json([
                 'success' => false,
                 'error' => [
                     'message' => $exception->getMessage(),
                     'type' => (string)$exception,
                     'code' => $exception->getCode()
                 ]
-            ]), 200);
+            ], 200, array(), JSON_PRETTY_PRINT)
+                ->header('Content-Type', 'application/json; charset=UTF-8');
         else
-            return response(json_encode([
+            return response()->json([
                 'success' => false,
                 'error' => [
                     'type' => (string)$exception,
                     'code' => $exception->getCode(),
                 ]
-            ]), 200);
+            ], 200, array(), JSON_PRETTY_PRINT)
+                ->header('Content-Type', 'application/json; charset=UTF-8');
     }
 
     static public function dataResponse($success, $data, $message = null)
     {
         if($message != null) {
-            return response(json_encode([
+            return response()->json([
                 'success' => $success,
                 'data' => $data,
                 'message' => $message
-            ]), 200);
+            ], 200, array(), JSON_PRETTY_PRINT)
+                ->header('Content-Type', 'application/json; charset=UTF-8');
         }
 
-        return response(json_encode([
+        return response()->json([
             'success' => $success,
             'data' => $data
-        ]), 200);
+        ], 200, array(), JSON_PRETTY_PRINT)
+            ->header('Content-Type', 'application/json; charset=UTF-8');
     }
 
     static public function successResponse($message = null)
     {
         if($message == null)
-            return response(json_encode(['success' => true]), 200);
+            return response()->json(['success' => true], 200, array(), JSON_PRETTY_PRINT)
+                ->header('Content-Type', 'application/json; charset=UTF-8');
         else
-            return response(json_encode([
+            return response()->json([
                 'success' => true,
                 'message' => $message
-            ]), 200);
+            ], 200, array(), JSON_PRETTY_PRINT)
+                ->header('Content-Type', 'application/json; charset=UTF-8');
     }
 
     static public function rawImageResponse($path)

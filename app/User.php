@@ -27,6 +27,11 @@ class User extends Model implements Authenticatable
 
     public $timestamps = false;
 
+    public function passwordReset()
+    {
+        return $this->hasMany('App\PasswordReset', 'email');
+    }
+
     public function pinposts()
     {
         return $this->hasMany('App\Pinpost', 'user_id');
@@ -55,6 +60,13 @@ class User extends Model implements Authenticatable
     public function oauth()
     {
         return $this->hasOne('App\Oauth', 'user_id');
+    }
+
+    public function name()
+    {
+        $profile = $this->profile;
+        $name = $profile->first_name . " " . $profile->last_name;
+        return $name;
     }
 
     /*
