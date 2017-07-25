@@ -28,7 +28,6 @@ class LoginController extends Controller
 
     /**
      * Handle an authentication attempt.
-     *
      * @param Request $request, post request,
      *        rules: requires email and password
      * @return Response json response with api_token or json response

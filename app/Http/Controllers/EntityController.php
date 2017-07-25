@@ -17,7 +17,7 @@ class EntityController extends Controller
      * Returns number of likes of an entity
      *
      * @param $entity_id
-     * @return likes count
+     * @return response
      */
     public function likesCount($entity_id)
     {
@@ -31,7 +31,7 @@ class EntityController extends Controller
      * Returns number of comments of an entity
      *
      * @param $entity_id
-     * @return comments count
+     * @return response
      */
     public function commentsCount($entity_id)
     {
@@ -45,7 +45,7 @@ class EntityController extends Controller
      * Returns users who liked the entity
      *
      * @param $entity_id
-     * @return array of users
+     * @return response
      */
     public function likesUsers($entity_id)
     {

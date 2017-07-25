@@ -24,17 +24,12 @@ class PinpostController extends Controller
 {
     use AuthenticationTrait;
 
-    protected $radiusQueryError = 'Fetching pinposts with type radius requires '
-                        . 'the parameter radius';
-    protected $frameQueryError = 'Fetching pinposts with type frame requires '
-                        . 'the parameters first_coord and second_coord';
-
     /**
      * Create a Pinpost, storing thumbnail image if there is any
      * @param Request $request, post request
      *        rules: requires title, description, latitude,
      *          longitude, event_time
-     * @return Pinpost information
+     * @return response
      */
     public function create(Request $request)
     {
@@ -100,7 +95,7 @@ class PinpostController extends Controller
     /**
      * Give back information on Pinpost
      * @param $pinpost_id
-     * @return pin information, json response if pinpost not found
+     * @return response
      */
     public function read($pinpost_id)
     {
@@ -118,7 +113,7 @@ class PinpostController extends Controller
      * Update Pinpost with information
      * @param Request $request, post request
      * @param $pinvite_id
-     * @return pin information, json response if failed
+     * @return response
      */
     public function update(Request $request, $pinpost_id)
     {
@@ -174,7 +169,7 @@ class PinpostController extends Controller
      * Delete the pinpost
      * @param Request $request, delete request
      * @param $pinpost_id
-     * @return json response
+     * @return response
      */
     public function delete(Request $request, $pinpost_id)
     {
@@ -234,7 +229,7 @@ class PinpostController extends Controller
     /**
      * Get all pinposts within the radius provided in the request
      * @param Request $request
-     * @return array
+     * @return query
      */
     public function getPinpostsInRadius(Request $request)
     {
@@ -306,8 +301,8 @@ class PinpostController extends Controller
      * Filter out all pinposts such that the result contains only the user's
      * and his friends' pinposts
      * @param Request $request
-     * @param $pinposts
-     * @return array
+     * @param $query
+     * @return query
      */
     public function friendsFilter(Request $request, $query)
     {
@@ -327,8 +322,8 @@ class PinpostController extends Controller
      * Filter out all pinposts such that the result contains only the user's
      * pinpost
      * @param Request $request
-     * @param $pinposts
-     * @return array
+     * @param $query
+     * @return query
      */
     public function selfFilter(Request $request, $query)
     {

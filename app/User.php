@@ -85,6 +85,10 @@ class User extends Model implements Authenticatable
         return $this->hasMany('App\Relationship', 'requester');
     }
 
+    /**
+     * Get the array containing all the ids of friends
+     * @return array
+     */
     public function friendsId()
     {
         $requesterRelationships = $this->requesterRelationships;

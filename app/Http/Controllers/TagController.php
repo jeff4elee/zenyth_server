@@ -16,7 +16,7 @@ class TagController extends Controller
      * Return tags sorted in descending order based on how common the tag's
      * names are
      * @param Request $request
-     * @return $this
+     * @return response
      */
     public function searchTags(Request $request)
     {
@@ -36,6 +36,7 @@ class TagController extends Controller
     /**
      * Get all entities associated with this tag
      * @param Request $request
+     * @return response
      */
     public function getTagInfo(Request $request)
     {
