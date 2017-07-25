@@ -4,7 +4,6 @@ namespace App\Http\Middleware;
 
 use App;
 use App\Exceptions\Exceptions;
-use App\Exceptions\ResponseHandler as Response;
 use App\Http\Controllers\Auth\AuthenticationTrait;
 use App\User;
 use Closure;
