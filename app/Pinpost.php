@@ -11,18 +11,19 @@ class Pinpost extends Model
 
     protected $table = 'pinposts';
 
-    public function entity()
-    {
+    public function entity() {
         return $this->belongsTo('App\Entity', 'entity_id');
     }
 
-    public function creator()
-    {
+    public function creator() {
         return $this->belongsTo('App\User', 'creator_id');
     }
 
-    public function thumbnail()
-    {
+    public function thumbnail() {
         return $this->belongsTo('App\Image', 'thumbnail_id');
+    }
+
+    public function tag() {
+        return $this->hasMany('App\Tag', 'pinpost_id');
     }
 }

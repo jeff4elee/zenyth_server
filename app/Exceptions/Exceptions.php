@@ -9,7 +9,12 @@ class Exceptions
         throw new InvalidRequestException($message, 1);
     }
 
-    static public function parameterException($message = "")
+    static public function unknownErrorException($message = "")
+    {
+        throw new UnknownErrorException($message, 1);
+    }
+
+    static public function invalidParameterException($message = "")
     {
         throw new InvalidParameterException($message, 100);
     }

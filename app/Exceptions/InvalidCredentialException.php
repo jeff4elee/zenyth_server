@@ -9,7 +9,7 @@
 namespace App\Exceptions;
 
 
-class InvalidCredentialException extends \Exception
+class InvalidCredentialException extends CustomException
 {
     public function __toString()
     {

@@ -9,7 +9,7 @@
 namespace App\Exceptions;
 
 
-class UnauthenticatedException extends \Exception
+class UnauthenticatedException extends CustomException
 {
     public function __toString()
     {

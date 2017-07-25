@@ -6,7 +6,7 @@ use App\Exceptions\Exceptions;
 use App\Exceptions\ResponseHandler as Response;
 use App\Relationship;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Validator;
+use App\User;
 
 /**
  * Class RelationshipController
@@ -47,7 +47,7 @@ class RelationshipController extends Controller
         ]);
 
         return Response::dataResponse(true, ['relationship' => $relationship],
-            'successfully created a friend request');
+            'Successfully created a friend request');
 
     }
 
@@ -167,6 +167,23 @@ class RelationshipController extends Controller
 
         return $relationship;
 
+    }
+
+    public function isFriend(Request $request, $user1_id, $user2_id)
+    {
+        if(User::find($user1_id) == null)
+            Exceptions::invalidRequestException('Either user does not exist');
+        else if(User::find($user2_id) == null)
+            Exceptions::invalidRequestException('Either user does not exist');
+
+        if($relationship = self::friended($user1_id, $user2_id)) {
+            return Response::dataResponse(true, [
+                'relationship' => $relationship,
+                'is_friend' => true
+            ]);
+        } else {
+            return Response::dataResponse(true, ['is_friend' => false]);
+        }
     }
 
 }

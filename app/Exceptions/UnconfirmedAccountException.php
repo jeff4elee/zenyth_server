@@ -9,7 +9,7 @@
 namespace App\Exceptions;
 
 
-class UnconfirmedAccountException extends \Exception
+class UnconfirmedAccountException extends CustomException
 {
     public function __toString()
     {

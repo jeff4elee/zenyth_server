@@ -9,7 +9,7 @@
 namespace App\Exceptions;
 
 
-class NotFoundException extends \Exception
+class NotFoundException extends CustomException
 {
     public function __toString()
     {

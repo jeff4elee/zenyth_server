@@ -34,30 +34,29 @@ class ForgotPasswordController extends Controller
 
     public function sendResetPasswordEmail(Request $request)
     {
-        // Generate unique token
-        do {
-            $token = str_random(30);
-            $dup_token = PasswordReset::where('token', '=', $token)->first();
-        } while ($dup_token != null);
+        if($request->has('email'))
+            $user = User::where('email','=', $request['email'])->first();
+        else
+            $user = User::where('username','=', $request['username'])->first();
 
-        $email = null;
-        if($request->has('email')) {
-            $email = $request['email'];
-            PasswordReset::create([
-                'email' => $email,
-                'token' => $token
-            ]);
-        } else if($request->has('username')) {
-            $email = User::where('username','=', $request['username'])->first()->email;
-            PasswordReset::create([
-                'email' => $email,
-                'token' => $token
-            ]);
+        // If there already is a password reset token for this user, resend the email with this token
+        $passwordReset = $user->passwordReset;
+        $email = $user->email;
+        $name = $user->name();
+        if($passwordReset)
+            $token = $passwordReset->token;
+        else { // Generate unique token
+            do {
+                $token = str_random(30);
+                $dup_token = PasswordReset::where('token', '=', $token)->first();
+            } while ($dup_token != null);
+
+            PasswordReset::create(['email' => $email, 'token' => $token]);
         }
 
         $subject = 'Reset your password';
         $infoArray = ['token' => $token];
-        $this->sendEmail('restore_password_email', $infoArray, $email, null, $subject);
+        $this->sendEmail('restore_password_email', $infoArray, $email, $name, $subject);
 
         return Response::dataResponse(true, ['email' => $email],
             'Check your email');

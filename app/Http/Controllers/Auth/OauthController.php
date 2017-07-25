@@ -62,7 +62,7 @@ class OauthController extends RegisterController
                 // merges to facebook account
                 $oauth->setFacebook(true);
                 $this->mergeInformation($profile, $json, $oauth_type);
-                return Response::dataResponse($data, 'Successfully merged account');
+                return Response::dataResponse(true, $data, 'Successfully merged account');
             }
             return Response::dataResponse(false, ['mergeable' => true], $this->mergeGoogle);
         }
@@ -73,7 +73,7 @@ class OauthController extends RegisterController
                 // merges to google account
                 $oauth->setGoogle(true);
                 $this->mergeInformation($profile, $json, $oauth_type);
-                return Response::dataResponse($data, 'Successfully merged account');
+                return Response::dataResponse(true, $data, 'Successfully merged account');
             }
             return Response::dataResponse(false, ['mergeable' => true], $this->mergeFacebook);
         }
@@ -87,7 +87,7 @@ class OauthController extends RegisterController
                     $oauth->setFacebook(true);
 
                 $this->mergeInformation($profile, $json, $oauth_type);
-                return Response::dataResponse($data, 'Successfully merged account');
+                return Response::dataResponse(true, $data, 'Successfully merged account');
             }
             return Response::dataResponse(false, ['mergeable' => true], $this->mergeAccount);
         }
