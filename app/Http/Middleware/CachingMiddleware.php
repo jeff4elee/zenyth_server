@@ -29,7 +29,9 @@ class CachingMiddleware
 
         $fullUrl = "{$url}?{$queryString}";
 
-        return Cache::remember($fullUrl, 60, $next($request));
+        return Cache::remember($fullUrl, 60, function () use ($next, $request){
+            return $next($request);
+        });
 
     }
 
