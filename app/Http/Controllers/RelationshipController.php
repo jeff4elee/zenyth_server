@@ -26,16 +26,19 @@ class RelationshipController extends Controller
     public function friendRequest(Request $request)
     {
         $user = $request->get('user');
-        $user_id = $user->id;
+        $userId = $user->id;
+        $requesteeId = $request->input('requestee_id');
+        if($userId == $requesteeId)
+            Exceptions::invalidRequestException('Cannot send a friend request to yourself');
 
         /* Verifies if they are already friends or if there is no pending
             request */
         $check = Relationship::where([
             ['requester', '=', $user_id],
-            ['requestee', '=', $request->input('requestee_id')]
+            ['requestee', '=', $requesteeId]
         ])->orWhere([
             ['requestee', '=', $user_id],
-            ['requester', '=', $request->input('requestee_id')]
+            ['requester', '=', $requesteeId]
         ])->first();
 
         if ($check != null)
@@ -43,7 +46,7 @@ class RelationshipController extends Controller
 
         $relationship = Relationship::create([
             'requester' => $user_id,
-            'requestee' => $request->input('requestee_id')
+            'requestee' => $requesteeId
         ]);
 
         return Response::dataResponse(true, ['relationship' => $relationship],

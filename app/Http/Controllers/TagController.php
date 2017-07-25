@@ -7,5 +7,8 @@ use App\Pinpost;
 
 class TagController extends Controller
 {
-
+    public function searchTags(Request $request)
+    {
+        
+    }
 }
