@@ -9,7 +9,6 @@ use App\Exceptions\ResponseHandler as Response;
 use App\Http\Controllers\Auth\AuthenticationTrait;
 use App\Image;
 use App\Pinpost;
-use App\Http\Traits\MathHelper;
 use App\PinpostTag;
 use App\Tag;
 use Illuminate\Database\Eloquent\Collection;
@@ -24,7 +23,6 @@ use Illuminate\Support\Facades\Storage;
 class PinpostController extends Controller
 {
     use AuthenticationTrait;
-    use MathHelper;
 
     protected $radiusQueryError = 'Fetching pinposts with type radius requires '
                         . 'the parameter radius';
@@ -242,7 +240,7 @@ class PinpostController extends Controller
     {
         $radius = $request->input('radius');
         if($request->has('unit'))
-            $unit = $request->input('unit');
+            $unit = strtolower($request->input('unit'));
         else
             $unit = 'mi';
 
@@ -251,9 +249,14 @@ class PinpostController extends Controller
         $centerLong = $center[1];
 
         // Get all pinposts
-        $query = Pinpost::select('*')->whereRaw(
-        "( (SQRT( POW( (latitude - ?), 2) +  POW( (longitude - ?), 2) ) ) * 69.09 ) <= ?",
-            [$centerLat, $centerLong, $radius])->latest();
+        if($unit == 'mi')
+            $query = Pinpost::select('*')->whereRaw(
+            "( (SQRT( POW( (latitude - ?), 2) +  POW( (longitude - ?), 2) ) ) * 69.09 ) <= ?",
+                [$centerLat, $centerLong, $radius])->latest();
+        else
+            $query = Pinpost::select('*')->whereRaw(
+                "( (SQRT( POW( (latitude - ?), 2) +  POW( (longitude - ?), 2) ) ) * 69.09 * 1.609344 ) <= ?",
+                [$centerLat, $centerLong, $radius])->latest();
 
         return $query;
     }

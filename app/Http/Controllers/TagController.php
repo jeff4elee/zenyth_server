@@ -21,7 +21,7 @@ class TagController extends Controller
     public function searchTags(Request $request)
     {
         $tagName = $request->input('tag');
-        $tags = Tag::select('tags.*', DB::raw('count(pinpost_tags.id)'))
+        $tags = Tag::select('tags.*')
             ->where('tags.tag', 'like', '%'.$tagName.'%')
             ->join('pinpost_tags', 'pinpost_tags.tag_id', '=', 'tags.id')
             ->groupBy('tags.tag')->orderBy(DB::raw('count(pinpost_tags.id)'),
@@ -40,23 +40,15 @@ class TagController extends Controller
     public function getTagInfo(Request $request)
     {
         $tagName = $request->input('tag');
-        $tag = Tag::where('tag', '=', $tagName)->first();
-        if($tag) {
-            // Get all pinpost tags of this tag
-            $pinpostTags = $tag->pinpostTags;
-            $pinposts = array();
 
-            // Push all the pinposts of the pinpostTags onto the array
-            foreach($pinpostTags as $pinpostTag) {
-                array_push($pinposts, $pinpostTag->pinpost);
-            }
-            return Response::dataResponse(true, [
-                'pinposts' => $pinposts
-            ]);
-        }
+        $query = Pinpost::select('pinposts.*')
+            ->join('pinpost_tags', 'pinpost_tags.pinpost_id', '=', 'pinposts.id')
+            ->join('tags', 'pinpost_tags.tag_id', '=', 'tags.id')
+            ->where('tags.tag', '=', $tagName)
+            ->distinct()->latest();
 
         return Response::dataResponse(true, [
-            'pinposts' => []
+            'pinposts' => $query->get()
         ]);
     }
 }
