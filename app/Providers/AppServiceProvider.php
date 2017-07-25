@@ -35,11 +35,11 @@ class AppServiceProvider extends ServiceProvider
                 return false;
 
             // Latitude must be between -90 and 90
-            if(!($lat > -90) || !($lat < 90))
+            if(!($lat >= -90) || !($lat <= 90))
                 return false;
 
             // Longitude must be between -180 and 180
-            if(!($long > -180) || !($long < 180))
+            if(!($long >= -180) || !($long <= 180))
                 return false;
 
             return true;
