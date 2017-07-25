@@ -31,6 +31,18 @@ class DataValidator
         else if($request->is('api/pinpost/update/*'))
             return Validator::make($request->all(), Rules::updatePinpostRules());
 
+        else if($request->is('api/pinpost/fetch')) {
+            $coordError = 'Geographic coordinate must be in the form {lat,long}'
+                .' and satisfies the geographic coordinate rules';
+            $messages = [
+                'center.valid_coord' => $coordError,
+                'first_coord.valid_coord' => $coordError,
+                'second_coord.valid_coord' => $coordError,
+            ];
+            return Validator::make($request->all(), Rules::fetchPinpostRules(),
+                $messages);
+        }
+
         else if($request->is('api/pinvite/create'))
             return Validator::make($request->all(), Rules::createPinviteRules());
 

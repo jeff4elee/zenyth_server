@@ -9,9 +9,14 @@ class Exceptions
         throw new InvalidRequestException($message, 1);
     }
 
+    static public function invalidQueryException($message = "")
+    {
+        throw new InvalidQueryException($message, 2);
+    }
+
     static public function unknownErrorException($message = "")
     {
-        throw new UnknownErrorException($message, 1);
+        throw new UnknownErrorException($message, 3);
     }
 
     static public function invalidParameterException($message = "")

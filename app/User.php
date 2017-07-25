@@ -87,8 +87,8 @@ class User extends Model implements Authenticatable
 
     public function friendsId()
     {
-        $requesterRelationships = $this->requesterRelationships();
-        $requesteeRelationships = $this->requesteeRelationships();
+        $requesterRelationships = $this->requesterRelationships;
+        $requesteeRelationships = $this->requesteeRelationships;
         $idArray = array([]);
 
         foreach($requesterRelationships as $relationship) {

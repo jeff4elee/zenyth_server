@@ -50,7 +50,7 @@ class RegisterController extends Controller
             $name = $profile->first_name . " " . $profile->last_name;
             $infoArray = ['confirmation_code' => $user->confirmation_code];
             $subject = 'Verify your email address';
-            $this->sendEmail('confirmation', $infoArray, $user->email, $name, $subject);
+//            $this->sendEmail('confirmation', $infoArray, $user->email, $name, $subject);
 
             return Response::dataResponse(true, ['user' => $user, 'profile' => $profile],
                 'Successfully registered');
@@ -193,9 +193,6 @@ class RegisterController extends Controller
             Exceptions::invalidConfirmationException();
 
         $user->confirmation_code = null;
-        $user->api_token = $this->generateApiToken();
-        // Token will expire in 1 year
-        $user->token_expired_on = Carbon::now()->addDays(365);
         $user->update();
 
         return Response::successResponse('Account verified');
@@ -233,7 +230,8 @@ class RegisterController extends Controller
                 'email' => $request['email'],
                 'username' => $request['username'],
                 'password' => Hash::make($request['password']),
-                'api_token' => null,
+                'api_token' => $this->generateApiToken(),
+                'token_expired_on' => Carbon::now()->addDays(365),
                 'confirmation_code' => $confirmation_code
                 ]);
 
