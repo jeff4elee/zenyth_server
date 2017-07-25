@@ -29,6 +29,7 @@ class CachingMiddleware
 
         $key = "{$url}?{$queryString}";
 
+        return "NOOO";
         if (Cache::has($key)) {
             return Cache::get($key);
         } else {
