@@ -50,7 +50,7 @@ class RegisterController extends Controller
             $name = $profile->first_name . " " . $profile->last_name;
             $infoArray = ['confirmation_code' => $user->confirmation_code];
             $subject = 'Verify your email address';
-//            $this->sendEmail('confirmation', $infoArray, $user->email, $name, $subject);
+            $this->sendEmail('confirmation', $infoArray, $user->email, $name, $subject);
 
             return Response::dataResponse(true, ['user' => $user, 'profile' => $profile],
                 'Successfully registered');
