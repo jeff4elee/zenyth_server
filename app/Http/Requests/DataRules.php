@@ -64,7 +64,6 @@ class DataRules
             'latitude' => 'required',
             'longitude' => 'required',
             'thumbnail' => 'image',
-            'tags' => 'alpha_dash'
         ];
     }
 
@@ -85,6 +84,13 @@ class DataRules
             'second_coord' => 'required_if:type,frame|valid_coord',
             'unit' => 'in:km,mi',
             'scope' => 'in:self,friends,public'
+        ];
+    }
+
+    static public function searchTagRules()
+    {
+        return [
+            'tag' => 'required'
         ];
     }
 

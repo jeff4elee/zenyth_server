@@ -84,6 +84,8 @@ Route::group(['middleware' => 'validation'], function() {
     Route::post('login', 'Auth\LoginController@login');
     Route::post('password/send_reset_password',
         'Auth\ForgotPasswordController@sendResetPasswordEmail');
+    Route::get('tag/search', 'TagController@searchTags');
+    Route::get('tag/info', 'TagController@getTagInfo');
 
 });
 

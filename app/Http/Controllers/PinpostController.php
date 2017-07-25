@@ -67,10 +67,10 @@ class PinpostController extends Controller
         $pin->save();
 
         if($request->has('tags')) {
-            // Tag must be in the form "tag1-tag2-tag3"
+            // Tag must be in the form "tag1,tag2,tag3"
             // Must parse the hash tags out on client side
-            $tags = $request->input('tags');
-            $tags = explode("-", $tags);
+            $tags = strtolower($request->input('tags'));
+            $tags = explode(",", $tags);
             foreach($tags as $tag_name) {
                 $tag = Tag::where('tag', $tag_name)->first();
 
@@ -249,13 +249,9 @@ class PinpostController extends Controller
         $centerLat = abs($center[0]);
         $centerLong = abs($center[1]);
 
-        // Get all pinposts that are in the square surrounding the circle
-        $pinposts = Pinpost::where([
-            ['latitude', '>=', -($centerLat + $radius)],
-            ['latitude', '<=', $centerLat + $radius],
-            ['longitude', '>=', -($centerLong + $radius)],
-            ['longitude', '<=', $centerLong + $radius]
-        ])->latest()->get()->all(); // gets the array that contains pinposts
+        // Get all pinposts
+        $pinposts = Pinpost::latest()->get()->all(); // gets the array that
+                                                    // contains pinposts
 
         // Filter pinposts to contain only the pinposts inside the circle
         $pinposts = array_filter($pinposts, function($pinpost)
@@ -268,7 +264,7 @@ class PinpostController extends Controller
                 return true;
         });
 
-        return $pinposts;
+        return array_values($pinposts);
     }
 
     /**
@@ -309,7 +305,7 @@ class PinpostController extends Controller
             ['longitude', '<=', $largeLong]
         ])->latest()->get()->all(); // gets the array that contains pinposts
 
-        return $pinposts;
+        return array_values($pinposts);
     }
 
     /**

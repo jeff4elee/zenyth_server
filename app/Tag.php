@@ -11,7 +11,7 @@ class Tag extends Model
     public $timestamps = false;
 
     public function pinpostTags() {
-        return $this->hasMany('App\PinpostTag', 'pinpost_id');
+        return $this->hasMany('App\PinpostTag', 'tag_id');
     }
 
 }

@@ -42,6 +42,8 @@ class DataValidator
             return Validator::make($request->all(), Rules::fetchPinpostRules(),
                 $messages);
         }
+        else if($request->is('api/tag/search') || $request->is('api/tag/info'))
+            return Validator::make($request->all(), Rules::searchTagRules());
 
         else if($request->is('api/pinvite/create'))
             return Validator::make($request->all(), Rules::createPinviteRules());
