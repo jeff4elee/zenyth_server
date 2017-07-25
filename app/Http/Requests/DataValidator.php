@@ -25,6 +25,9 @@ class DataValidator
         else if($request->is('api/password/send_reset_password'))
             return Validator::make($request->all(), Rules::sendResetPWEmailRules());
 
+        else if($request->is('api/user/search_user'))
+            return Validator::make($request->all(), Rules::searchUserRules());
+
         else if($request->is('api/pinpost/create'))
             return Validator::make($request->all(), Rules::createPinpostRules());
 

@@ -32,10 +32,10 @@ class RelationshipController extends Controller
         /* Verifies if they are already friends or if there is no pending
             request */
         $check = Relationship::where([
-            ['requester', '=', $user_id],
+            ['requester', '=', $userId],
             ['requestee', '=', $requesteeId]
         ])->orWhere([
-            ['requestee', '=', $user_id],
+            ['requestee', '=', $userId],
             ['requester', '=', $requesteeId]
         ])->first();
 
@@ -43,7 +43,7 @@ class RelationshipController extends Controller
             Exceptions::invalidRequestException('Existed friendship or pending friend request');
 
         $relationship = Relationship::create([
-            'requester' => $user_id,
+            'requester' => $userId,
             'requestee' => $requesteeId
         ]);
 

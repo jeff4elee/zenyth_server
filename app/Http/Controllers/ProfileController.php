@@ -45,6 +45,10 @@ class ProfileController extends Controller
             ]);
         }
 
+        if($request->has('gender')) {
+            $profile->gender = $request['gender'];
+        }
+
         if($request->has('address')) {
             $address = $request['address'];
 
@@ -70,7 +74,7 @@ class ProfileController extends Controller
 
         if($request->has('birthday')) {
             $birthdate = \DateTime::createFromFormat('Y-m-d', $request['birthday']);
-            $profile->date_of_birth = $birthdate;
+            $profile->birthday = $birthdate;
         }
 
         $profile->update();
