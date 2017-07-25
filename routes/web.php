@@ -22,9 +22,3 @@ Route::get('password/reset/{token}', [
     'as' => 'password_reset_path',
     'uses' => 'Auth\ResetPasswordController@showPasswordResetBlade'
 ]);
-
-Route::get('message', function () {
-    $app = PHPRedis::connection();
-    $app->set("masterpowers", "Yeah Baby Yeah");
-    print_r($app->get("masterpowers"));
-});
