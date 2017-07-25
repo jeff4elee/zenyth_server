@@ -89,7 +89,7 @@ class User extends Model implements Authenticatable
     {
         $requesterRelationships = $this->requesterRelationships;
         $requesteeRelationships = $this->requesteeRelationships;
-        $idArray = array([]);
+        $idArray = array();
 
         foreach($requesterRelationships as $relationship) {
             if($relationship->status)

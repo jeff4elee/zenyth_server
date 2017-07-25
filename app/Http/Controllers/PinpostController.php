@@ -14,6 +14,7 @@ use App\PinpostTag;
 use App\Tag;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 
 /**
@@ -216,19 +217,19 @@ class PinpostController extends Controller
             $scope = array();
 
         if($type == 'radius')
-            $pinposts = $this->getPinpostsInRadius($request);
+            $query = $this->getPinpostsInRadius($request);
         else
-            $pinposts = $this->getPinpostsInFrame($request);
+            $query = $this->getPinpostsInFrame($request);
 
         if(in_array('self', $scope))
-            $pinposts = $this->selfFilter($request, $pinposts);
+            $query = $this->selfFilter($request, $query);
         else if(in_array('friends', $scope))
-            $pinposts = $this->friendsFilter($request, $pinposts);
+            $query = $this->friendsFilter($request, $query);
 
         // Scope is either not provided or public. Return all pinposts in the
         // area
         return Response::dataResponse(true, [
-            'pinposts' => $pinposts
+            'pinposts' => $query->latest()->get() // get all the pinposts
         ]);
     }
 
@@ -246,25 +247,15 @@ class PinpostController extends Controller
             $unit = 'mi';
 
         $center = explode(",", $request->input('center'));
-        $centerLat = abs($center[0]);
-        $centerLong = abs($center[1]);
+        $centerLat = $center[0];
+        $centerLong = $center[1];
 
         // Get all pinposts
-        $pinposts = Pinpost::latest()->get()->all(); // gets the array that
-                                                    // contains pinposts
+        $query = Pinpost::select('*')->whereRaw(
+        "( (SQRT( POW( (latitude - ?), 2) +  POW( (longitude - ?), 2) ) ) * 69.09 ) <= ?",
+            [$centerLat, $centerLong, $radius])->latest();
 
-        // Filter pinposts to contain only the pinposts inside the circle
-        $pinposts = array_filter($pinposts, function($pinpost)
-        use($center, $unit, $radius) {
-            $coord = [$pinpost['latitude'], $pinpost['longitude']];
-            $distance = $this->distance($coord, $center, $unit);
-            if($distance > $radius)
-                return false;
-            else
-                return true;
-        });
-
-        return array_values($pinposts);
+        return $query;
     }
 
     /**
@@ -298,14 +289,14 @@ class PinpostController extends Controller
         }
 
         // Get all pinposts inside the box
-        $pinposts = Pinpost::where([
+        $query = Pinpost::where([
             ['latitude', '>=', $smallLat],
             ['latitude', '<=', $largeLat],
             ['longitude', '>=', $smallLong],
             ['longitude', '<=', $largeLong]
-        ])->latest()->get()->all(); // gets the array that contains pinposts
+        ]);
 
-        return array_values($pinposts);
+        return $query;
     }
 
     /**
@@ -315,24 +306,18 @@ class PinpostController extends Controller
      * @param $pinposts
      * @return array
      */
-    public function friendsFilter(Request $request, $pinposts)
+    public function friendsFilter(Request $request, $query)
     {
         $user = $request->get('user');
-        $friendsId = $user->friendsId();
 
-        $pinposts = array_filter($pinposts, function($pinpost)
-                                use($user, $friendsId) {
-            $creator_id = $pinpost['creator_id'];
+        // All id's of friends
+        $idsToInclude = array_values($user->friendsId());
 
-            // If the creator is a friend or if the creator is the user
-            // then include it in the result
-            if(in_array($creator_id, $friendsId) || $creator_id == $user->id)
-                return true;
-            else
-                return false;
-        });
+        // Put the current user's id in the array to query
+        array_push($idsToInclude, $user->id);
+        $query = $query->whereIn('creator_id', $idsToInclude);
 
-        return $pinposts;
+        return $query;
     }
 
     /**
@@ -342,19 +327,12 @@ class PinpostController extends Controller
      * @param $pinposts
      * @return array
      */
-    public function selfFilter(Request $request, $pinposts)
+    public function selfFilter(Request $request, $query)
     {
         $user = $request->get('user');
+        $query = $query->where('pinposts.creator_id', $user->id);
 
-        $pinposts = array_filter($pinposts, function($pinpost) use($user) {
-            // Only include posts where the user is the creator
-            if($pinpost['creator_id'] != $user->id)
-                return false;
-            else
-                return true;
-        });
-
-        return $pinposts;
+        return $query;
     }
 
 }
