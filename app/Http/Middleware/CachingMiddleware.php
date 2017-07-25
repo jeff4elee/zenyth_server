@@ -29,12 +29,13 @@ class CachingMiddleware
 
         $key = "{$url}?{$queryString}";
 
-        dd("NOO");
         if (Cache::has($key)) {
+            dd("YES");
             return Cache::get($key);
         } else {
             $response = $next($request);
             Cache::put($key, $response, 60);
+            dd("NO");
             return $response;
         }
 
