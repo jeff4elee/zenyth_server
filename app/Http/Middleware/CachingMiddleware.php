@@ -27,11 +27,15 @@ class CachingMiddleware
         //Transforming the query array to query string
         $queryString = http_build_query($queryParams);
 
-        $fullUrl = "{$url}?{$queryString}";
+        $key = "{$url}?{$queryString}";
 
-        return Cache::remember($fullUrl, 60, function () use ($next, $request){
-            return $next($request);
-        });
+        if (Cache::has($key)) {
+            return Cache::get($key);
+        } else {
+            $response = $next($request);
+            Cache::put($key, $response, 60);
+            return $response;
+        }
 
     }
 
