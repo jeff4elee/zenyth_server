@@ -88,4 +88,3 @@ Route::group(['middleware' => 'validation'], function() {
     Route::post('user/search_user', 'UserController@searchUser');
 
 });
-

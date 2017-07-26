@@ -18,7 +18,7 @@ class ProfileController extends Controller
     /**
      * Update profile
      * @param Request $request
-     * @return $this
+     * @return response
      */
     public function update(Request $request)
     {
