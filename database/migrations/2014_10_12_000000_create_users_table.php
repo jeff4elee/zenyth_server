@@ -27,9 +27,10 @@ class CreateUsersTable extends Migration
             $table->string('confirmation_code', 30)->nullable();
 
             $table->rememberToken();
-
             $table->dateTime('created_at')
-                    ->default(DB::raw('CURRENT_TIMESTAMP'));
+                ->default(Carbon::now());
+//            $table->dateTime('created_at')
+//                    ->default(DB::raw('CURRENT_TIMESTAMP'));
         });
     }
 

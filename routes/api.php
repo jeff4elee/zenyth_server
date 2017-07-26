@@ -16,16 +16,23 @@ use Illuminate\Http\Request;
 
 Route::post('password/reset/{token}',
     'Auth\ResetPasswordController@restorePassword')->name('api_pw_reset');
+
+
 Route::get('email_taken/{email}', 'Auth\RegisterController@emailTaken');
 Route::get('username_taken/{username}', 'Auth\RegisterController@usernameTaken');
 Route::get('user/search_user/{name}', 'UserController@searchUser');
 Route::get('comment/read/{comment_id}', 'CommentController@read');
 Route::get('pinpost/read/{pinpost_id}', 'PinpostController@read');
 Route::get('pinvite/read/{pinvite_id}', 'PinviteController@read');
+
 Route::get('relationship/is_friend/{user1_id}/{user2_id}',
     'RelationshipController@isFriend');
 Route::get('picture/{image_id}', 'ImageController@showImage');
 Route::get('/picture/profile/{user_id}', 'ImageController@showProfileImage');
+
+Route::group(['middleware' => ['caching']], function() {
+
+});
 
 Route::group(['middleware' => 'validation'], function() {
     Route::group(['middleware' => 'authenticated'], function() {
