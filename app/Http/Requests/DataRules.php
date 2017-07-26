@@ -63,7 +63,7 @@ class DataRules
             'description' => 'required',
             'latitude' => 'required',
             'longitude' => 'required',
-            'thumbnail' => 'image'
+            'thumbnail' => 'image',
         ];
     }
 
@@ -71,6 +71,26 @@ class DataRules
     {
         return [
             'thumbnail' => 'image'
+        ];
+    }
+
+    static public function fetchPinpostRules()
+    {
+        return [
+            'type' => 'required|in:radius,frame',
+            'radius' => 'required_if:type,radius|numeric|min:0',
+            'center' => 'required_if:type,radius|valid_coord',
+            'first_coord' => 'required_if:type,frame|valid_coord',
+            'second_coord' => 'required_if:type,frame|valid_coord',
+            'unit' => 'in:km,mi',
+            'scope' => 'in:self,friends,public'
+        ];
+    }
+
+    static public function searchTagRules()
+    {
+        return [
+            'tag' => 'required'
         ];
     }
 

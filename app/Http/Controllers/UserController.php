@@ -16,8 +16,7 @@ class UserController extends Controller
     use SearchUserTrait;
 
     /**
-     * Gets user's friends
-     *
+     * Get user's friends
      * @param $user_id , id of user to be looked up
      * @return mixed Users who are friends of input user
      */
@@ -25,7 +24,7 @@ class UserController extends Controller
     {
 
         $user = User::where('id', '=', $user_id);
-        $friends_id = $user->friendsId();
+        $friends_id = array_values($user->friendsId());
         if(count($friends_id) == 0)
             return Response::dataResponse(true, ['users' => null]);
 
@@ -37,8 +36,7 @@ class UserController extends Controller
     }
 
     /**
-     * Gets blocked users of logged in user
-     *
+     * Get blocked users of logged in user
      * @param Request $request , get request
      * @return mixed Users who are blocked by the logged in user
      */
@@ -61,8 +59,7 @@ class UserController extends Controller
     }
 
     /**
-     * Gets friend requests of logged in user
-     *
+     * Get friend requests of logged in user
      * @param Request $request , get request
      * @return mixed Users who friend requested the logged in user
      */
@@ -85,8 +82,7 @@ class UserController extends Controller
     }
 
     /**
-     * Searches users
-     *
+     * Search users
      * @param Request $request , get request
      * @param $name , name to be looked up
      * @return mixed users with similar results

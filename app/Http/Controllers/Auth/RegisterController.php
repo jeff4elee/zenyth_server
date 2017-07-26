@@ -31,10 +31,9 @@ class RegisterController extends Controller
     use AuthenticationTrait;
 
     /**
-     * Registers user
-     *
+     * Register user
      * @param Request $request
-     * @return \Illuminate\Contracts\Routing\ResponseFactory|\Symfony\Component\HttpFoundation\Response
+     * @return response
      */
     public function register(Request $request)
     {
@@ -60,10 +59,9 @@ class RegisterController extends Controller
     }
 
     /**
-     * Registers user with oauth
-     *
+     * Register user with oauth
      * @param Request $request
-     * @return \Illuminate\Contracts\Routing\ResponseFactory|\Symfony\Component\HttpFoundation\Response
+     * @return response
      */
     public function oauthRegister(Request $request)
     {
@@ -108,10 +106,9 @@ class RegisterController extends Controller
 
 
     /**
-     * Checks if email is taken
-     *
+     * Check if email is taken
      * @param $email
-     * @return \Illuminate\Contracts\Routing\ResponseFactory|\Symfony\Component\HttpFoundation\Response
+     * @return response
      */
     public function emailTaken($email)
     {
@@ -126,10 +123,9 @@ class RegisterController extends Controller
     }
 
     /**
-     * Checks if username is taken
-     *
+     * Check if username is taken
      * @param $username
-     * @return \Illuminate\Contracts\Routing\ResponseFactory|\Symfony\Component\HttpFoundation\Response
+     * @return response
      */
     public function usernameTaken($username)
     {
@@ -148,7 +144,7 @@ class RegisterController extends Controller
      *
      * @param $user
      * @param $confirmed
-     * @return \Illuminate\Contracts\Routing\ResponseFactory|\Symfony\Component\HttpFoundation\Response
+     * @return response
      */
     public function takenResponse($user, $confirmed)
     {
@@ -163,10 +159,8 @@ class RegisterController extends Controller
             ]);
     }
 
-
     /**
-     * Checks if user is confirmed
-     *
+     * Check if user is confirmed
      * @param $user
      * @return bool
      */
@@ -176,10 +170,9 @@ class RegisterController extends Controller
     }
 
     /**
-     * Confirms user
-     *
+     * Confirm user
      * @param $confirmation_code
-     * @return \Illuminate\Contracts\Routing\ResponseFactory|\Symfony\Component\HttpFoundation\Response
+     * @return response
      */
     public function confirm($confirmation_code)
     {
@@ -193,9 +186,6 @@ class RegisterController extends Controller
             Exceptions::invalidConfirmationException();
 
         $user->confirmation_code = null;
-        $user->api_token = $this->generateApiToken();
-        // Token will expire in 1 year
-        $user->token_expired_on = Carbon::now()->addDays(365);
         $user->update();
 
         return Response::successResponse('Account verified');
@@ -204,14 +194,12 @@ class RegisterController extends Controller
 
     /**
      * Where to redirect users after registration.
-     *
      * @var string
      */
     protected $redirectTo = '/home';
 
     /**
      * Create a new controller instance.
-     *
      * @return void
      */
     public function __construct()
@@ -221,9 +209,8 @@ class RegisterController extends Controller
 
     /**
      * Create a new user instance after a valid registration.
-     *
      * @param  Request $request
-     * @return Array containing User and Profile
+     * @return array containing user and profile
      */
     public function create(Request $request)
     {
@@ -233,7 +220,8 @@ class RegisterController extends Controller
                 'email' => $request['email'],
                 'username' => $request['username'],
                 'password' => Hash::make($request['password']),
-                'api_token' => null,
+                'api_token' => $this->generateApiToken(),
+                'token_expired_on' => Carbon::now()->addDays(365),
                 'confirmation_code' => $confirmation_code
                 ]);
 
@@ -248,7 +236,6 @@ class RegisterController extends Controller
 
     /**
      * Creates a profile for a user
-     *
      * @param Request $request
      * @param $user
      * @return mixed

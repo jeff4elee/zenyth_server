@@ -38,6 +38,11 @@ class ImageController extends Controller
 
     }
 
+    /**
+     * Store a profile image into storage
+     * @param $url
+     * @return Image|mixed|null|\Psr\Http\Message\ResponseInterface
+     */
     static public function storeProfileImage($url)
     {
         if($url == null)
@@ -77,8 +82,7 @@ class ImageController extends Controller
     }
 
     /**
-     * Shows the Image
-     *
+     * Show the Image
      * @param $filename, name of image file
      * @return mixed, an image response
      */
@@ -92,6 +96,11 @@ class ImageController extends Controller
         return Response::rawImageResponse($path);
     }
 
+    /**
+     * Show profile image in raw format
+     * @param $user_id
+     * @return mixed
+     */
     public function showProfileImage($user_id)
     {
         $profile = Profile::where('user_id', '=', $user_id)->first();
@@ -108,6 +117,11 @@ class ImageController extends Controller
         Exceptions::notFoundException('Invalid user id');
     }
 
+    /**
+     * Generate a unique image name
+     * @param $extension
+     * @return string
+     */
     static public function generateImageName($extension)
     {
         do {

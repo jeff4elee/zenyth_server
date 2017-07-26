@@ -15,11 +15,10 @@ class LikeController extends Controller
 {
 
     /**
-     * Creates a Like
-     *
+     * Create a Like
      * @param Request $request, post request
      *        rules: requires entity_id
-     * @return Like information
+     * @return response
      */
     public function create(Request $request)
     {
@@ -37,12 +36,11 @@ class LikeController extends Controller
     }
 
     /**
-     * Deletes a like
+     * Delete a like
      *
      * @param Request $request , delete request
      * @param $entity_id , entity the like is on
-     * @return json response if like is not found or if like is successfully
-     *         deleted
+     * @return response
      */
     public function delete(Request $request, $entity_id)
     {

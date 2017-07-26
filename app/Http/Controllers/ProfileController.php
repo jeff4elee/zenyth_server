@@ -9,8 +9,17 @@ use App\Image;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 
+/**
+ * Class ProfileController
+ * @package App\Http\Controllers
+ */
 class ProfileController extends Controller
 {
+    /**
+     * Update profile
+     * @param Request $request
+     * @return $this
+     */
     public function update(Request $request)
     {
         $user = $request->get('user');
