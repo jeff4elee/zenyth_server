@@ -18,7 +18,7 @@ class ProfileController extends Controller
     /**
      * Update profile
      * @param Request $request
-     * @return $this
+     * @return response
      */
     public function update(Request $request)
     {
@@ -43,6 +43,10 @@ class ProfileController extends Controller
                 'country_code' => $country_code,
                 'phone_number' => $number
             ]);
+        }
+
+        if($request->has('gender')) {
+            $profile->gender = $request['gender'];
         }
 
         if($request->has('address')) {
@@ -70,7 +74,7 @@ class ProfileController extends Controller
 
         if($request->has('birthday')) {
             $birthdate = \DateTime::createFromFormat('Y-m-d', $request['birthday']);
-            $profile->date_of_birth = $birthdate;
+            $profile->birthday = $birthdate;
         }
 
         $profile->update();

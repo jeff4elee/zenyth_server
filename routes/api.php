@@ -20,7 +20,6 @@ Route::post('password/reset/{token}',
 
 Route::get('email_taken/{email}', 'Auth\RegisterController@emailTaken');
 Route::get('username_taken/{username}', 'Auth\RegisterController@usernameTaken');
-Route::get('user/search_user/{name}', 'UserController@searchUser');
 Route::get('comment/read/{comment_id}', 'CommentController@read');
 Route::get('pinpost/read/{pinpost_id}', 'PinpostController@read');
 Route::get('pinvite/read/{pinvite_id}', 'PinviteController@read');
@@ -93,6 +92,6 @@ Route::group(['middleware' => 'validation'], function() {
         'Auth\ForgotPasswordController@sendResetPasswordEmail');
     Route::get('tag/search', 'TagController@searchTags');
     Route::get('tag/info', 'TagController@getTagInfo');
+    Route::post('user/search_user', 'UserController@searchUser');
 
 });
-

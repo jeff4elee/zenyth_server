@@ -56,6 +56,13 @@ class DataRules
         ];
     }
 
+    static public function searchUserRules()
+    {
+        return [
+            'keyword' => 'required'
+        ];
+    }
+
     static public function createPinpostRules()
     {
         return [
