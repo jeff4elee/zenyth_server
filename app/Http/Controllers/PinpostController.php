@@ -11,6 +11,8 @@ use App\Image;
 use App\Pinpost;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Cache;
+
 
 /**
  * Class PinpostController
@@ -57,6 +59,8 @@ class PinpostController extends Controller
 
         $pin->save();
 
+        Cache::put('pinpost-'.$pin->id, $pin);
+
         return Response::dataResponse(true, ['pinpost' => $pin],
             'successfully created pinpost');
 
@@ -70,6 +74,10 @@ class PinpostController extends Controller
      */
     public function read($pinpost_id)
     {
+
+        if(Cache::has('pinpost-'.$pinpost_id)){
+            return Response::dataResponse(true, ['pinpost' => Cache::get('pinpost-'.$pinpost_id)]);
+        }
 
         $pin = Pinpost::find($pinpost_id);
 
@@ -132,6 +140,7 @@ class PinpostController extends Controller
 
         $pin->update();
 
+        Cache::put('pinpost-'.$pin->id, $pin);
         return Response::dataResponse(true, ['pinpost' => $pin],
             'Successfully updated pinpost');
 
@@ -164,6 +173,7 @@ class PinpostController extends Controller
         $pin->thumbnail->delete();
         $pin->entity->delete();
 
+        Cache::forget('pinpost-'.$pin->id);
         return Response::successResponse('Successfully deleted pinpost');
 
     }
