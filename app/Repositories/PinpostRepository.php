@@ -2,16 +2,12 @@
 
 namespace App\Repositories;
 
-use Illuminate\Container\Container as App;
-use Illuminate\Support\Collection;
-use Illuminate\Http\Request;
-use App\Image;
-use App\Pinpost;
-use App\PinpostTag;
-use App\Tag;
-use App\EntitysPicture;
 use App\Entity;
-use App\Http\Controllers\ImageController;
+use App\EntitysPicture;
+use App\Exceptions\Exceptions;
+use App\Image;
+use Illuminate\Container\Container as App;
+use Illuminate\Http\Request;
 
 class PinpostRepository extends Repository
 {
@@ -26,62 +22,49 @@ class PinpostRepository extends Repository
 
     public function create(Request $request)
     {
-        $pin = new Pinpost();
-        $entity = Entity::create([]);
-
-        $pin->title = $request->input('title');
-        $pin->description = $request->input('description');
-        $pin->latitude = $request->input('latitude');
-        $pin->longitude = $request->input('longitude');
-
-        /* Checks if a thumbnail was provided */
-        if ($request->file('thumbnail') != null) {
-            $image = new Image();
-            $entitys_picture = new EntitysPicture();
-            ImageController::storeImage($request->file('thumbnail'), $image);
-            $image->save();
-            $pin->thumbnail_id = $image->id;
-            $entitys_picture->entity_id = $entity->id;
-            $entitys_picture->image_id = $image->id;
-            $entitys_picture->save();
-        }
-
-        $pin->entity_id = $entity->id;
-
+        $entity = $request->get('entity');
         $user = $request->get('user');
-        $pin->creator_id = $user->id;
 
-        $pin->save();
+        $pin = $this->model->create([
+            'title' => $request['title'],
+            'description' => $request['description'],
+            'latitude' => (double)$request['latitude'],
+            'longitude' => (double)$request['longitude'],
+            'entity_id' => $entity->id,
+            'creator_id' => $user->id
+        ]);
 
-        if($request->has('tags')) {
-            // Tag must be in the form "tag1,tag2,tag3"
-            // Must parse the hash tags out on client side
-            $tags = strtolower($request->input('tags'));
-            $tags = explode(",", $tags);
-            foreach($tags as $tag_name) {
-                $tag = Tag::where('tag', $tag_name)->first();
-
-                // If tag already exists, create another PinpostTag that
-                // associates with this pinpost and the tag
-                if($tag) {
-                    PinpostTag::create([
-                        'pinpost_id' => $pin->id,
-                        'tag_id' => $tag->id
-                    ]);
-                }
-                // If tag does not exist, create one
-                else {
-                    $tag = Tag::create(['tag' => $tag_name]);
-                    PinpostTag::create([
-                        'pinpost_id' => $pin->id,
-                        'tag_id' => $tag->id
-                    ]);
-                }
-            }
-        }
-
-        return $pin;
-
+        if($pin)
+            return $pin;
+        else
+            Exceptions::unknownErrorException('Error creating pinpost');
     }
 
+    public function update(Request $request, $id, $attribute = 'id')
+    {
+        // Check if pinpost is there
+        $pin = $this->model->where($attribute, '=', $id)->first();
+        if (!$pin)
+            Exceptions::notFoundException('Pinpost not found');
+
+        // Check if pinpost being updated belongs to the user making the
+        // request
+        $api_token = $pin->creator->api_token;
+        $headerToken = $request->header('Authorization');
+
+        if ($api_token != $headerToken)
+            Exceptions::invalidTokenException('Pinpost does not associate with this token');
+
+        if($request->has('title'))
+            $pin->title = $request['title'];
+        if($request->has('description'))
+            $pin->description = $request['description'];
+        if($request->has('latitude'))
+            $pin->latitude = (double)$request['latitude'];
+        if($request->has('description'))
+            $pin->longitude = (double)$request['longitude'];
+
+        $pin->update();
+        return $pin;
+    }
 }

@@ -16,14 +16,14 @@ class CreateEntitysPicturesTable extends Migration
     {
         Schema::create('entitys_pictures', function (Blueprint $table) {
             $table->increments('id');
-            $table->unsignedInteger('entity_id')
+            $table->unsignedInteger('entity_id');
+            $table->foreign('entity_id')
                 ->references('id')->on('entities')
                 ->onDelete('cascade');
-            $table->unsignedInteger('image_id')
+            $table->unsignedInteger('image_id');
+            $table->foreign('image_id')
                 ->references('id')->on('images')
                 ->onDelete('cascade');
-            $table->timestamp('posted_on')
-                ->default(DB::raw('CURRENT_TIMESTAMP'));
         });
     }
 

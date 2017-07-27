@@ -20,9 +20,9 @@ class Profile extends Model
         return $this->hasOne('App\Address', 'profile_id');
     }
 
-    public function phoneNumbers()
+    public function phoneNumber()
     {
-        return $this->hasMany('App\PhoneNumber', 'profile_id');
+        return $this->hasOne('App\PhoneNumber', 'profile_id');
     }
 
     public function profilePicture()

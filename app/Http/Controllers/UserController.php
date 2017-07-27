@@ -6,6 +6,11 @@ use App\Exceptions\Exceptions;
 use App\Exceptions\ResponseHandler as Response;
 use App\Http\Controllers\Auth\AuthenticationTrait;
 use App\Http\Traits\SearchUserTrait;
+use App\Repositories\Criteria\Relationship\AllBlockedUsers;
+use App\Repositories\Criteria\Relationship\AllFriendRequests;
+use App\Repositories\Criteria\Relationship\AllFriends;
+use App\Repositories\RelationshipRepository;
+use App\Repositories\UserRepository;
 use App\User;
 use Illuminate\Http\Request;
 
@@ -18,6 +23,16 @@ class UserController extends Controller
     use SearchUserTrait;
     use AuthenticationTrait;
 
+    private $relationshipRepo;
+    private $userRepo;
+
+    function __construct(RelationshipRepository $relationshipRepo,
+                        UserRepository $userRepo)
+    {
+        $this->relationshipRepo = $relationshipRepo;
+        $this->userRepo = $userRepo;
+    }
+
     /**
      * Get user's friends
      * @param $user_id , id of user to be looked up
@@ -25,17 +40,13 @@ class UserController extends Controller
      */
     public function getFriends($user_id)
     {
+        $this->relationshipRepo->pushCriteria(new AllFriends($user_id));
+        $friends = $this->relationshipRepo->all();
 
-        $user = User::where('id', '=', $user_id);
-        $friends_id = array_values($user->friendsId());
-        if(count($friends_id) == 0)
-            return Response::dataResponse(true, ['users' => null]);
+        if(count($friends) == 0)
+            return Response::dataResponse(true, ['users' => array()]);
 
-        $searchResult = User::select('*')
-            ->whereIn('id', $friends_id)->get();
-
-        return Response::dataResponse(true, ['users' => $searchResult]);
-
+        return Response::dataResponse(true, ['users' => $friends]);
     }
 
     /**
@@ -47,17 +58,12 @@ class UserController extends Controller
     {
 
         $user = $request->get('user');
-        $user_id = $user->id;
+        $userId = $user->id;
 
-        $searchResult = User::select('users.*')
-            ->leftJoin('relationships', function ($join) use ($user_id) {
-                $join->on('users.id', '=', 'relationships.requestee')
-                    ->where('relationships.requester', '=', $user_id);
-            })
-            ->where('relationships.blocked', true)
-            ->get();
+        $this->relationshipRepo->pushCriteria(new AllBlockedUsers($userId));
+        $blockedUsers = $this->relationshipRepo->all();
 
-        return Response::dataResponse(true, ['users' => $searchResult]);
+        return Response::dataResponse(true, ['users' => $blockedUsers]);
 
     }
 
@@ -68,20 +74,12 @@ class UserController extends Controller
      */
     public function getFriendRequests(Request $request)
     {
-
         $user = $request->get('user');
-        $user_id = $user->id;
+        $userId = $user->id;
+        $this->relationshipRepo->pushCriteria(new AllFriendRequests($userId));
+        $friendRequests = $this->relationshipRepo->all();
 
-        $searchResult = User::select('users.*')
-            ->leftJoin('relationships', function ($join) use ($user_id) {
-                $join->on('users.id', '=', 'relationships.requester')
-                    ->where('relationships.requestee', '=', $user_id);
-            })
-            ->where('relationships.status', false)
-            ->get();
-
-        return Response::dataResponse(true, ['users' => $searchResult]);
-
+        return Response::dataResponse(true, ['users' => $friendRequests]);
     }
 
     /**

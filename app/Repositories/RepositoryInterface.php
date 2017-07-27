@@ -12,7 +12,9 @@ interface RepositoryInterface
 
     public function update(Request $data, $id);
 
-    public function delete($id);
+    public function delete(Request $request, $id);
 
     public function read($id, $fields = ['*']);
+
+    public function findBy($attribute, $value, $columns = ['*']);
 }

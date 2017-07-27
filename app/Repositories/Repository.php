@@ -2,13 +2,14 @@
 
 namespace App\Repositories;
 
+use App\Exceptions\Exceptions;
+use App\Exceptions\RepositoryException;
 use App\Repositories\Criteria\Criteria;
 use App\Repositories\Criteria\CriteriaInterface;
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Container\Container as App;
-use App\Exceptions\Exceptions;
-use Illuminate\Support\Collection;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\Request;
+use Illuminate\Support\Collection;
 
 abstract class Repository implements RepositoryInterface, CriteriaInterface
 {
@@ -59,7 +60,18 @@ abstract class Repository implements RepositoryInterface, CriteriaInterface
      */
     public function create(Request $request)
     {
-        return $this->model->create($request->all());
+        $columns = $this->model->getConnection()->getSchemaBuilder()
+            ->getColumnListing($this->model->getTable());
+
+        $data = $request->all();
+
+        // Filter out the keys in the request that aren't part of the
+        // columns
+        $filteredData = array_filter($data, function($field) use ($columns) {
+            return in_array($field, $columns);
+        }, ARRAY_FILTER_USE_KEY);
+
+        return $this->model->create($filteredData);
     }
 
     /**
@@ -70,8 +82,18 @@ abstract class Repository implements RepositoryInterface, CriteriaInterface
      */
     public function update(Request $request, $id, $attribute = 'id')
     {
-        return $this->model->where($attribute, '=', $id)->update
-        ($request->all());
+        $columns = $this->model->getConnection()->getSchemaBuilder()
+            ->getColumnListing($this->model->getTable());
+
+        $data = $request->all();
+
+        // Filter out the keys in the request that aren't part of the
+        // columns
+        $filteredData = array_filter($data, function($field) use ($columns) {
+            return in_array($field, $columns);
+        }, ARRAY_FILTER_USE_KEY);
+
+        return $this->model->where($attribute, '=', $id)->update($filteredData);
     }
 
     /**
@@ -80,7 +102,7 @@ abstract class Repository implements RepositoryInterface, CriteriaInterface
      * @param $id
      * @return mixed
      */
-    public function delete($id)
+    public function delete(Request $request, $id)
     {
         return $this->model->destroy($id);
     }
@@ -94,9 +116,28 @@ abstract class Repository implements RepositoryInterface, CriteriaInterface
     public function read($id, $fields = ['*'])
     {
         $this->applyCriteria();
+        $columns = $this->model->getConnection()->getSchemaBuilder()
+            ->getColumnListing($this->model->getTable());
+
+        // Filter out the invalid fields if fields are provided
+        if (!in_array('*', $fields)) {
+            foreach ($fields as $field) {
+                if (!in_array($field, $columns)) {
+                    $fields = array_diff($fields, [$field]);
+                }
+            }
+        }
+        if(count($fields) == 0)
+            Exceptions::invalidColumnException();
+
         return $this->model->find($id, $fields);
+
     }
 
+    public function findBy($attribute, $value, $columns = ['*'])
+    {
+        return $this->model->where($attribute, '=', $value)->first($columns);
+    }
 
 
     /**
@@ -131,6 +172,7 @@ abstract class Repository implements RepositoryInterface, CriteriaInterface
     public function resetScope()
     {
         $this->skipCriteria(false);
+        $this->makeModel();
         return $this;
     }
 

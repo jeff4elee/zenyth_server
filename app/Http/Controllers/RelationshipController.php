@@ -4,9 +4,11 @@ namespace App\Http\Controllers;
 
 use App\Exceptions\Exceptions;
 use App\Exceptions\ResponseHandler as Response;
-use App\Relationship;
+use App\Repositories\Criteria\Relationship\HaveRelationship;
+use App\Repositories\Criteria\Relationship\IsFriend;
+use App\Repositories\RelationshipRepository;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use App\User;
 
 /**
  * Class RelationshipController
@@ -14,42 +16,44 @@ use App\User;
  */
 class RelationshipController extends Controller
 {
+    private $relationshipRepo;
+
+    function __construct(RelationshipRepository $relationshipRepo)
+    {
+        $this->relationshipRepo = $relationshipRepo;
+    }
 
     /**
      * Send a friend request
      * @param Request $request, post request
      *        rules: requires requestee_id
-     * @return response
+     * @return JsonResponse
      */
     public function friendRequest(Request $request)
     {
         $user = $request->get('user');
         $userId = $user->id;
-        $requesteeId = $request->input('requestee_id');
+        $requesteeId = (int)$request['requestee_id'];
+
         if($userId == $requesteeId)
             Exceptions::invalidRequestException('Cannot send a friend request to yourself');
 
-        /* Verifies if they are already friends or if there is no pending
-            request */
-        $check = Relationship::where([
-            ['requester', '=', $userId],
-            ['requestee', '=', $requesteeId]
-        ])->orWhere([
-            ['requestee', '=', $userId],
-            ['requester', '=', $requesteeId]
-        ])->first();
+        $this->relationshipRepo->pushCriteria(new HaveRelationship($userId,
+            $requesteeId));
+        $relationship = $this->relationshipRepo->all();
 
-        if ($check != null)
+        if (count($relationship) != 0)
             Exceptions::invalidRequestException('Existed friendship or pending friend request');
 
-        $relationship = Relationship::create([
+        $request->merge([
             'requester' => $userId,
             'requestee' => $requesteeId
         ]);
 
-        return Response::dataResponse(true, ['relationship' => $relationship],
-            'Successfully created a friend request');
+        $this->relationshipRepo->resetScope();
+        $relationship = $this->relationshipRepo->create($request);
 
+        return Response::dataResponse(true, ['relationship' => $relationship]);
     }
 
     /**
@@ -58,23 +62,23 @@ class RelationshipController extends Controller
      *        rules: requires status with value true or false indicating
      *               whether request is accepted or not
      * @param $requester_id, person who friend requested
-     * @return response
+     * @return JsonResponse
      */
     public function respondToRequest(Request $request, $requester_id)
     {
-
         $user = $request->get('user');
-        $requestee_id = $user->id;
+        $requesteeId = $user->id;
 
-        $relationship = Relationship::where([
-            ['requester', $requester_id],
-            ['requestee', $requestee_id]
-        ])->first();
+        $this->relationshipRepo->pushCriteria(
+            new HaveRelationship($requester_id, $requesteeId));
+
+        $relationship = $this->relationshipRepo->all();
+        $relationship = $relationship->first();
 
         if ($relationship == null || $relationship->status == true)
             Exceptions::invalidRequestException('No pending request');
 
-        if ($request->input('status')) {
+        if ((bool)$request->input('status')) {
             $relationship->update(['status' => true]);
             return Response::dataResponse(true, ['relationship' => $relationship],
                 'Friendship created');
@@ -82,85 +86,74 @@ class RelationshipController extends Controller
             $relationship->delete();
             return Response::successResponse('Friend request ignored');
         }
-
     }
 
     /**
      * Delete a friend
      * @param Request $request, delete request
      * @param $user_id, user to be deleted
-     * @return response
+     * @return JsonResponse
      */
     public function deleteFriend(Request $request, $user_id)
     {
-
         $user = $request->get('user');
-        $requester_id = $user->id;
+        $deleterId = $user->id;
 
-        $relationship = self::friended($requester_id, $user_id);
+        if($deleterId == $user_id)
+            Exceptions::invalidRequestException('Cannot delete yourself');
+
+        $this->relationshipRepo->pushCriteria(
+            new HaveRelationship($deleterId, $user_id));
+
+        $relationship = $this->relationshipRepo->all();
+        $relationship = $relationship->first();
 
         if ($relationship == null)
-            Exceptions::notFoundException('Relationship not found');
+            Exceptions::notFoundException(NOT_FOUND);
 
         $relationship->delete();
 
         return Response::successResponse('Unfriended');
-
     }
 
     /**
      * Block a user
      * @param Request $request, get request
      * @param $user_id, user to be blocked
-     * @return response
+     * @return JsonResponse
      */
     public function blockUser(Request $request, $user_id)
     {
-
         $user = $request->get('user');
-        $requester_id = $user->id;
+        $blockerId = $user->id;
 
-        $relationship = self::friended($requester_id, $user_id);
+        if($blockerId == $user_id)
+            Exceptions::invalidRequestException('Cannot block yourself');
 
-        if ($relationship != null) {
+        $this->relationshipRepo->pushCriteria(new HaveRelationship(
+            $blockerId, $user_id
+        ));
+        $this->relationshipRepo->pushCriteria(new IsFriend());
+        $relationship = $this->relationshipRepo->all();
+        $relationship = $relationship->first();
+
+        if ($relationship) {
             $relationship->blocked = true;
-            $relationship->requester = $requester_id;
+            $relationship->requester = $blockerId;
             $relationship->requestee = $user_id;
             $relationship->status = false;
             $relationship->update();
         } else {
-            $relationship = Relationship::create([
-                'requester' => $requester_id,
+            $this->relationshipRepo->resetScope();
+            $request->merge([
+                'requester' => $blockerId,
                 'requestee' => $user_id,
                 'blocked' => true
             ]);
+            $relationship = $this->relationshipRepo->create($request);
         }
         return Response::dataResponse(true, ['relationship' => $relationship],
             'Successfully blocked user');
-    }
-
-    /**
-     * Helper function to check if two users are friends
-     * @param $user1_id
-     * @param $user2_id
-     * @return mixed, relationship information if two users are friends, else
-     *                null
-     */
-    static public function friended($user1_id, $user2_id)
-    {
-
-        $relationship = Relationship::where([
-            ['requester', '=', $user1_id],
-            ['requestee', '=', $user2_id],
-            ['status', '=', true]
-        ])->orWhere([
-            ['requester', '=', $user2_id],
-            ['requestee', '=', $user1_id],
-            ['status', '=', true]
-        ])->first();
-
-        return $relationship;
-
     }
 
     /**
@@ -168,16 +161,18 @@ class RelationshipController extends Controller
      * @param Request $request
      * @param $user1_id
      * @param $user2_id
-     * @return response
+     * @return JsonResponse
      */
     public function isFriend(Request $request, $user1_id, $user2_id)
     {
-        if(User::find($user1_id) == null)
-            Exceptions::invalidRequestException('Either user does not exist');
-        else if(User::find($user2_id) == null)
-            Exceptions::invalidRequestException('Either user does not exist');
+        $this->relationshipRepo->pushCriteria(new HaveRelationship(
+            $user1_id, $user2_id
+        ));
+        $this->relationshipRepo->pushCriteria(new IsFriend());
+        $relationship = $this->relationshipRepo->all();
+        $relationship = $relationship->first();
 
-        if($relationship = self::friended($user1_id, $user2_id)) {
+        if($relationship) {
             return Response::dataResponse(true, [
                 'relationship' => $relationship,
                 'is_friend' => true

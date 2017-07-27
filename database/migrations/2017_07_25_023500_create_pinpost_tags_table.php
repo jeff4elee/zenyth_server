@@ -15,10 +15,12 @@ class CreatePinpostTagsTable extends Migration
     {
         Schema::create('pinpost_tags', function (Blueprint $table) {
             $table->increments('id');
-            $table->unsignedInteger('pinpost_id')
+            $table->unsignedInteger('pinpost_id');
+            $table->foreign('pinpost_id')
                 ->references('id')->on('pinposts')
                 ->onDelete('cascade');
-            $table->unsignedInteger('tag_id')
+            $table->unsignedInteger('tag_id');
+            $table->foreign('tag_id')
                 ->references('id')->on('tags')
                 ->onDelete('cascade');
         });
