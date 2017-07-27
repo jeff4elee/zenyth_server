@@ -9,10 +9,19 @@ use App\Exceptions\ResponseHandler as Response;
 use App\Http\Controllers\Auth\AuthenticationTrait;
 use App\Image;
 use App\Pinpost;
+use App\PinpostTag;
+use App\Repositories\Criteria\Pinpost\FrameCriteria;
+use App\Repositories\Criteria\Pinpost\FriendsScope;
+use App\Repositories\Criteria\Pinpost\LatestPinpost;
+use App\Repositories\Criteria\Pinpost\RadiusCriteria;
+use App\Repositories\Criteria\Pinpost\SelfScope;
+use App\Tag;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Cache;
-
+use App\Repositories\PinpostRepository as PinpostRepo;
 
 /**
  * Class PinpostController
@@ -22,55 +31,35 @@ class PinpostController extends Controller
 {
     use AuthenticationTrait;
 
+    private $pinpostRepo;
+
+    public function __construct(PinpostRepo $pinpostRepo)
+    {
+        $this->pinpostRepo = $pinpostRepo;
+    }
+
     /**
-     * Creates a Pinpost, storing thumbnail image if there is any
-     *
+     * Create a Pinpost, storing thumbnail image if there is any
      * @param Request $request, post request
      *        rules: requires title, description, latitude,
      *          longitude, event_time
-     * @return Pinpost information
+     * @return response
      */
     public function create(Request $request)
     {
-        $pin = new Pinpost();
-        $entity = Entity::create([]);
-
-        $pin->title = $request->input('title');
-        $pin->description = $request->input('description');
-        $pin->latitude = $request->input('latitude');
-        $pin->longitude = $request->input('longitude');
-
-        /* Checks if a thumbnail was provided */
-        if ($request->file('thumbnail') != null) {
-            $image = new Image();
-            $entitys_picture = new EntitysPicture();
-            ImageController::storeImage($request->file('thumbnail'), $image);
-            $image->save();
-            $pin->thumbnail_id = $image->id;
-            $entitys_picture->entity_id = $entity->id;
-            $entitys_picture->image_id = $image->id;
-            $entitys_picture->save();
-        }
-
-        $pin->entity_id = $entity->id;
-
-        $user = $request->get('user');
-        $pin->creator_id = $user->id;
-
-        $pin->save();
+        $pin = $this->pinpostRepo->create($request);
 
         Cache::put('pinpost-'.$pin->id, $pin);
 
         return Response::dataResponse(true, ['pinpost' => $pin],
-            'successfully created pinpost');
+            'Successfully created pinpost');
 
     }
 
     /**
-     * Gives back information on Pinpost
-     *
+     * Give back information on Pinpost
      * @param $pinpost_id
-     * @return pin information, json response if pinpost not found
+     * @return response
      */
     public function read($pinpost_id)
     {
@@ -89,11 +78,10 @@ class PinpostController extends Controller
     }
 
     /**
-     * Updates Pinpost with information
-     *
+     * Update Pinpost with information
      * @param Request $request, post request
      * @param $pinvite_id
-     * @return pin information, json response if failed
+     * @return response
      */
     public function update(Request $request, $pinpost_id)
     {
@@ -147,11 +135,10 @@ class PinpostController extends Controller
     }
 
     /**
-     * Deletes the pinpost
-     *
+     * Delete the pinpost
      * @param Request $request, delete request
      * @param $pinpost_id
-     * @return json response
+     * @return response
      */
     public function delete(Request $request, $pinpost_id)
     {
@@ -179,24 +166,38 @@ class PinpostController extends Controller
     }
 
     /**
-     * Fetches all pinposts of friends ordered by latest first
-     *
+     * Fetch all pinposts of friends ordered by latest first
      * @param Request $request
      * @return mixed
      */
-    public function fetchPost(Request $request)
+    public function fetch(Request $request)
     {
-
+        $type = strtolower($request->input('type'));
         $user = $request->get('user');
-        $idArray = $user->friendsId();
 
-        // Get all pinposts that belong to friends
-        $pinposts = Pinpost::select('*')
-            ->whereIn('creator_id', $idArray)
-            ->latest()->get();
+        if($request->has('scope'))
+            $scope = explode(",", strtolower($request->input('scope')));
+        else
+            $scope = array();
 
-        return Response::dataResponse(true, ['pinposts' => $pinposts]);
+        if($type == 'radius')
+            $this->pinpostRepo->pushCriteria(
+                new RadiusCriteria($request->all()));
+        else
+            $this->pinpostRepo->pushCriteria(new FrameCriteria($request->all()));
 
+        if(in_array('self', $scope))
+            $this->pinpostRepo->pushCriteria(new SelfScope($user));
+        else if(in_array('friends', $scope))
+            $this->pinpostRepo->pushCriteria(new FriendsScope($user));
+
+        $this->pinpostRepo->pushCriteria(new LatestPinpost());
+
+        // FriendsScope is either not provided or public. Return all pinposts in the
+        // area
+        return Response::dataResponse(true, [
+            'pinposts' => $this->pinpostRepo->all() // get all the pinposts
+        ]);
     }
 
 }

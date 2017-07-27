@@ -9,8 +9,17 @@ use App\Image;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 
+/**
+ * Class ProfileController
+ * @package App\Http\Controllers
+ */
 class ProfileController extends Controller
 {
+    /**
+     * Update profile
+     * @param Request $request
+     * @return response
+     */
     public function update(Request $request)
     {
         $user = $request->get('user');
@@ -34,6 +43,10 @@ class ProfileController extends Controller
                 'country_code' => $country_code,
                 'phone_number' => $number
             ]);
+        }
+
+        if($request->has('gender')) {
+            $profile->gender = $request['gender'];
         }
 
         if($request->has('address')) {
@@ -61,7 +74,7 @@ class ProfileController extends Controller
 
         if($request->has('birthday')) {
             $birthdate = \DateTime::createFromFormat('Y-m-d', $request['birthday']);
-            $profile->date_of_birth = $birthdate;
+            $profile->birthday = $birthdate;
         }
 
         $profile->update();

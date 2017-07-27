@@ -19,11 +19,18 @@ $factory->define(App\User::class, function (Faker\Generator $faker) {
 
     do {
         $username = $faker->userName;
-    } while(strlen($username) > 20);
+        $user = \App\User::where('username', $username)->first();
+
+    } while(strlen($username) > 20 || $user != null);
+
+    do {
+        $email = $faker->safeEmail;
+        $user = \App\User::where('email', $email)->first();
+    } while($user != null);
 
     return [
         'username' => $username,
-        'email' => $faker->unique()->safeEmail,
+        'email' => $email,
         'password' => Hash::make($faker->password(6, 10)),
         'api_token' => str_random(60),
     ];

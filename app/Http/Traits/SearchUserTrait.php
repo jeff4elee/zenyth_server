@@ -14,106 +14,93 @@ trait SearchUserTrait
 {
 
     /**
-     * Gets id of users that are friends to the input user
-     *
-     * @param $user_id , input user
+     * Get id of users that are friends to the input user
+     * @param $user
      * @return mixed , id of friends
      */
-    public function getAllFriendsId($user_id)
+    public function getAllFriendsId($user)
     {
-        return User::find($user_id)->friendsId();
+        return array_values($user->friendsId());
     }
 
     /**
-     * Gets id of users that are mutual friends to the input user
-     *
-     * @param $user_id , input user
+     * Get id of users that are mutual friends to the input user
+     * @param $friendsId
      * @return mixed , id of mutual friends
      */
-    public function getAllMutualFriendsId($user_id)
+    public function getAllMutualFriendsId($friendsId)
     {
-        $friends_id = $this->getAllFriendsId($user_id);
-
         $mutualFriends1 = Relationship::select('requestee as user_id')
-            ->whereIn('requester', $friends_id);
+            ->whereIn('requester', $friendsId);
 
         $mutualFriends2 = Relationship::select('requester as user_id')
-            ->whereIn('requestee', $friends_id);
+            ->whereIn('requestee', $friendsId);
 
-        return $mutualFriends1->union($mutualFriends2)->get()->pluck('user_id');
+        return $mutualFriends1->union($mutualFriends2)->get()->pluck('user_id')
+            ->all();
     }
 
     /**
-     * Gets id of users that have similar names to input name, excluding the
+     * Get id of users that have similar names to input name, excluding the
      * input user
-     *
-     * @param $user_id , input user
-     * @param $name , input name
+     * @param $keyword
      * @return mixed , id of users that have similar names
      */
-    public function similarTo($user_id, $name)
+    public function getRelevantResults($keyword, $userId)
     {
-        if($user_id != null) {
-            return Profile::select('profiles.user_id')
-                ->where([
-                    ['profiles.first_name', 'like', '%' . $name . '%'],
-                    ['profiles.user_id', '!=', $user_id]
-                ])
-                ->orWhere([
-                    ['profiles.last_name', 'like', '%' . $name . '%'],
-                    ['profiles.user_id', '!=', $user_id]
-                ])
-                ->get()->pluck('user_id');
-        }
-        else {
-            return Profile::select('profiles.user_id')
-                ->where('profiles.first_name', 'like', '%' . $name . '%')
-                ->orWhere('profiles.last_name', 'like', '%' . $name . '%')
-                ->get()->pluck('user_id');
-        }
+        // This query contains all search results
+        // but we need to filter by relevance
+        $query = User::select('users.id')
+            ->join('profiles', 'profiles.user_id', '=', 'users.id')
+            ->where([
+                ['users.username', 'like', '%' . $keyword . '%'],
+                ['users.id', '!=', $userId]
+            ])
+            ->orWhere([
+                ['profiles.first_name', 'like', '%' . $keyword . '%'],
+                ['users.id', '!=', $userId]
+            ])
+            ->orWhere([
+                ['profiles.last_name', 'like', '%' . $keyword . '%'],
+                ['users.id', '!=', $userId]
+            ]);
+
+        return $query->get()->pluck('id')->all();
     }
 
     /**
-     * Returns an array containing the users'id that resulted from the search
-     *
-     * @param $user_id , person searching
-     * @param $name , name to search
-     * @return array , array containing result users'id
+     * Return an array containing the users'id that resulted from the search
+     * @param $allResultsId
+     * @param $friendsId
+     * @return array containing users' id's
      */
-    public function searchUserId($user_id, $name)
+    public function inclusionExclusion(array $allResultsId, array $friendsId,
+                                       array $mutualFriendsId)
     {
-        $name = str_replace(' ', '%', $name);
-
-        /* Gets all the user id where names are similar */
-        $similar_names_id = $this->similarTo($user_id, $name)->toArray();
-
-        /* Gets all the user id where users are friends of logged in user */
-        $friends_id = $this->getAllFriendsId($user_id)->toArray();
-
-        /* Gets all the user id where users and mutual friends of logged
-        in user */
-        $mutual_friends_id = $this->getAllMutualFriendsId($user_id)->toArray();
-
-        /* Retains only friends'id that have names similar to the name
+        /* Retain only friends'id that have names similar to the name
         searched */
-        $friends_id = array_filter($friends_id, function ($id)
-                                                use ($similar_names_id) {
-            return in_array($id, $similar_names_id);
+        $friendsId = array_filter($friendsId, function ($id)
+                                                use ($allResultsId) {
+            return in_array($id, $allResultsId);
         });
 
-        /* Retains only mutual friends'id that have names similar to the name
+        /* Retain only mutual friends'id that have names similar to the name
          searched */
-        $mutual_friends_id = array_filter($mutual_friends_id, function ($id)
-                                                use ($similar_names_id) {
-            return in_array($id, $similar_names_id);
+        $mutualFriendsId = array_filter($mutualFriendsId, function ($id)
+                                                use ($allResultsId) {
+            return in_array($id, $allResultsId);
         });
 
-        /* Sorts the array in the order friends_id, mutual_friends_id, all
+        /* Sort the array in the order friends_id, mutual_friends_id, all
         the rest */
-        $result_id = array_merge($friends_id, $mutual_friends_id);
-        $rest_similar_names = array_diff($similar_names_id, $result_id);
-        $result_id = array_merge($result_id, $rest_similar_names);
-        return $result_id;
+        $resultArr = array_merge($friendsId, $mutualFriendsId);
+
+        /* Get the rest of the id's that are not in the group friends and
+        mutual friends */
+        $restSimilarNames = array_diff($allResultsId, $resultArr);
+
+        $resultArr = array_merge($resultArr, $restSimilarNames);
+        return $resultArr;
     }
 
 }

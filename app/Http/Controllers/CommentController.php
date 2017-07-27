@@ -18,11 +18,10 @@ class CommentController extends Controller
 {
 
     /**
-     * Creates a comment
-     *
+     * Create a comment
      * @param Request $request, post request
      *        rules: requires comment that is not empty and entity_id
-     * @return Comment information
+     * @return response
      */
     public function create(Request $request)
     {
@@ -53,10 +52,9 @@ class CommentController extends Controller
     }
 
     /**
-     * Returns information on comment
-     *
+     * Return information on comment
      * @param $comment_id
-     * @return Comnent information, json response if comment is not found
+     * @return response
      */
     public function read($comment_id)
     {
@@ -71,12 +69,11 @@ class CommentController extends Controller
     }
 
     /**
-     * Edits comment
-     *
+     * Edit comment
      * @param Request $request, post request
      *        rules: requires comment that is not empty
      * @param $comment_id
-     * @return Comment information, json response if comment is not found
+     * @return response
      */
     public function update(Request $request, $comment_id)
     {
@@ -105,14 +102,10 @@ class CommentController extends Controller
     }
 
     /**
-     * Deletes a comment, only available if comment belongs to logged in user
-     *
+     * Delete a comment, only available if comment belongs to logged in user
      * @param Request $request, delete request
      * @param $comment_id
-     * @return json response indicating error if comment is not found, json
-     *         respsonse indicating error if user logged in did not make the
-     *         comment, or json response indicating comment deleted if it is
-     *         successfully deleted
+     * @return response
      */
     public function delete(Request $request, $comment_id)
     {

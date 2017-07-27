@@ -16,34 +16,35 @@ class RelationshipController extends Controller
 {
 
     /**
-     * Sends a friend request
-     *
+     * Send a friend request
      * @param Request $request, post request
      *        rules: requires requestee_id
-     * @return relationship information or json response if already friends or
-     * if there is a pending friend request
+     * @return response
      */
     public function friendRequest(Request $request)
     {
         $user = $request->get('user');
-        $user_id = $user->id;
+        $userId = $user->id;
+        $requesteeId = $request->input('requestee_id');
+        if($userId == $requesteeId)
+            Exceptions::invalidRequestException('Cannot send a friend request to yourself');
 
         /* Verifies if they are already friends or if there is no pending
             request */
         $check = Relationship::where([
-            ['requester', '=', $user_id],
-            ['requestee', '=', $request->input('requestee_id')]
+            ['requester', '=', $userId],
+            ['requestee', '=', $requesteeId]
         ])->orWhere([
-            ['requestee', '=', $user_id],
-            ['requester', '=', $request->input('requestee_id')]
+            ['requestee', '=', $userId],
+            ['requester', '=', $requesteeId]
         ])->first();
 
         if ($check != null)
             Exceptions::invalidRequestException('Existed friendship or pending friend request');
 
         $relationship = Relationship::create([
-            'requester' => $user_id,
-            'requestee' => $request->input('requestee_id')
+            'requester' => $userId,
+            'requestee' => $requesteeId
         ]);
 
         return Response::dataResponse(true, ['relationship' => $relationship],
@@ -52,15 +53,12 @@ class RelationshipController extends Controller
     }
 
     /**
-     * Responds to friend request
-     *
+     * Respond to friend request
      * @param Request $request, post request
      *        rules: requires status with value true or false indicating
      *               whether request is accepted or not
      * @param $requester_id, person who friend requested
-     * @return relationship information if friend request is accepted, json
-     *         response if there is no pending request or json response
-     *         indicating that the relationship was deleted
+     * @return response
      */
     public function respondToRequest(Request $request, $requester_id)
     {
@@ -88,12 +86,10 @@ class RelationshipController extends Controller
     }
 
     /**
-     * Deletes a friend
-     *
+     * Delete a friend
      * @param Request $request, delete request
      * @param $user_id, user to be deleted
-     * @return json response if they are not friends, or json response
-     *         indicating the relationship was deleted
+     * @return response
      */
     public function deleteFriend(Request $request, $user_id)
     {
@@ -113,11 +109,10 @@ class RelationshipController extends Controller
     }
 
     /**
-     * Blocks a user
-     *
+     * Block a user
      * @param Request $request, get request
      * @param $user_id, user to be blocked
-     * @return json response indicating that user is blocked
+     * @return response
      */
     public function blockUser(Request $request, $user_id)
     {
@@ -145,8 +140,7 @@ class RelationshipController extends Controller
     }
 
     /**
-     * Checks if two users are friends
-     *
+     * Helper function to check if two users are friends
      * @param $user1_id
      * @param $user2_id
      * @return mixed, relationship information if two users are friends, else
@@ -169,6 +163,13 @@ class RelationshipController extends Controller
 
     }
 
+    /**
+     * Check if two users are friends
+     * @param Request $request
+     * @param $user1_id
+     * @param $user2_id
+     * @return response
+     */
     public function isFriend(Request $request, $user1_id, $user2_id)
     {
         if(User::find($user1_id) == null)
