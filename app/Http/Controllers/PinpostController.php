@@ -10,11 +10,17 @@ use App\Http\Controllers\Auth\AuthenticationTrait;
 use App\Image;
 use App\Pinpost;
 use App\PinpostTag;
+use App\Repositories\Criteria\Pinpost\FrameCriteria;
+use App\Repositories\Criteria\Pinpost\FriendsScope;
+use App\Repositories\Criteria\Pinpost\LatestPinpost;
+use App\Repositories\Criteria\Pinpost\RadiusCriteria;
+use App\Repositories\Criteria\Pinpost\SelfScope;
 use App\Tag;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
+use App\Repositories\PinpostRepository as PinpostRepo;
 
 /**
  * Class PinpostController
@@ -23,6 +29,13 @@ use Illuminate\Support\Facades\Storage;
 class PinpostController extends Controller
 {
     use AuthenticationTrait;
+
+    private $pinpostRepo;
+
+    public function __construct(PinpostRepo $pinpostRepo)
+    {
+        $this->pinpostRepo = $pinpostRepo;
+    }
 
     /**
      * Create a Pinpost, storing thumbnail image if there is any
@@ -33,59 +46,7 @@ class PinpostController extends Controller
      */
     public function create(Request $request)
     {
-        $pin = new Pinpost();
-        $entity = Entity::create([]);
-
-        $pin->title = $request->input('title');
-        $pin->description = $request->input('description');
-        $pin->latitude = $request->input('latitude');
-        $pin->longitude = $request->input('longitude');
-
-        /* Checks if a thumbnail was provided */
-        if ($request->file('thumbnail') != null) {
-            $image = new Image();
-            $entitys_picture = new EntitysPicture();
-            ImageController::storeImage($request->file('thumbnail'), $image);
-            $image->save();
-            $pin->thumbnail_id = $image->id;
-            $entitys_picture->entity_id = $entity->id;
-            $entitys_picture->image_id = $image->id;
-            $entitys_picture->save();
-        }
-
-        $pin->entity_id = $entity->id;
-
-        $user = $request->get('user');
-        $pin->creator_id = $user->id;
-
-        $pin->save();
-
-        if($request->has('tags')) {
-            // Tag must be in the form "tag1,tag2,tag3"
-            // Must parse the hash tags out on client side
-            $tags = strtolower($request->input('tags'));
-            $tags = explode(",", $tags);
-            foreach($tags as $tag_name) {
-                $tag = Tag::where('tag', $tag_name)->first();
-
-                // If tag already exists, create another PinpostTag that
-                // associates with this pinpost and the tag
-                if($tag) {
-                    PinpostTag::create([
-                        'pinpost_id' => $pin->id,
-                        'tag_id' => $tag->id
-                    ]);
-                }
-                // If tag does not exist, create one
-                else {
-                    $tag = Tag::create(['tag' => $tag_name]);
-                    PinpostTag::create([
-                        'pinpost_id' => $pin->id,
-                        'tag_id' => $tag->id
-                    ]);
-                }
-            }
-        }
+        $pin = $this->pinpostRepo->create($request);
 
         return Response::dataResponse(true, ['pinpost' => $pin],
             'Successfully created pinpost');
@@ -203,6 +164,7 @@ class PinpostController extends Controller
     public function fetch(Request $request)
     {
         $type = strtolower($request->input('type'));
+        $user = $request->get('user');
 
         if($request->has('scope'))
             $scope = explode(",", strtolower($request->input('scope')));
@@ -210,127 +172,23 @@ class PinpostController extends Controller
             $scope = array();
 
         if($type == 'radius')
-            $query = $this->getPinpostsInRadius($request);
+            $this->pinpostRepo->pushCriteria(
+                new RadiusCriteria($request->all()));
         else
-            $query = $this->getPinpostsInFrame($request);
+            $this->pinpostRepo->pushCriteria(new FrameCriteria($request->all()));
 
         if(in_array('self', $scope))
-            $query = $this->selfFilter($request, $query);
+            $this->pinpostRepo->pushCriteria(new SelfScope($user));
         else if(in_array('friends', $scope))
-            $query = $this->friendsFilter($request, $query);
+            $this->pinpostRepo->pushCriteria(new FriendsScope($user));
 
-        // Scope is either not provided or public. Return all pinposts in the
+        $this->pinpostRepo->pushCriteria(new LatestPinpost());
+
+        // FriendsScope is either not provided or public. Return all pinposts in the
         // area
         return Response::dataResponse(true, [
-            'pinposts' => $query->latest()->get() // get all the pinposts
+            'pinposts' => $this->pinpostRepo->all() // get all the pinposts
         ]);
-    }
-
-    /**
-     * Get all pinposts within the radius provided in the request
-     * @param Request $request
-     * @return query
-     */
-    public function getPinpostsInRadius(Request $request)
-    {
-        $radius = $request->input('radius');
-        if($request->has('unit'))
-            $unit = strtolower($request->input('unit'));
-        else
-            $unit = 'mi';
-
-        $center = explode(",", $request->input('center'));
-        $centerLat = $center[0];
-        $centerLong = $center[1];
-
-        // Get all pinposts
-        if($unit == 'mi')
-            $query = Pinpost::select('*')->whereRaw(
-            "( (SQRT( POW( (latitude - ?), 2) +  POW( (longitude - ?), 2) ) ) * 69.09 ) <= ?",
-                [$centerLat, $centerLong, $radius])->latest();
-        else
-            $query = Pinpost::select('*')->whereRaw(
-                "( (SQRT( POW( (latitude - ?), 2) +  POW( (longitude - ?), 2) ) ) * 69.09 * 1.609344 ) <= ?",
-                [$centerLat, $centerLong, $radius])->latest();
-
-        return $query;
-    }
-
-    /**
-     * Get all pinposts in the box provided in the request
-     * @param Request $request
-     * @return mixed
-     */
-    public function getPinpostsInFrame(Request $request)
-    {
-        $firstCoord = explode(",", $request->input('first_coord'));
-        $secondCoord = explode(",", $request->input('second_coord'));
-
-        // The following logic is used to get the smaller and the larger of the
-        // latitude and longitude so we can form one query. This is done so that
-        // the user does not have to specifically specify which corner the
-        // coordinate is
-        if($firstCoord[0] > $secondCoord[0]) {
-            $smallLat = $secondCoord[0];
-            $largeLat = $firstCoord[0];
-        } else {
-            $smallLat = $firstCoord[0];
-            $largeLat = $secondCoord[0];
-        }
-
-        if($firstCoord[1] > $secondCoord[1]) {
-            $smallLong = $secondCoord[1];
-            $largeLong = $firstCoord[1];
-        } else {
-            $smallLong = $firstCoord[1];
-            $largeLong = $secondCoord[1];
-        }
-
-        // Get all pinposts inside the box
-        $query = Pinpost::where([
-            ['latitude', '>=', $smallLat],
-            ['latitude', '<=', $largeLat],
-            ['longitude', '>=', $smallLong],
-            ['longitude', '<=', $largeLong]
-        ]);
-
-        return $query;
-    }
-
-    /**
-     * Filter out all pinposts such that the result contains only the user's
-     * and his friends' pinposts
-     * @param Request $request
-     * @param $query
-     * @return query
-     */
-    public function friendsFilter(Request $request, $query)
-    {
-        $user = $request->get('user');
-
-        // All id's of friends
-        $idsToInclude = array_values($user->friendsId());
-
-        // Put the current user's id in the array to query
-        array_push($idsToInclude, $user->id);
-        $query = $query->whereIn('creator_id', $idsToInclude);
-
-        return $query;
-    }
-
-    /**
-     * Filter out all pinposts such that the result contains only the user's
-     * pinpost
-     * @param Request $request
-     * @param $query
-     * @return query
-     */
-    public function selfFilter(Request $request, $query)
-    {
-        $user = $request->get('user');
-        $query = $query->where('pinposts.creator_id', $user->id);
-
-        return $query;
     }
 
 }

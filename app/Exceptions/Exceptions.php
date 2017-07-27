@@ -19,6 +19,11 @@ class Exceptions
         throw new UnknownErrorException($message, 3);
     }
 
+    static public function repositoryException($message = "")
+    {
+        throw new RepositoryException($message, 4);
+    }
+
     static public function invalidParameterException($message = "")
     {
         throw new InvalidParameterException($message, 100);
