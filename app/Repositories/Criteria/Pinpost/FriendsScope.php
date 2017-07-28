@@ -29,7 +29,7 @@ class FriendsScope extends Criteria
      * @param $model
      * @return mixed
      */
-    public  function apply($model)
+    public function apply($model)
     {
         $friendsId = $this->user->friendsId();
 

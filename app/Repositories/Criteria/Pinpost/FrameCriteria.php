@@ -25,7 +25,7 @@ class FrameCriteria extends Criteria
      * @param $model
      * @return mixed
      */
-    public  function apply($model)
+    public function apply($model)
     {
         $firstCoord = explode(",", $this->areaData['first_coord']);
         $secondCoord = explode(",", $this->areaData['second_coord']);

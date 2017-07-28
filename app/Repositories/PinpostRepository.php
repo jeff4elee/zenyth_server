@@ -80,7 +80,23 @@ class PinpostRepository extends Repository
             }
         }
 
+        $key = 'pinpost' . $pin->id;
+        Cache::put($key, $pin);
+
         return $pin;
+    }
+
+    public function read($id, $fields = ['*']){
+
+        $key = 'pinpost' . $id;
+
+        if(Cache::has($key)){
+            return Cache::get($key);
+        } else {
+            $pin = parent::read($id, $fields);
+            Cache::put($key, $pin);
+            return $pin;
+        }
 
     }
 
