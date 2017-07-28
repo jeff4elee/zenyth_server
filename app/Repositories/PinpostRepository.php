@@ -119,12 +119,16 @@ class PinpostRepository extends Repository
 
         if(strtolower($areaData['unit']) == 'km')
             $query = $this->model->whereRaw(
-                "( (SQRT( POW( (latitude - ?), 2) +  POW( (longitude - ?), 2) ) ) * 69.09 * 1.609344 ) <= ?",
-                [$centerLat, $centerLong, $radius]);
+                "2 * ASIN( SQRT( POW( SIN( ( RADIANS(latitude) - RADIANS( ? ) )/2 ) , 2 ) +
+                 COS( RADIANS( ? ) ) * COS( RADIANS( latitude ) ) *
+                  POW( SIN( ( RADIANS(longitude) - RADIANS( ? ))/2 ) , 2 ) ) ) * 6371 <= ?",
+                [$centerLat, $centerLat, $centerLong , $radius]);
         else
             $query = $this->model->whereRaw(
-                "( (SQRT( POW( (latitude - ?), 2) +  POW( (longitude - ?), 2) ) ) * 69.09 ) <= ?",
-                [$centerLat, $centerLong, $radius]);
+                "2 * ASIN( SQRT( POW( SIN( ( RADIANS(latitude) - RADIANS( ? ) )/2 ) , 2 ) +
+                 COS( RADIANS( ? ) ) * COS( RADIANS( latitude ) ) *
+                  POW( SIN( ( RADIANS(longitude) - RADIANS( ? ))/2 ) , 2 ) ) ) * 6371 * 0.621371 <= ?",
+                [$centerLat, $centerLat, $centerLong , $radius]);
 
         $this->model = $query;
         return $this;
