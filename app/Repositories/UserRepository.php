@@ -4,17 +4,17 @@ namespace App\Repositories;
 
 use App\Exceptions\Exceptions;
 use App\Http\Controllers\Auth\AuthenticationTrait;
-use Carbon\Carbon;
-
 use App\User;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 
 class UserRepository extends Repository
+                    implements UserRepositoryInterface
 {
     use AuthenticationTrait;
 
-    function model()
+    public function model()
     {
         return 'App\User';
     }
@@ -44,5 +44,88 @@ class UserRepository extends Repository
         else
             Exceptions::unknownErrorException('Unable to create user');
     }
+
+    /**
+     * Join users table to profiles table on key user_id
+     * @return mixed
+     */
+    public function joinProfiles()
+    {
+        $query = $this->model->join('profiles', 'profiles.user_id', '=', 'users.id');
+        $this->model = $query;
+        return $this;
+    }
+
+    /**
+     * Get all results that have similar first name
+     * @param $keyword
+     * @param $orQuery
+     * @return mixed
+     */
+    public function likeFirstName($keyword, $orQuery = false)
+    {
+        if($orQuery)
+            $query = $this->model->orWhere('profiles.first_name', 'like',
+                '%'.$keyword.'%');
+        else
+            $query = $this->model->where('profiles.first_name', 'like',
+                '%'.$keyword.'%');
+
+        $this->model = $query;
+        return $this;
+    }
+
+    /**
+     * Get all results that have similar last name
+     * @param $keyword
+     * @param $orQuery
+     * @return mixed
+     */
+    public function likeLastName($keyword, $orQuery = false)
+    {
+        if($orQuery)
+            $query = $this->model->orWhere('profiles.last_name', 'like',
+                '%'.$keyword.'%');
+        else
+            $query = $this->model->where('profiles.last_name', 'like',
+                '%'.$keyword.'%');
+
+        $this->model = $query;
+        return $this;
+    }
+
+    /**
+     * Get all results that have similar username
+     * @param $keyword
+     * @param $orQuery
+     * @return mixed
+     */
+    public function likeUsername($keyword, $orQuery = false)
+    {
+        if($orQuery)
+            $query = $this->model->orWhere('users.username', 'like',
+                '%'.$keyword.'%');
+        else
+            $query = $this->model->where('users.username', 'like',
+                '%'.$keyword.'%');
+
+        $this->model = $query;
+        return $this;
+    }
+
+    /**
+     * Join the relationships table
+     * @param $option , either requester or requestee
+     * @return mixed
+     */
+    public function joinRelationships($option)
+    {
+        $query = $this->model
+            ->leftJoin('relationships', 'users.id', '=', $option);
+
+        $this->model = $query;
+        return $this;
+    }
+
 
 }

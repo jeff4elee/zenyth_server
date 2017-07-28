@@ -5,7 +5,6 @@ namespace App\Http\Controllers;
 use App\Exceptions\Exceptions;
 use App\Exceptions\ResponseHandler as Response;
 use App\Image;
-use App\Profile;
 use App\Repositories\ImageRepository;
 use GuzzleHttp\Client;
 use Illuminate\Http\UploadedFile;

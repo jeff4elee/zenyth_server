@@ -2,11 +2,10 @@
 
 namespace App\Repositories;
 
+use App\Address;
 use App\Exceptions\Exceptions;
-use App\Http\Controllers\ImageController;
 use App\PhoneNumber;
 use App\Profile;
-use App\Address;
 use Illuminate\Http\Request;
 
 class ProfileRepository extends Repository

@@ -6,6 +6,10 @@ use App\Exceptions\Exceptions;
 use App\Exceptions\ResponseHandler as Response;
 use App\Http\Controllers\Auth\AuthenticationTrait;
 use App\Http\Traits\SearchUserTrait;
+use App\Repositories\Criteria\ProfileAndUser\JoinProfilesToUsers;
+use App\Repositories\Criteria\ProfileAndUser\SimilarFirstName;
+use App\Repositories\Criteria\ProfileAndUser\SimilarLastName;
+use App\Repositories\Criteria\ProfileAndUser\SimilarUsername;
 use App\Repositories\Criteria\Relationship\AllBlockedUsers;
 use App\Repositories\Criteria\Relationship\AllFriendRequests;
 use App\Repositories\Criteria\Relationship\AllFriends;
@@ -40,11 +44,7 @@ class UserController extends Controller
      */
     public function getFriends($user_id)
     {
-        $this->relationshipRepo->pushCriteria(new AllFriends($user_id));
-        $friends = $this->relationshipRepo->all();
-
-        if(count($friends) == 0)
-            return Response::dataResponse(true, ['users' => array()]);
+        $friends = $this->relationshipRepo->getAllFriends($user_id)->all();
 
         return Response::dataResponse(true, ['users' => $friends]);
     }
@@ -56,15 +56,13 @@ class UserController extends Controller
      */
     public function blockedUsers(Request $request)
     {
-
         $user = $request->get('user');
         $userId = $user->id;
-
-        $this->relationshipRepo->pushCriteria(new AllBlockedUsers($userId));
-        $blockedUsers = $this->relationshipRepo->all();
+        $blockedUsers = $this->relationshipRepo
+            ->getAllBlockedUsers($userId)
+            ->all();
 
         return Response::dataResponse(true, ['users' => $blockedUsers]);
-
     }
 
     /**
@@ -76,8 +74,9 @@ class UserController extends Controller
     {
         $user = $request->get('user');
         $userId = $user->id;
-        $this->relationshipRepo->pushCriteria(new AllFriendRequests($userId));
-        $friendRequests = $this->relationshipRepo->all();
+
+        $friendRequests = $this->relationshipRepo
+            ->getAllFriendRequests($userId)->all();
 
         return Response::dataResponse(true, ['users' => $friendRequests]);
     }
@@ -95,17 +94,12 @@ class UserController extends Controller
             $keyword = strtolower($request->input('keyword'));
             $keyword = str_replace(" ", "%", $keyword);
 
-            // This query contains all search results
-            // but we need to filter by relevance
-            $query = User::select('users.id', 'users.username', 'profiles.first_name',
-                'profiles.last_name')
-                ->join('profiles', 'profiles.user_id', '=', 'users.id')
-                ->where('users.username', 'like', '%' . $keyword . '%')
-                ->orWhere('profiles.first_name', 'like', '%' . $keyword . '%')
-                ->orWhere('profiles.last_name', 'like', '%' . $keyword . '%');
+            $query = $this->userRepo
+                ->joinProfiles()->likeUsername($keyword)
+                ->likeFirstName($keyword, true)->likeLastName($keyword, true);
 
             return Response::dataResponse(true, [
-                'users' => $query->get()
+                'users' => $query->all()
             ]);
         }
 
@@ -122,6 +116,23 @@ class UserController extends Controller
 
         $keyword = strtolower($request->input('keyword'));
         $keyword = str_replace(" ", "%", $keyword);
+
+//        $relevantResultsOne = $this->userRepo
+//            ->joinProfiles()->joinRelationships('requestee')
+//            ->likeUsername($keyword)->likeLastName($keyword,true)
+//            ->likeFirstName($keyword, true)->getQuery();
+//        $this->userRepo->resetQuery();
+//
+//        $relevantResultsTwo = $this->userRepo
+//            ->joinProfiles()->joinRelationships('requester')
+//            ->likeUsername($keyword)->likeLastName($keyword,true)
+//            ->likeFirstName($keyword, true)->getQuery();
+//        $this->userRepo->resetQuery();
+//
+//        $relevantResults = $this->userRepo->union($relevantResultsOne,
+//        $relevantResultsTwo);
+//
+//        return $relevantResults->all();
 
         $allResultsId = $this->getRelevantResults($keyword, $user->id);
         $friendsId = $this->getAllFriendsId($user);

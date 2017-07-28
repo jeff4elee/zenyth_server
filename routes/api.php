@@ -15,7 +15,7 @@ use Illuminate\Http\Request;
 */
 
 Route::post('password/reset/{token}',
-    'Auth\ResetPasswordController@restorePassword')->name('api_pw_reset');
+    'Auth\ForgotPasswordController@restorePassword')->name('api_pw_reset');
 
 
 Route::get('email_taken/{email}', 'Auth\RegisterController@emailTaken');

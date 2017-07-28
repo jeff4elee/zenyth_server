@@ -38,11 +38,10 @@ class RelationshipController extends Controller
         if($userId == $requesteeId)
             Exceptions::invalidRequestException('Cannot send a friend request to yourself');
 
-        $this->relationshipRepo->pushCriteria(new HaveRelationship($userId,
-            $requesteeId));
-        $relationship = $this->relationshipRepo->all();
+        $relationship = $this->relationshipRepo
+            ->hasRelationship($userId, $requesteeId)->all()->first();
 
-        if (count($relationship) != 0)
+        if ($relationship)
             Exceptions::invalidRequestException('Existed friendship or pending friend request');
 
         $request->merge([
@@ -72,8 +71,8 @@ class RelationshipController extends Controller
         $this->relationshipRepo->pushCriteria(
             new HaveRelationship($requester_id, $requesteeId));
 
-        $relationship = $this->relationshipRepo->all();
-        $relationship = $relationship->first();
+        $relationship = $this->relationshipRepo
+            ->hasRelationship($requester_id, $requesteeId)->all()->first();
 
         if ($relationship == null || $relationship->status == true)
             Exceptions::invalidRequestException('No pending request');
@@ -102,11 +101,9 @@ class RelationshipController extends Controller
         if($deleterId == $user_id)
             Exceptions::invalidRequestException('Cannot delete yourself');
 
-        $this->relationshipRepo->pushCriteria(
-            new HaveRelationship($deleterId, $user_id));
-
-        $relationship = $this->relationshipRepo->all();
-        $relationship = $relationship->first();
+        $relationship = $this->relationshipRepo
+            ->hasRelationship($deleterId, $user_id)
+            ->hasFriendship()->all()->first();
 
         if ($relationship == null)
             Exceptions::notFoundException(NOT_FOUND);
@@ -130,21 +127,20 @@ class RelationshipController extends Controller
         if($blockerId == $user_id)
             Exceptions::invalidRequestException('Cannot block yourself');
 
-        $this->relationshipRepo->pushCriteria(new HaveRelationship(
-            $blockerId, $user_id
-        ));
-        $this->relationshipRepo->pushCriteria(new IsFriend());
-        $relationship = $this->relationshipRepo->all();
-        $relationship = $relationship->first();
+        $relationship = $this->relationshipRepo
+            ->hasRelationship($blockerId, $user_id)
+            ->hasFriendship()->all()->first();
 
         if ($relationship) {
+            if($relationship->blocked)
+                Exceptions::invalidRequestException('Already blocked');
+
             $relationship->blocked = true;
             $relationship->requester = $blockerId;
             $relationship->requestee = $user_id;
             $relationship->status = false;
             $relationship->update();
         } else {
-            $this->relationshipRepo->resetScope();
             $request->merge([
                 'requester' => $blockerId,
                 'requestee' => $user_id,
@@ -165,12 +161,9 @@ class RelationshipController extends Controller
      */
     public function isFriend(Request $request, $user1_id, $user2_id)
     {
-        $this->relationshipRepo->pushCriteria(new HaveRelationship(
-            $user1_id, $user2_id
-        ));
-        $this->relationshipRepo->pushCriteria(new IsFriend());
-        $relationship = $this->relationshipRepo->all();
-        $relationship = $relationship->first();
+        $relationship = $this->relationshipRepo
+            ->hasRelationship($user1_id, $user2_id)
+            ->hasFriendship()->all()->first();
 
         if($relationship) {
             return Response::dataResponse(true, [

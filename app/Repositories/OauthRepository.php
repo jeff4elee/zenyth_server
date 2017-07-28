@@ -4,7 +4,6 @@ namespace App\Repositories;
 
 use App\Exceptions\Exceptions;
 use App\Oauth;
-use App\Http\Controllers\Auth\AuthenticationTrait;
 use Illuminate\Http\Request;
 
 class OauthRepository extends Repository

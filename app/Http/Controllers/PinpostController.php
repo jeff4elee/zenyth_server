@@ -192,17 +192,12 @@ class PinpostController extends Controller
         $scope = $request->input('scope');
 
         if($type == 'radius')
-            $this->pinpostRepo->pushCriteria(
-                new RadiusCriteria($request->all()));
+            $this->pinpostRepo->pinpostsInRadius($request->all());
         else
-            $this->pinpostRepo->pushCriteria(new FrameCriteria($request->all()));
+            $this->pinpostRepo->pinpostsInFrame($request->all());
 
-        if($scope == "self")
-            $this->pinpostRepo->pushCriteria(new SelfScope($user));
-        else if($scope == "friends")
-            $this->pinpostRepo->pushCriteria(new FriendsScope($user));
-
-        $this->pinpostRepo->pushCriteria(new LatestPinpost());
+        $this->pinpostRepo->pinpostsWithScope($scope, $user);
+        $this->pinpostRepo->latestPinposts();
 
         // FriendsScope is either not provided or public. Return all pinposts in the
         // area

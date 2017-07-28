@@ -2,12 +2,8 @@
 
 namespace App\Http\Controllers;
 
-use App\Comment;
-use App\Entity;
-use App\EntitysPicture;
 use App\Exceptions\Exceptions;
 use App\Exceptions\ResponseHandler as Response;
-use App\Image;
 use App\Repositories\CommentRepository;
 use App\Repositories\EntityRepository;
 use App\Repositories\EntitysPictureRepository;

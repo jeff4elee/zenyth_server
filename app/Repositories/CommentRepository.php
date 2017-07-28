@@ -2,10 +2,7 @@
 
 namespace App\Repositories;
 
-use App\Entity;
-use App\EntitysPicture;
 use App\Exceptions\Exceptions;
-use App\Image;
 use Illuminate\Http\Request;
 
 class CommentRepository extends Repository

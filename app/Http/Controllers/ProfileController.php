@@ -2,16 +2,12 @@
 
 namespace App\Http\Controllers;
 
-use App\Address;
 use App\Exceptions\Exceptions;
 use App\Exceptions\ResponseHandler as Response;
-use App\PhoneNumber;
-use App\Image;
 use App\Repositories\ImageRepository;
 use App\Repositories\ProfileRepository;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Storage;
 
 /**
  * Class ProfileController

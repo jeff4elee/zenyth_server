@@ -4,7 +4,6 @@ namespace App\Http\Controllers;
 
 use App\Exceptions\Exceptions;
 use App\Exceptions\ResponseHandler as Response;
-use App\Like;
 use App\Repositories\LikeRepository;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
