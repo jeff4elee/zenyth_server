@@ -12,6 +12,10 @@ class PinpostTagRepository extends Repository
         return 'App\PinpostTag';
     }
 
+    /**
+     * @param Request $request
+     * @return $this|\Illuminate\Database\Eloquent\Model
+     */
     public function create(Request $request)
     {
         $pinpost = $request->get('pinpost');

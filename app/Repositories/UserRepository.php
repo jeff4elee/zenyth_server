@@ -19,6 +19,10 @@ class UserRepository extends Repository
         return 'App\User';
     }
 
+    /**
+     * @param Request $request
+     * @return $this|\Illuminate\Database\Eloquent\Model
+     */
     public function create(Request $request)
     {
         if($request->is('api/oauth/register')) {
@@ -30,7 +34,7 @@ class UserRepository extends Repository
             $confirmation_code = str_random(30);
         }
 
-        $user = User::create([
+        $user = $this->model->create([
             'email' => $request['email'],
             'username' => $request['username'],
             'password' => $password,

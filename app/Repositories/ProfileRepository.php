@@ -15,6 +15,10 @@ class ProfileRepository extends Repository
         return 'App\Profile';
     }
 
+    /**
+     * @param Request $request
+     * @return $this|\Illuminate\Database\Eloquent\Model
+     */
     public function create(Request $request)
     {
         $gender = $request->input('gender');
@@ -27,7 +31,7 @@ class ProfileRepository extends Repository
             $birthday = null;
 
         $user = $request->get('user');
-        $profile = Profile::create([
+        $profile = $this->model->create([
             'user_id' => $user->id,
             'gender' => $gender,
             'first_name' => $first_name,
@@ -38,9 +42,15 @@ class ProfileRepository extends Repository
         if($profile)
             return $profile;
         else
-            Exceptions::unknownErrorException('Unable to create profile');
+            Exceptions::unknownErrorException(OBJECT_FAIL_TO_CREATE);
     }
 
+    /**
+     * @param Request $request
+     * @param $id
+     * @param string $attribute
+     * @return mixed
+     */
     public function update(Request $request, $id, $attribute = 'id')
     {
         $profile = $this->model->where($attribute, '=', $id)->first();

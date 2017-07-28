@@ -47,7 +47,7 @@ class OauthController extends Controller
             return $this->processOauth($oauth_type, $profile, $json, $oauth, $data, $request);
         }
         else
-            Exceptions::invalidParameterException('Invalid email');
+            Exceptions::invalidParameterException(INVALID_EMAIL);
     }
 
 

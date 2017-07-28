@@ -13,6 +13,10 @@ class TagRepository extends Repository
         return 'App\Tag';
     }
 
+    /**
+     * @param Request $request
+     * @return $this|\Illuminate\Database\Eloquent\Model
+     */
     public function create(Request $request)
     {
         return $this->model->create([

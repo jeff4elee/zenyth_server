@@ -101,12 +101,12 @@ class UserController extends Controller
         $user = null;
         // Validating the token since this route is not in the middleware
         if(!$api_token)
-            Exceptions::invalidTokenException('Invalid token');
+            Exceptions::invalidTokenException(INVALID_TOKEN);
         else
             $user = $this->userRepo->findBy('api_token', $api_token);
 
         if(!$user)
-            Exceptions::invalidTokenException('Invalid token');
+            Exceptions::invalidTokenException(INVALID_TOKEN);
 
         $keyword = strtolower($request->input('keyword'));
         $keyword = str_replace(" ", "%", $keyword);

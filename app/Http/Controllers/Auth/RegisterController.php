@@ -139,7 +139,7 @@ class RegisterController extends Controller
 
         if($user) {
             $user->update(['confirmation_code' => null]);
-            return Response::successResponse('Account verified');
+            return Response::successResponse(ACCOUNT_VERIFIED);
         }
 
         Exceptions::invalidConfirmationCodeException();

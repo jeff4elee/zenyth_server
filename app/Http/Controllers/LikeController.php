@@ -35,7 +35,7 @@ class LikeController extends Controller
         $likes = $user->likes;
         foreach($likes as $like)
             if($like->entity_id == $entityId)
-                Exceptions::invalidRequestException('This entity has already been liked by this user');
+                Exceptions::invalidRequestException(ALREADY_LIKED_ENTITY);
 
         $request->merge(['user_id' => $user->id]);
         $like = $this->likeRepo->create($request);
@@ -59,7 +59,7 @@ class LikeController extends Controller
         $api_token = $like->user->api_token;
         $headerToken = $request->header('Authorization');
         if ($api_token != $headerToken)
-            Exceptions::invalidTokenException('Like does not associate with this token');
+            Exceptions::invalidTokenException(NOT_USERS_OBJECT);
 
         $like->delete();
         return Response::successResponse();

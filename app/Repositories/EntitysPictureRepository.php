@@ -25,7 +25,7 @@ class EntitysPictureRepository extends Repository
         if($entitysPicture)
             return $entitysPicture;
         else
-            Exceptions::unknownErrorException('Could not create Entitys Picture');
+            Exceptions::unknownErrorException(OBJECT_FAIL_TO_CREATE);
     }
 
 }

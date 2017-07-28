@@ -162,7 +162,7 @@ class PinpostController extends Controller
         $api_token = $pin->creator->api_token;
         $headerToken = $request->header('Authorization');
         if ($api_token != $headerToken)
-            Exceptions::invalidTokenException('Pinpost does not associate with this token');
+            Exceptions::invalidTokenException(NOT_USERS_OBJECT);
 
         $entitysPictures = $pin->entity->pictures;
 
@@ -172,7 +172,7 @@ class PinpostController extends Controller
         }
         $this->entityRepo->delete($request, $pin->entity_id);
 
-        return Response::successResponse();
+        return Response::successResponse(DELETE_SUCCESS);
     }
 
     /**

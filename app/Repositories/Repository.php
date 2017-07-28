@@ -9,6 +9,10 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
 
+/**
+ * Class Repository
+ * @package App\Repositories
+ */
 abstract class Repository implements RepositoryInterface
 {
     /**
@@ -32,6 +36,10 @@ abstract class Repository implements RepositoryInterface
         $this->makeModel();
     }
 
+    /**
+     * @param array $fields
+     * @return \Illuminate\Database\Eloquent\Collection|static[]
+     */
     public function all(array $fields = ['*'])
     {
         $data = $this->model->get($fields);
@@ -121,6 +129,12 @@ abstract class Repository implements RepositoryInterface
 
     }
 
+    /**
+     * @param $attribute
+     * @param $value
+     * @param array $columns
+     * @return mixed
+     */
     public function findBy($attribute, $value, $columns = ['*'])
     {
         return $this->model->where($attribute, '=', $value)->first($columns);
@@ -148,6 +162,10 @@ abstract class Repository implements RepositoryInterface
         return $this;
     }
 
+    /**
+     * @param array $fields
+     * @return $this
+     */
     public function select($fields = ['*'])
     {
         $query = $this->model->select($fields);
@@ -166,6 +184,11 @@ abstract class Repository implements RepositoryInterface
         return $this;
     }
 
+    /**
+     * @param $queryOne
+     * @param $queryTwo
+     * @return $this
+     */
     public function union($queryOne, $queryTwo)
     {
         $query = $queryOne->union($queryTwo);
@@ -197,6 +220,10 @@ abstract class Repository implements RepositoryInterface
         return $this->model = $model;
     }
 
+    /**
+     * Get the query object
+     * @return Model
+     */
     public function getQuery()
     {
         return $this->model;

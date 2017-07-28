@@ -124,7 +124,7 @@ class CommentController extends Controller
         $api_token = $comment->user->api_token;
         $headerToken = $request->header('Authorization');
         if ($api_token != $headerToken)
-            Exceptions::invalidTokenException('Comment does not associate with this token');
+            Exceptions::invalidTokenException(NOT_USERS_OBJECT);
 
         $entitysPictures = $comment->entity->pictures;
 

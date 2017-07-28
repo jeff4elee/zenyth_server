@@ -73,7 +73,7 @@ class ProfileController extends Controller
             return Response::rawImageResponse($path);
         }
 
-        Exceptions::notFoundException('Invalid user id');
+        Exceptions::notFoundException(INVALID_USER_ID);
     }
 
 }

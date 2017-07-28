@@ -39,7 +39,7 @@ class ImageController extends Controller
             $directory = 'images';
 
         $extension = $file->extension();
-        $filename = ImageController::generateImagename($extension);
+        $filename = self::generateImagename($extension);
 
         Storage::disk($directory)->put($filename, File::get($file));
         return $filename;
@@ -74,7 +74,7 @@ class ImageController extends Controller
             if($extension == null)
                 Exceptions::invalidImageTypeException(INVALID_IMAGE_TYPE);
 
-            $filename = ImageController::generateImageName($extension);
+            $filename = self::generateImageName($extension);
             Storage::disk($directory)->put($filename, $image->getBody());
 
             return $filename;
@@ -87,14 +87,14 @@ class ImageController extends Controller
 
     /**
      * Show the Image
-     * @param $filename, name of image file
+     * @param $image_id
      * @return mixed, an image response
      */
     public function showImage($image_id)
     {
         $image = $this->imageRepo->read($image_id);
         if($image == null)
-            Exceptions::notFoundException('Image not found');
+            Exceptions::notFoundException(NOT_FOUND);
 
         $path = 'app/images/' . $image->filename;
         return Response::rawImageResponse($path);

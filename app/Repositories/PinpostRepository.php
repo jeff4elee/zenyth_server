@@ -18,6 +18,11 @@ class PinpostRepository extends Repository
         return 'App\Pinpost';
     }
 
+    /**
+     * Create a pinpost
+     * @param Request $request
+     * @return mixed
+     */
     public function create(Request $request)
     {
         $entity = $request->get('entity');
@@ -35,15 +40,22 @@ class PinpostRepository extends Repository
         if($pin)
             return $pin;
         else
-            Exceptions::unknownErrorException('Error creating pinpost');
+            Exceptions::unknownErrorException(OBJECT_FAIL_TO_CREATE);
     }
 
+    /**
+     * Update a pinpost
+     * @param Request $request
+     * @param $id
+     * @param string $attribute
+     * @return mixed
+     */
     public function update(Request $request, $id, $attribute = 'id')
     {
         // Check if pinpost is there
         $pin = $this->model->where($attribute, '=', $id)->first();
         if (!$pin)
-            Exceptions::notFoundException('Pinpost not found');
+            Exceptions::notFoundException(NOT_FOUND);
 
         // Check if pinpost being updated belongs to the user making the
         // request
@@ -51,7 +63,7 @@ class PinpostRepository extends Repository
         $headerToken = $request->header('Authorization');
 
         if ($api_token != $headerToken)
-            Exceptions::invalidTokenException('Pinpost does not associate with this token');
+            Exceptions::invalidTokenException(NOT_USERS_OBJECT);
 
         if($request->has('title'))
             $pin->title = $request['title'];
