@@ -103,29 +103,13 @@ class UserController extends Controller
         if(!$api_token)
             Exceptions::invalidTokenException('Invalid token');
         else
-            $user = User::where('api_token', '=', $api_token)->first();
+            $user = $this->userRepo->findBy('api_token', $api_token);
+
         if(!$user)
             Exceptions::invalidTokenException('Invalid token');
 
         $keyword = strtolower($request->input('keyword'));
         $keyword = str_replace(" ", "%", $keyword);
-
-//        $relevantResultsOne = $this->userRepo
-//            ->joinProfiles()->joinRelationships('requestee')
-//            ->likeUsername($keyword)->likeLastName($keyword,true)
-//            ->likeFirstName($keyword, true)->getQuery();
-//        $this->userRepo->resetQuery();
-//
-//        $relevantResultsTwo = $this->userRepo
-//            ->joinProfiles()->joinRelationships('requester')
-//            ->likeUsername($keyword)->likeLastName($keyword,true)
-//            ->likeFirstName($keyword, true)->getQuery();
-//        $this->userRepo->resetQuery();
-//
-//        $relevantResults = $this->userRepo->union($relevantResultsOne,
-//        $relevantResultsTwo);
-//
-//        return $relevantResults->all();
 
         $allResultsId = $this->getRelevantResults($keyword, $user->id);
         $friendsId = $this->getAllFriendsId($user);

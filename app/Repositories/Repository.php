@@ -4,8 +4,6 @@ namespace App\Repositories;
 
 use App\Exceptions\Exceptions;
 use App\Exceptions\RepositoryException;
-use App\Repositories\Criteria\Criteria;
-use App\Repositories\Criteria\CriteriaInterface;
 use Illuminate\Container\Container as App;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\Request;
@@ -146,6 +144,13 @@ abstract class Repository implements RepositoryInterface
     public function latest()
     {
         $query = $this->model->latest();
+        $this->model = $query;
+        return $this;
+    }
+
+    public function select($fields = ['*'])
+    {
+        $query = $this->model->select($fields);
         $this->model = $query;
         return $this;
     }

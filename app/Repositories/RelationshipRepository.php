@@ -4,6 +4,8 @@
 namespace App\Repositories;
 
 
+use Illuminate\Support\Facades\DB;
+
 class RelationshipRepository extends Repository
                             implements RelationshipRepositoryInterface
 {
@@ -96,6 +98,5 @@ class RelationshipRepository extends Repository
         $this->model = $query;
         return $this;
     }
-
 
 }
