@@ -4,8 +4,6 @@ namespace App\Http\Controllers;
 
 use App\Exceptions\Exceptions;
 use App\Exceptions\ResponseHandler as Response;
-use App\Repositories\Criteria\Relationship\HaveRelationship;
-use App\Repositories\Criteria\Relationship\IsFriend;
 use App\Repositories\RelationshipRepository;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
