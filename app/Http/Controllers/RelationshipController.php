@@ -7,6 +7,7 @@ use App\Exceptions\ResponseHandler as Response;
 use App\Repositories\RelationshipRepository;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
 
 /**
  * Class RelationshipController
@@ -108,6 +109,14 @@ class RelationshipController extends Controller
 
         $relationship->delete();
 
+        $this->swapVal($user->id, $deleterId);
+
+        $key = 'friend' . $user->id . $deleterId;
+
+        if(Cache::has($key)){
+            return Cache::forget($key);
+        }
+
         return Response::successResponse('Unfriended');
     }
 
@@ -138,6 +147,7 @@ class RelationshipController extends Controller
             $relationship->requestee = $user_id;
             $relationship->status = false;
             $relationship->update();
+
         } else {
             $request->merge([
                 'requester' => $blockerId,
@@ -146,8 +156,26 @@ class RelationshipController extends Controller
             ]);
             $relationship = $this->relationshipRepo->create($request);
         }
+
+
+        $this->swapVal($user->id, $blockerId);
+
+        $key = 'friend' . $user->id . $blockerId;
+
+        if(Cache::has($key)){
+            return Cache::forget($key);
+        }
+
         return Response::dataResponse(true, ['relationship' => $relationship],
             'Successfully blocked user');
+    }
+
+    private function swapVal($user1_id, $user2_id){
+        if(intval($user1_id) > intval($user2_id)){
+            $tmp=$user1_id;
+            $user1_id = $user2_id;
+            $user2_id = $tmp;
+        }
     }
 
     /**
@@ -159,18 +187,32 @@ class RelationshipController extends Controller
      */
     public function isFriend(Request $request, $user1_id, $user2_id)
     {
+
+        $this->swapVal($user1_id, $user2_id);
+
+        $key = 'friend' . $user1_id . $user2_id;
+
+        if(Cache::has($key)){
+            return Cache::get($key);
+        }
+
         $relationship = $this->relationshipRepo
             ->hasRelationship($user1_id, $user2_id)
             ->hasFriendship()->all()->first();
 
         if($relationship) {
-            return Response::dataResponse(true, [
+            $response = Response::dataResponse(true, [
                 'relationship' => $relationship,
                 'is_friend' => true
             ]);
+
         } else {
-            return Response::dataResponse(true, ['is_friend' => false]);
+            $response = Response::dataResponse(true, ['is_friend' => false]);
         }
+
+        Cache::put($key, $response, 20);
+        return $response;
+
     }
 
 }

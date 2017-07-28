@@ -72,4 +72,6 @@ class ImageRepository extends Repository
         Storage::disk($directory)->delete($image->filename);
         return $image->delete();
     }
+
+
 }

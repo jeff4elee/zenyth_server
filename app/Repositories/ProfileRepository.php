@@ -7,6 +7,7 @@ use App\Exceptions\Exceptions;
 use App\PhoneNumber;
 use App\Profile;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
 
 class ProfileRepository extends Repository
 {
@@ -35,10 +36,24 @@ class ProfileRepository extends Repository
             'birthday' => $birthday
         ]);
 
-        if($profile)
+        if($profile){
+            Cache::put('profile' . $profile->id, $profile);
             return $profile;
+        }
         else
             Exceptions::unknownErrorException('Unable to create profile');
+    }
+
+    public function read($id, $fields=['*']){
+
+        $key = 'profile' . $id;
+
+        if(Cache::has($key)){
+            return Cache::get($key);
+        } else {
+            return parent::read($id, $fields);
+        }
+
     }
 
     public function update(Request $request, $id, $attribute = 'id')
@@ -96,6 +111,9 @@ class ProfileRepository extends Repository
         }
 
         $profile->update();
+
+        Cache::put('profile' . $profile->id, $profile);
+
         return $profile;
     }
 }

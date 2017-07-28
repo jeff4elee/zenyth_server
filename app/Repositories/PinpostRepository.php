@@ -5,6 +5,7 @@ namespace App\Repositories;
 use App\Exceptions\Exceptions;
 use Illuminate\Container\Container as App;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
 
 class PinpostRepository extends Repository
                         implements PinpostRepositoryInterface
@@ -68,6 +69,10 @@ class PinpostRepository extends Repository
             $pin->longitude = (double)$request['longitude'];
 
         $pin->update();
+
+        $key = 'pinpost' . $pin->id;
+        Cache::put($key, $pin);
+
         return $pin;
     }
 
@@ -127,7 +132,21 @@ class PinpostRepository extends Repository
             Cache::put($key, $pin);
             return $pin;
         }
+
     }
+
+    public function delete(Request $request, $id)
+    {
+        $key = 'pinpost' . $id;
+
+        if (Cache::has($key)) {
+            Cache::forget($key);
+        }
+
+        parent::delete($request, $id);
+
+    }
+
 
     /**
      * Get all pinposts in a radius
@@ -163,6 +182,7 @@ class PinpostRepository extends Repository
      */
     public function pinpostsWithScope($scope, $user)
     {
+
         $scope = strtolower($scope);
         if($scope == 'self') {
             $query = $this->model->where('creator_id', '=', $user->id);
@@ -182,5 +202,6 @@ class PinpostRepository extends Repository
             $this->model = $query;
             return $this;
         }
+
     }
 }
