@@ -89,8 +89,8 @@ class DataRules
             'type' => 'required|in:radius,frame',
             'radius' => 'required_if:type,radius|numeric|min:0',
             'center' => 'required_if:type,radius|valid_coord',
-            'first_coord' => 'required_if:type,frame|valid_coord',
-            'second_coord' => 'required_if:type,frame|valid_coord',
+            'top_left' => 'required_if:type,frame|valid_coord',
+            'bottom_right' => 'required_if:type,frame|valid_coord',
             'unit' => 'in:km,mi',
             'scope' => 'in:self,friends,public'
         ];

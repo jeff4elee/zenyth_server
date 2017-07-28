@@ -192,7 +192,7 @@ class PinpostController extends Controller
             $this->pinpostRepo->pinpostsInFrame($request->all());
 
         $this->pinpostRepo->pinpostsWithScope($scope, $user);
-        $this->pinpostRepo->latestPinposts();
+        $this->pinpostRepo->latest();
 
         // FriendsScope is either not provided or public. Return all pinposts in the
         // area

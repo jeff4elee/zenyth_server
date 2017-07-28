@@ -68,41 +68,37 @@ class PinpostRepository extends Repository
 
     /**
      * Get all pinposts in a rectangular box
-     * @param $areaData , contain keys [first_coord, second_coord]
+     * @param $areaData , contain keys [top_left, bottom_right]
      * @return mixed
      */
     public function pinpostsInFrame($areaData)
     {
-        $firstCoord = explode(",", $areaData['first_coord']);
-        $secondCoord = explode(",", $areaData['second_coord']);
+        $topLeft = explode(",", $areaData['top_left']);
+        $bottomRight = explode(",", $areaData['bottom_right']);
 
-        // The following logic is used to get the smaller and the larger of the
-        // latitude and longitude so we can form one query. This is done so that
-        // the user does not have to specifically specify which corner the
-        // coordinate is
-        if($firstCoord[0] > $secondCoord[0]) {
-            $smallLat = $secondCoord[0];
-            $largeLat = $firstCoord[0];
-        } else {
-            $smallLat = $firstCoord[0];
-            $largeLat = $secondCoord[0];
+        $lat1 = $topLeft[0];
+        $long1 = $topLeft[1];
+        $lat2 = $bottomRight[0];
+        $long2 = $bottomRight[1];
+
+        // $long1 will always be less than $long2 unless we're at the edge
+        // where the left is positive and the right is negative
+        if($long1 > $long2) {
+            $query = $this->model->where([
+                ['latitude', '>=', $lat1],
+                ['latitude', '<=', $lat2],
+                ['longitude', '<=', $long1],
+                ['longitude', '>=', $long2]
+            ]);
         }
-
-        if($firstCoord[1] > $secondCoord[1]) {
-            $smallLong = $secondCoord[1];
-            $largeLong = $firstCoord[1];
-        } else {
-            $smallLong = $firstCoord[1];
-            $largeLong = $secondCoord[1];
+        else {
+            $query = $this->model->where([
+                ['latitude', '>=', $lat1],
+                ['latitude', '<=', $lat2],
+                ['longitude', '>=', $long1],
+                ['longitude', '<=', $long2]
+            ]);
         }
-
-        // Get all pinposts inside the box
-        $query = $this->model->where([
-            ['latitude', '>=', $smallLat],
-            ['latitude', '<=', $largeLat],
-            ['longitude', '>=', $smallLong],
-            ['longitude', '<=', $largeLong]
-        ]);
 
         $this->model = $query;
         return $this;
