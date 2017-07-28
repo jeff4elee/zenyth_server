@@ -5,6 +5,7 @@ namespace App\Http\Middleware;
 use App;
 use App\Exceptions\Exceptions;
 use App\Http\Controllers\Auth\AuthenticationTrait;
+use App\Repositories\UserRepository;
 use App\User;
 use Closure;
 use Illuminate\Http\Request;
@@ -13,6 +14,12 @@ use Illuminate\Http\Request;
 class AuthenticatedMiddleware
 {
     use AuthenticationTrait;
+    private $userRepo;
+
+    function __construct(UserRepository $userRepo)
+    {
+        $this->userRepo = $userRepo;
+    }
 
     /**
      * Handle an incoming request.
@@ -33,7 +40,7 @@ class AuthenticatedMiddleware
         if($api_token == null)
             Exceptions::invalidTokenException('Invalid access token');
 
-        $user = User::where('api_token', $api_token)->first();
+        $user = $this->userRepo->findBy('api_token', $api_token);
 
         // Removes bearer from the front of api_token
         $request->headers->set('Authorization', $api_token);

@@ -112,7 +112,7 @@ class ResponseHandler
     /**
      * Format a response based on the exception
      * @param \Exception $exception
-     * @return $this
+     * @return JsonResponse
      */
     static public function errorResponse(\Exception $exception)
     {
@@ -144,9 +144,9 @@ class ResponseHandler
      * @param $success, status of request
      * @param $data, data to be put inside of the response
      * @param null $message, message to be added to the response
-     * @return $this
+     * @return JsonResponse
      */
-    static public function dataResponse($success, $data, $message = null)
+    static public function dataResponse($success, array $data, $message = null)
     {
         if($message != null) {
             return response()->json([
@@ -167,7 +167,7 @@ class ResponseHandler
     /**
      * Format a successful response
      * @param null $message, message to be added to the response
-     * @return $this
+     * @return JsonResponse
      */
     static public function successResponse($message = null)
     {

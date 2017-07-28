@@ -20,7 +20,9 @@ class DataRules
         return [
             'username' => 'required|min:3|max:20',
             'email' => 'required|email|max:255',
-            'oauth_type' => 'required'
+            'oauth_type' => 'required',
+            'picture_url' => 'url',
+            'birthday' => 'date_format:Y-m-d'
         ];
     }
 
@@ -127,7 +129,8 @@ class DataRules
     {
         return [
             'comment' => 'required|min:1',
-            'on_entity_id' => 'required'
+            'on_entity_id' => 'required',
+            'image' => 'image'
         ];
     }
 

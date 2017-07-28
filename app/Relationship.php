@@ -10,7 +10,7 @@ class Relationship extends Model
 {
 
     public $timestamps = false;
-    protected $fillable = ['requester', 'requestee', 'status'];
+    protected $fillable = ['requester', 'requestee', 'status', 'blocked'];
     protected $table = 'relationships';
 
     public function getRequester()

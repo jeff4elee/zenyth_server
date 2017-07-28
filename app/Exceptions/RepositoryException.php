@@ -2,7 +2,7 @@
 
 namespace App\Exceptions;
 
-class RepositoryException extends \Exception
+class RepositoryException extends CustomException
 {
     public function __toString()
     {

@@ -6,6 +6,8 @@ use App\Exceptions\Exceptions;
 use App\Exceptions\ResponseHandler as Response;
 use App\Http\Controllers\Auth\AuthenticationTrait;
 use App\Http\Traits\SearchUserTrait;
+use App\Repositories\RelationshipRepository;
+use App\Repositories\UserRepository;
 use App\User;
 use Illuminate\Http\Request;
 
@@ -18,6 +20,16 @@ class UserController extends Controller
     use SearchUserTrait;
     use AuthenticationTrait;
 
+    private $relationshipRepo;
+    private $userRepo;
+
+    function __construct(RelationshipRepository $relationshipRepo,
+                        UserRepository $userRepo)
+    {
+        $this->relationshipRepo = $relationshipRepo;
+        $this->userRepo = $userRepo;
+    }
+
     /**
      * Get user's friends
      * @param $user_id , id of user to be looked up
@@ -25,17 +37,9 @@ class UserController extends Controller
      */
     public function getFriends($user_id)
     {
+        $friends = $this->relationshipRepo->getAllFriends($user_id)->all();
 
-        $user = User::where('id', '=', $user_id);
-        $friends_id = array_values($user->friendsId());
-        if(count($friends_id) == 0)
-            return Response::dataResponse(true, ['users' => null]);
-
-        $searchResult = User::select('*')
-            ->whereIn('id', $friends_id)->get();
-
-        return Response::dataResponse(true, ['users' => $searchResult]);
-
+        return Response::dataResponse(true, ['users' => $friends]);
     }
 
     /**
@@ -45,20 +49,13 @@ class UserController extends Controller
      */
     public function blockedUsers(Request $request)
     {
-
         $user = $request->get('user');
-        $user_id = $user->id;
+        $userId = $user->id;
+        $blockedUsers = $this->relationshipRepo
+            ->getAllBlockedUsers($userId)
+            ->all();
 
-        $searchResult = User::select('users.*')
-            ->leftJoin('relationships', function ($join) use ($user_id) {
-                $join->on('users.id', '=', 'relationships.requestee')
-                    ->where('relationships.requester', '=', $user_id);
-            })
-            ->where('relationships.blocked', true)
-            ->get();
-
-        return Response::dataResponse(true, ['users' => $searchResult]);
-
+        return Response::dataResponse(true, ['users' => $blockedUsers]);
     }
 
     /**
@@ -68,20 +65,13 @@ class UserController extends Controller
      */
     public function getFriendRequests(Request $request)
     {
-
         $user = $request->get('user');
-        $user_id = $user->id;
+        $userId = $user->id;
 
-        $searchResult = User::select('users.*')
-            ->leftJoin('relationships', function ($join) use ($user_id) {
-                $join->on('users.id', '=', 'relationships.requester')
-                    ->where('relationships.requestee', '=', $user_id);
-            })
-            ->where('relationships.status', false)
-            ->get();
+        $friendRequests = $this->relationshipRepo
+            ->getAllFriendRequests($userId)->all();
 
-        return Response::dataResponse(true, ['users' => $searchResult]);
-
+        return Response::dataResponse(true, ['users' => $friendRequests]);
     }
 
     /**
@@ -97,17 +87,12 @@ class UserController extends Controller
             $keyword = strtolower($request->input('keyword'));
             $keyword = str_replace(" ", "%", $keyword);
 
-            // This query contains all search results
-            // but we need to filter by relevance
-            $query = User::select('users.id', 'users.username', 'profiles.first_name',
-                'profiles.last_name')
-                ->join('profiles', 'profiles.user_id', '=', 'users.id')
-                ->where('users.username', 'like', '%' . $keyword . '%')
-                ->orWhere('profiles.first_name', 'like', '%' . $keyword . '%')
-                ->orWhere('profiles.last_name', 'like', '%' . $keyword . '%');
+            $query = $this->userRepo
+                ->joinProfiles()->likeUsername($keyword)
+                ->likeFirstName($keyword, true)->likeLastName($keyword, true);
 
             return Response::dataResponse(true, [
-                'users' => $query->get()
+                'users' => $query->all()
             ]);
         }
 
@@ -118,7 +103,8 @@ class UserController extends Controller
         if(!$api_token)
             Exceptions::invalidTokenException('Invalid token');
         else
-            $user = User::where('api_token', '=', $api_token)->first();
+            $user = $this->userRepo->findBy('api_token', $api_token);
+
         if(!$user)
             Exceptions::invalidTokenException('Invalid token');
 

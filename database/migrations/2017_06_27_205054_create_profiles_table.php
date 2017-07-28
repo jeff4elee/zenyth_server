@@ -30,9 +30,10 @@ class CreateProfilesTable extends Migration
             $table->date('birthday')->nullable()
                 ->default(null);
             $table->unsignedInteger('image_id')
-                ->references('id')->on('images')
-                ->onDelete('cascade')
                 ->nullable()->default(null);
+            $table->foreign('image_id')
+                ->references('id')->on('images')
+                ->onDelete('cascade');
         });
     }
 

@@ -20,5 +20,5 @@ Route::get('register/verify/{confirmation_code}', [
 
 Route::get('password/reset/{token}', [
     'as' => 'password_reset_path',
-    'uses' => 'Auth\ResetPasswordController@showPasswordResetBlade'
+    'uses' => 'Auth\ForgotPasswordController@showPasswordResetBlade'
 ]);

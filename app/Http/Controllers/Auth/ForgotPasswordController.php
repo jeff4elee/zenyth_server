@@ -4,29 +4,16 @@ namespace App\Http\Controllers\Auth;
 
 use App\Exceptions\ResponseHandler as Response;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\DataValidator;
 use App\PasswordReset;
 use App\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Hash;
 
 class ForgotPasswordController extends Controller
 {
     use AuthenticationTrait;
-    /*
-    |--------------------------------------------------------------------------
-    | Password Reset Controller
-    |--------------------------------------------------------------------------
-    |
-    | This controller is responsible for handling password reset emails and
-    | includes a trait which assists in sending these notifications from
-    | your application to your users. Feel free to explore this trait.
-    |
-    */
 
-    /**
-     * Create a new controller instance.
-     *
-     * @return void
-     */
     public function __construct()
     {
         $this->middleware('guest');
@@ -60,5 +47,51 @@ class ForgotPasswordController extends Controller
 
         return Response::dataResponse(true, ['email' => $email],
             'Check your email');
+    }
+
+    public function showPasswordResetBlade($token)
+    {
+        if(PasswordReset::where('token', '=', $token)->first() == null)
+            return response(json_encode([
+                'success' => false,
+                'message' => 'Invalid token'
+            ]), 200);
+
+        return view('restore_password_web')->with(['token' => $token]);
+    }
+
+    public function restorePassword(Request $request, $token)
+    {
+        if(!$token)
+            return response()->json([
+                'success' => false,
+                'message' => 'Invalid token'
+            ], 200);
+
+        $validator = DataValidator::validateRestorePassword($request);
+        if($validator->fails()) {
+            return response()->json([
+                'success' => false,
+                'message' => $validator->errors()->all()
+            ], 200);
+        }
+
+        $password_reset = PasswordReset::where('token', '=', $token)->first();
+        if($password_reset == null)
+            return response()->json([
+                'success' => false,
+                'message' => 'Invalid token'
+            ], 200);
+
+        $user = User::where('email', '=', $password_reset->email)->first();
+        $user->password = Hash::make($request['password']);
+        $user->update();
+        $password_reset->delete();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Successfully reset password'
+        ], 200);
+
     }
 }

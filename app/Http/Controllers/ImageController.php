@@ -5,7 +5,7 @@ namespace App\Http\Controllers;
 use App\Exceptions\Exceptions;
 use App\Exceptions\ResponseHandler as Response;
 use App\Image;
-use App\Profile;
+use App\Repositories\ImageRepository;
 use GuzzleHttp\Client;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\File;
@@ -18,35 +18,45 @@ use Illuminate\Support\Facades\Storage;
  */
 class ImageController extends Controller
 {
+    private $imageRepo;
+
+    function __construct(ImageRepository $imageRepo)
+    {
+        $this->imageRepo = $imageRepo;
+    }
 
     /**
-     * Stores image into storage, image name is a random string of length 32
-     *
+     * Store image into storage, image name is a random string of length 32
      * @param UploadedFile $file, file that was uploaded
      * @param Image $image, image model to be populated
+     * @param $directory
+     * @return $image
      */
-    static public function storeImage(UploadedFile $file, Image $image, $directory = 'images')
+    static public function storeImageByUploadedFile(UploadedFile $file,
+                                                    $directory = 'images')
     {
+        if($directory == null)
+            $directory = 'images';
 
         $extension = $file->extension();
-
-        $filename = ImageController::generateFilename($extension);
+        $filename = ImageController::generateImagename($extension);
 
         Storage::disk($directory)->put($filename, File::get($file));
-        $image->filename = $filename;
-        $image->save();
-
+        return $filename;
     }
 
     /**
      * Store a profile image into storage
      * @param $url
+     * @param $directory
      * @return Image|mixed|null|\Psr\Http\Message\ResponseInterface
      */
-    static public function storeProfileImage($url)
+    static public function storeImageByUrl($url, $directory = 'images')
     {
         if($url == null)
-            return null;
+            Exceptions::invalidRequestException();
+        if($directory == null)
+            $directory = 'images';
 
         $mimeTypes = array(
             'image/png' => 'png',
@@ -61,19 +71,13 @@ class ImageController extends Controller
             $contentType = strtolower($image->getHeader('Content-Type')[0]);
             $extension = $mimeTypes[$contentType];
 
-            if($extension == null) {
-                return null;
-            }
+            if($extension == null)
+                Exceptions::invalidImageTypeException(INVALID_IMAGE_TYPE);
 
             $filename = ImageController::generateImageName($extension);
+            Storage::disk($directory)->put($filename, $image->getBody());
 
-            Storage::disk('profile_pictures')->put($filename, $image->getBody());
-
-            $image = new Image();
-            $image->filename = $filename;
-            $image->save();
-
-            return $image;
+            return $filename;
         } catch (\Exception $error) {
             // Log the error or something
             Log::info($error);
@@ -88,33 +92,12 @@ class ImageController extends Controller
      */
     public function showImage($image_id)
     {
-        $image = Image::find($image_id);
+        $image = $this->imageRepo->read($image_id);
         if($image == null)
             Exceptions::notFoundException('Image not found');
 
         $path = 'app/images/' . $image->filename;
         return Response::rawImageResponse($path);
-    }
-
-    /**
-     * Show profile image in raw format
-     * @param $user_id
-     * @return mixed
-     */
-    public function showProfileImage($user_id)
-    {
-        $profile = Profile::where('user_id', '=', $user_id)->first();
-        if($profile) {
-            $image = $profile->profilePicture;
-            if ($image == null) {
-                Exceptions::notFoundException('User does not have a profile picture');
-            }
-            $filename = $image->filename;
-            $path = 'app/profile_pictures/' . $filename;
-            return Response::rawImageResponse($path);
-        }
-
-        Exceptions::notFoundException('Invalid user id');
     }
 
     /**

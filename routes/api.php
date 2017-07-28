@@ -15,7 +15,7 @@ use Illuminate\Http\Request;
 */
 
 Route::post('password/reset/{token}',
-    'Auth\ResetPasswordController@restorePassword')->name('api_pw_reset');
+    'Auth\ForgotPasswordController@restorePassword')->name('api_pw_reset');
 
 
 Route::get('email_taken/{email}', 'Auth\RegisterController@emailTaken');
@@ -27,7 +27,7 @@ Route::get('pinvite/read/{pinvite_id}', 'PinviteController@read');
 Route::get('relationship/is_friend/{user1_id}/{user2_id}',
     'RelationshipController@isFriend');
 Route::get('picture/{image_id}', 'ImageController@showImage');
-Route::get('/picture/profile/{user_id}', 'ImageController@showProfileImage');
+Route::get('/profile/picture/{user_id}', 'ProfileController@showProfileImage');
 
 Route::group(['middleware' => ['caching']], function() {
 
@@ -49,6 +49,8 @@ Route::group(['middleware' => 'validation'], function() {
             'RelationshipController@deleteFriend');
         Route::get('relationship/block/{user_id}',
             'RelationshipController@blockUser');
+        Route::get('relationship/is_friend/{user1_id}/{user2_id}',
+            'RelationshipController@isFriend');
 
         Route::get('entity/likes_count/{entity_id}',
             'EntityController@likesCount');
@@ -82,7 +84,7 @@ Route::group(['middleware' => 'validation'], function() {
     });
 
     Route::group(['middleware' => 'oauth'], function() {
-        Route::post('oauth/register', 'Auth\RegisterController@oauthRegister');
+        Route::post('oauth/register', 'Auth\RegisterController@register');
         Route::post('oauth/login', 'Auth\OauthController@oauthLogin');
     });
 

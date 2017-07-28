@@ -8,6 +8,7 @@ class EntitysPicture extends Model
 {
     protected $fillable = ['entity_id', 'image_id'];
     protected $table = 'entitys_pictures';
+    public $timestamps = false;
 
     public function entity()
     {
@@ -17,5 +18,10 @@ class EntitysPicture extends Model
     public function image()
     {
         return $this->belongsTo('App\Image', 'image_id');
+    }
+
+    public function delete()
+    {
+        return Image::destroy($this->image_id);
     }
 }
