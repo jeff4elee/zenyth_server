@@ -6,7 +6,6 @@ use App\Exceptions\Exceptions;
 use App\Exceptions\ResponseHandler as Response;
 use App\Http\Controllers\Auth\AuthenticationTrait;
 use App\Repositories\CommentRepository;
-use App\Repositories\ImageRepository;
 use App\Repositories\LikeRepository;
 use App\Repositories\PinpostRepository;
 use App\Repositories\TaggableRepository;
@@ -26,21 +25,18 @@ class PinpostController extends Controller
      * @var PinpostRepository
      */
     private $pinpostRepo;
-    private $imageRepo;
     private $commentRepo;
     private $likeRepo;
     private $taggableRepo;
     private $tagRepo;
 
     public function __construct(PinpostRepository $pinpostRepo,
-                                ImageRepository $imageRepo,
                                 CommentRepository $commentRepo,
                                 LikeRepository $likeRepo,
                                 TaggableRepository $taggableRepo,
                                 TagRepository $tagRepo)
     {
         $this->pinpostRepo = $pinpostRepo;
-        $this->imageRepo = $imageRepo;
         $this->commentRepo = $commentRepo;
         $this->likeRepo = $likeRepo;
         $this->taggableRepo = $taggableRepo;
@@ -105,6 +101,7 @@ class PinpostController extends Controller
 
     /**
      * Give back information on Pinpost
+     * @param $request
      * @param $pinpost_id
      * @return JsonResponse
      */

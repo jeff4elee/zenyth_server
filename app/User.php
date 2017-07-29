@@ -48,6 +48,11 @@ class User extends Model implements Authenticatable
         return $this->hasMany('App\Comment', 'user_id');
     }
 
+    public function replies()
+    {
+        return $this->hasMany('App\Reply', 'user_id');
+    }
+
     public function profile()
     {
         return $this->hasOne('App\Profile', 'user_id');

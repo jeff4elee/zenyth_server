@@ -8,7 +8,7 @@ class Comment extends Model
 {
     protected $fillable = ['comment', 'user_id', 'commentable_id',
         'commentable_type'];
-    protected $hidden = ['commentable_id', 'commentable_type', 'id', 'user_id'];
+    protected $hidden = ['commentable_type', 'id'];
     protected $table = 'comments';
     public $timestamps = false;
 
@@ -27,6 +27,16 @@ class Comment extends Model
     public function user()
     {
         return $this->belongsTo('App\User', 'user_id');
+    }
+
+    public function replies()
+    {
+        return $this->hasMany('App\Reply', 'comment_id');
+    }
+
+    public function repliesCount()
+    {
+        return $this->replies()->count();
     }
 
     public function images()

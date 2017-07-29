@@ -5,7 +5,6 @@ namespace App\Http\Controllers;
 use App\Exceptions\Exceptions;
 use App\Exceptions\ResponseHandler as Response;
 use App\Repositories\CommentRepository;
-use App\Repositories\ImageRepository;
 use App\Repositories\PinpostRepository;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -18,20 +17,18 @@ class CommentController extends Controller
 {
     private $pinpostRepo;
     private $commentRepo;
-    private $imageRepo;
 
     function __construct(PinpostRepository $pinpostRepo,
-                         CommentRepository $commentRepo,
-                         ImageRepository $imageRepo)
+                         CommentRepository $commentRepo)
     {
         $this->pinpostRepo = $pinpostRepo;
         $this->commentRepo = $commentRepo;
-        $this->imageRepo = $imageRepo;
     }
 
     /**
      * Create a comment
      * @param Request $request, post request
+     * @param $commentable_id
      * @return JsonResponse
      */
     public function create(Request $request, $commentable_id)
@@ -42,9 +39,7 @@ class CommentController extends Controller
         $commentableType = $this->getCommentableType($request);
 
         // Check if the commentable object exists
-        $exist = $this->commentableExists($commentableType, $commentable_id);
-        if(!$exist)
-            Exceptions::notFoundException(NOT_FOUND);
+        $this->commentableExists($commentableType, $commentable_id);
 
         $data = [
             'user_id' => $userId,
@@ -80,7 +75,6 @@ class CommentController extends Controller
             Exceptions::notFoundException(NOT_FOUND);
 
         return Response::dataResponse(true, ['comment' => $comment]);
-
     }
 
     /**
@@ -136,7 +130,7 @@ class CommentController extends Controller
             $fields = ['*'];
 
         return Response::dataResponse(true, [
-            'comments' => $pin->likes()->get($fields)
+            'likes' => $pin->likes()->get($fields)
         ]);
     }
 
@@ -165,7 +159,7 @@ class CommentController extends Controller
         if($request->is('api/pinpost/comment/create/*'))
             return 'App\Pinpost';
 
-        return null;
+        Exceptions::invalidRequestException();
     }
 
     /**
@@ -176,11 +170,11 @@ class CommentController extends Controller
      */
     public function commentableExists($commentableType, $commentableId)
     {
-        if($commentableType == 'App\Pinpost') {
+        if($commentableType == 'App\Pinpost')
             if($this->pinpostRepo->findBy('id', $commentableId))
                 return true;
-        }
-        return false;
+
+        Exceptions::notFoundException(NOT_FOUND);
     }
 
 }

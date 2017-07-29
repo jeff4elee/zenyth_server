@@ -7,6 +7,7 @@ use App\Exceptions\ResponseHandler as Response;
 use App\Repositories\CommentRepository;
 use App\Repositories\LikeRepository;
 use App\Repositories\PinpostRepository;
+use App\Repositories\ReplyRepository;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
@@ -19,14 +20,17 @@ class LikeController extends Controller
     private $likeRepo;
     private $commentRepo;
     private $pinpostRepo;
+    private $replyRepo;
 
     function __construct(LikeRepository $likeRepo,
                         PinpostRepository $pinpostRepo,
-                        CommentRepository $commentRepo)
+                        CommentRepository $commentRepo,
+                        ReplyRepository $replyRepo)
     {
         $this->likeRepo = $likeRepo;
         $this->commentRepo = $commentRepo;
         $this->pinpostRepo = $pinpostRepo;
+        $this->replyRepo = $replyRepo;
     }
 
     /**
@@ -41,9 +45,7 @@ class LikeController extends Controller
         $likeableType = $this->getLikeableType($request);
 
         // Check if likeable object exists
-        $exist = $this->likeableExists($likeableType, $likeable_id);
-        if(!$exist)
-            Exceptions::notFoundException(NOT_FOUND);
+        $this->likeableExists($likeableType, $likeable_id);
 
         // Go through to see if this user has already liked this likeable
         // object
@@ -94,10 +96,12 @@ class LikeController extends Controller
     {
         if($request->is('api/pinpost/like/create/*'))
             return 'App\Pinpost';
-        if($request->is('api/comment/like/create/*'))
+        else if($request->is('api/comment/like/create/*'))
             return 'App\Comment';
+        else if($request->is('api/reply/like/create/*'))
+            return 'App\Reply';
 
-        return null;
+        Exceptions::invalidRequestException();
     }
 
     /**
@@ -108,15 +112,19 @@ class LikeController extends Controller
      */
     public function likeableExists($likeableType, $likeableId)
     {
-        if($likeableType == 'App\Pinpost') {
+        if($likeableType == 'App\Pinpost')
             if($this->pinpostRepo->findBy('id', $likeableId))
                 return true;
-        }
-        else if($likeableType == 'App\Comment') {
+
+        else if($likeableType == 'App\Comment')
             if($this->commentRepo->findBy('id', $likeableId))
                 return true;
-        }
-        return false;
+
+        else if($likeableType == 'App\Reply')
+            if($this->replyRepo->findBy('id', $likeableId))
+                return true;
+
+        Exceptions::notFoundException(NOT_FOUND);
     }
 
 }

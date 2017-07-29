@@ -8,6 +8,7 @@ Route::get('email_taken/{email}', 'Auth\RegisterController@emailTaken');
 Route::get('username_taken/{username}', 'Auth\RegisterController@usernameTaken');
 Route::get('comment/read/{comment_id}', 'CommentController@read');
 Route::get('pinpost/read/{pinpost_id}', 'PinpostController@read');
+Route::get('reply/read/{reply_id}', 'ReplyController@read');
 
 Route::get('relationship/is_friend/{user1_id}/{user2_id}',
     'RelationshipController@isFriend');
@@ -60,6 +61,14 @@ Route::group(['middleware' => 'validation'], function() {
         Route::delete('comment/delete/{comment_id}', 'CommentController@delete');
         Route::get('comment/get_likes/{comment_id}', 'CommentController@fetchLikes');
         Route::get('comment/likes/count/{comment_id}', 'CommentController@likesCount');
+
+
+        Route::post('reply/like/create/{reply_id}', 'LikeController@create');
+        Route::post('reply/upload_image/{reply_id}', 'ImageController@uploadImage');
+        Route::post('reply/create/{comment_id}', 'ReplyController@create');
+        Route::post('reply/update/{reply_id}', 'ReplyController@update');
+        Route::delete('reply/delete/{reply_id}', 'ReplyController@delete');
+        Route::get('reply/get_likes/{reply_id}', 'ReplyController@fetchLikes');
 
 
         Route::delete('like/delete/{likeid}', 'LikeController@delete');
