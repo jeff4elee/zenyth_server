@@ -51,6 +51,7 @@ Route::group(['middleware' => 'validation'], function() {
         Route::post('pinpost/update/{pinpost_id}', 'PinpostController@update');
         Route::delete('pinpost/delete/{pinpost_id}', 'PinpostController@delete');
         Route::get('pinpost/fetch', 'PinpostController@fetch');
+        Route::post('pinpost/upload_image', 'PinpostController@uploadImage');
 
 
         Route::post('pinvite/create', 'PinviteController@create');
@@ -67,6 +68,8 @@ Route::group(['middleware' => 'validation'], function() {
 
         Route::post('like/create', 'LikeController@create');
         Route::delete('like/delete/{entity_id}', 'LikeController@delete');
+
+        Route::delete('image/delete', 'ImageController@deleteImage');
     });
 
     Route::group(['middleware' => 'oauth'], function() {

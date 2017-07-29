@@ -51,15 +51,18 @@ abstract class Repository implements RepositoryInterface
 
     /**
      * Create a model's object
-     * @param Request $request
+     * @param $request
      * @return mixed
      */
-    public function create(Request $request)
+    public function create($request)
     {
         $columns = $this->model->getConnection()->getSchemaBuilder()
             ->getColumnListing($this->model->getTable());
 
-        $data = $request->all();
+        if($request instanceof Request)
+            $data = $request->all();
+        else
+            $data = $request;
 
         // Filter out the keys in the request that aren't part of the
         // columns
@@ -72,16 +75,19 @@ abstract class Repository implements RepositoryInterface
 
     /**
      * Update a model's object
-     * @param Request $request
+     * @param $request
      * @param $id
      * @return mixed
      */
-    public function update(Request $request, $id, $attribute = 'id')
+    public function update($request, $id, $attribute = 'id')
     {
         $columns = $this->model->getConnection()->getSchemaBuilder()
             ->getColumnListing($this->model->getTable());
 
-        $data = $request->all();
+        if($request instanceof Request)
+            $data = $request->all();
+        else
+            $data = $request;
 
         // Filter out the keys in the request that aren't part of the
         // columns
@@ -94,11 +100,11 @@ abstract class Repository implements RepositoryInterface
 
     /**
      * Delete a model' object
-     * @param Request $request
+     * @param $request
      * @param $id
      * @return mixed
      */
-    public function delete(Request $request, $id)
+    public function delete($request, $id)
     {
         return $this->model->destroy($id);
     }

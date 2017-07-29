@@ -16,7 +16,7 @@ class CommentRepository extends Repository
      * @param Request $request
      * @return $this|\Illuminate\Database\Eloquent\Model
      */
-    public function create(Request $request)
+    public function create($request)
     {
         $entity = $request->get('entity');
         $user = $request->get('user');
@@ -40,7 +40,7 @@ class CommentRepository extends Repository
      * @param string $attribute
      * @return mixed
      */
-    public function update(Request $request, $id, $attribute = 'id')
+    public function update($request, $id, $attribute = 'id')
     {
         $comment = $this->model->where($attribute, '=', $id)->first();
         if ($comment == null)

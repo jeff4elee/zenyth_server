@@ -51,7 +51,7 @@ class ProfileController extends Controller
         }
 
         return Response::dataResponse(true, [
-            'profile' => $profile
+            'user' => $user
         ]);
     }
 

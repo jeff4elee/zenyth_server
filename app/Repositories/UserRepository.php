@@ -4,7 +4,6 @@ namespace App\Repositories;
 
 use App\Exceptions\Exceptions;
 use App\Http\Controllers\Auth\AuthenticationTrait;
-use App\User;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
@@ -23,7 +22,7 @@ class UserRepository extends Repository
      * @param Request $request
      * @return $this|\Illuminate\Database\Eloquent\Model
      */
-    public function create(Request $request)
+    public function create($request)
     {
         if($request->is('api/oauth/register')) {
             $password = Hash::make(str_random(16));

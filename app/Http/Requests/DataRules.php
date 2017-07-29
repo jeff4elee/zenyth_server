@@ -20,7 +20,7 @@ class DataRules
         return [
             'username' => 'required|min:3|max:20',
             'email' => 'required|email|max:255',
-            'oauth_type' => 'required',
+            'oauth_type' => 'required|in:facebook,google',
             'picture_url' => 'url',
             'birthday' => 'date_format:Y-m-d'
         ];
@@ -29,7 +29,7 @@ class DataRules
     static public function oauthLoginRules()
     {
         return [
-            'oauth_type' => 'required',
+            'oauth_type' => 'required|in:facebook,google',
             'email' => 'required'
         ];
     }
@@ -71,15 +71,23 @@ class DataRules
             'title' => 'required',
             'description' => 'required',
             'latitude' => 'required',
-            'longitude' => 'required',
-            'thumbnail' => 'image',
+            'longitude' => 'required'
+        ];
+    }
+
+    static public function uploadImageRules()
+    {
+        return [
+            'image' => 'required|image'
         ];
     }
 
     static public function updatePinpostRules()
     {
         return [
-            'thumbnail' => 'image'
+            'image' => 'image',
+            'latitude' => 'numeric',
+            'longitude' => 'numeric'
         ];
     }
 
@@ -108,8 +116,8 @@ class DataRules
         return [
             'title' => 'required',
             'description' => 'required',
-            'latitude' => 'required',
-            'longitude' => 'required',
+            'latitude' => 'required|numeric',
+            'longitude' => 'required|numeric',
             'thumbnail' => 'image',
             'event_time' => 'required'
         ];
@@ -122,14 +130,14 @@ class DataRules
 
     static public function likeRules()
     {
-        return ['entity_id' => 'required'];
+        return ['entity_id' => 'required|numeric'];
     }
 
     static public function createCommentRules()
     {
         return [
             'comment' => 'required|min:1',
-            'on_entity_id' => 'required',
+            'on_entity_id' => 'required|numeric',
             'image' => 'image'
         ];
     }
@@ -144,14 +152,14 @@ class DataRules
     static public function friendRequestRules()
     {
         return [
-            'requestee_id' => 'required|exists:users,id'
+            'requestee_id' => 'required|exists:users,id|numeric'
         ];
     }
 
     static public function responseToFriendRequestRules()
     {
         return [
-            'status' => 'required'
+            'status' => 'required|boolean'
         ];
     }
 

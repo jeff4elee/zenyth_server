@@ -44,10 +44,10 @@ class RelationshipController extends Controller
 
         $request->merge([
             'requester' => $userId,
-            'requestee' => $requesteeId
+            'requestee' => $requesteeId,
+            'status' => true
         ]);
 
-        $this->relationshipRepo->resetScope();
         $relationship = $this->relationshipRepo->create($request);
 
         return Response::dataResponse(true, ['relationship' => $relationship]);

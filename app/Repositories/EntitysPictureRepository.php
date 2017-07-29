@@ -4,7 +4,6 @@ namespace App\Repositories;
 
 
 use App\Exceptions\Exceptions;
-use Illuminate\Http\Request;
 
 class EntitysPictureRepository extends Repository
 {
@@ -13,7 +12,7 @@ class EntitysPictureRepository extends Repository
         return 'App\EntitysPicture';
     }
 
-    public function create(Request $request)
+    public function create($request)
     {
         $image = $request->get('image');
         $entity = $request->get('entity');

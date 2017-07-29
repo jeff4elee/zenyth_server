@@ -24,4 +24,9 @@ class Comment extends Model
     {
         return $this->belongsTo('App\User', 'user_id');
     }
+
+    public function images()
+    {
+        return $this->morphMany('App\Image', 'imageable');
+    }
 }

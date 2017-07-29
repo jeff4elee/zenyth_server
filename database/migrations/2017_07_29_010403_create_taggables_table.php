@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class CreatePinpostTagsTable extends Migration
+class CreateTaggablesTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,16 +13,13 @@ class CreatePinpostTagsTable extends Migration
      */
     public function up()
     {
-        Schema::create('pinpost_tags', function (Blueprint $table) {
-            $table->increments('id');
-            $table->unsignedInteger('pinpost_id');
-            $table->foreign('pinpost_id')
-                ->references('id')->on('pinposts')
-                ->onDelete('cascade');
+        Schema::create('taggables', function (Blueprint $table) {
             $table->unsignedInteger('tag_id');
             $table->foreign('tag_id')
                 ->references('id')->on('tags')
                 ->onDelete('cascade');
+            $table->unsignedInteger('taggable_id');
+            $table->string('taggable_type', 30);
         });
     }
 
@@ -33,6 +30,6 @@ class CreatePinpostTagsTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('pinpost_tags');
+        Schema::dropIfExists('taggables');
     }
 }

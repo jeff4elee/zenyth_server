@@ -46,8 +46,7 @@ class LoginController extends Controller
             // checks password against hashed pw
 
             return Response::dataResponse(true, [
-                'user' => $user,
-                'api_token' => $user->api_token
+                'user' => $user->makeVisible('api_token')
             ]);
         }
 

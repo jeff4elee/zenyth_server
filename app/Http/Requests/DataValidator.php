@@ -34,6 +34,9 @@ class DataValidator
         else if($request->is('api/pinpost/update/*'))
             return Validator::make($request->all(), Rules::updatePinpostRules());
 
+        else if($request->is('api/pinpost/upload_image'))
+            return Validator::make($request->all(), Rules::uploadImageRules());
+
         else if($request->is('api/pinpost/fetch')) {
             $coordError = 'Geographic coordinate must be in the form {lat,long}'
                 .' and satisfies the geographic coordinate rules';

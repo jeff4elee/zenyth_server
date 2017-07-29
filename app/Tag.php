@@ -6,12 +6,13 @@ use Illuminate\Database\Eloquent\Model;
 
 class Tag extends Model
 {
-    protected $fillable = ['tag'];
+    protected $fillable = ['name'];
     protected $table = 'tags';
+    protected $hidden = ['pivot', 'id'];
     public $timestamps = false;
 
-    public function pinpostTags() {
-        return $this->hasMany('App\PinpostTag', 'tag_id');
+    public function pinposts() {
+        return $this->morphedByMany('App\Pinpost', 'taggable');
     }
 
 }

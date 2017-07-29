@@ -23,7 +23,7 @@ class PinpostRepository extends Repository
      * @param Request $request
      * @return mixed
      */
-    public function create(Request $request)
+    public function create($request)
     {
         $entity = $request->get('entity');
         $user = $request->get('user');
@@ -50,7 +50,7 @@ class PinpostRepository extends Repository
      * @param string $attribute
      * @return mixed
      */
-    public function update(Request $request, $id, $attribute = 'id')
+    public function update($request, $id, $attribute = 'id')
     {
         // Check if pinpost is there
         $pin = $this->model->where($attribute, '=', $id)->first();

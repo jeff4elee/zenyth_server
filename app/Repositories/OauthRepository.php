@@ -3,7 +3,6 @@
 namespace App\Repositories;
 
 use App\Exceptions\Exceptions;
-use App\Oauth;
 use Illuminate\Http\Request;
 
 class OauthRepository extends Repository
@@ -17,7 +16,7 @@ class OauthRepository extends Repository
      * @param Request $request
      * @return $this|\Illuminate\Database\Eloquent\Model
      */
-    public function create(Request $request)
+    public function create($request)
     {
         $user = $request->get('user');
         $oauth = $this->model->create(['user_id' => $user->id]);

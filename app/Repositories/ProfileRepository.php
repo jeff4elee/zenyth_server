@@ -5,7 +5,7 @@ namespace App\Repositories;
 use App\Address;
 use App\Exceptions\Exceptions;
 use App\PhoneNumber;
-use App\Profile;
+use Illuminate\Contracts\Support\Arrayable;
 use Illuminate\Http\Request;
 
 class ProfileRepository extends Repository
@@ -16,10 +16,10 @@ class ProfileRepository extends Repository
     }
 
     /**
-     * @param Request $request
+     * @param $request
      * @return $this|\Illuminate\Database\Eloquent\Model
      */
-    public function create(Request $request)
+    public function create($request)
     {
         $gender = $request->input('gender');
         $first_name = $request->input('first_name');
@@ -46,12 +46,12 @@ class ProfileRepository extends Repository
     }
 
     /**
-     * @param Request $request
+     * @param $request
      * @param $id
      * @param string $attribute
      * @return mixed
      */
-    public function update(Request $request, $id, $attribute = 'id')
+    public function update($request, $id, $attribute = 'id')
     {
         $profile = $this->model->where($attribute, '=', $id)->first();
         if($request->has('first_name'))

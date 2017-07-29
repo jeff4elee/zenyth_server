@@ -24,11 +24,6 @@ class CreatePinpostsTable extends Migration
             $table->text('description');
             $table->double('latitude');
             $table->double('longitude');
-            $table->unsignedInteger('thumbnail_id')
-                ->nullable()->default(null);
-            $table->foreign('thumbnail_id')
-                ->references('id')->on('images')
-                ->onDelete('set null');
             $table->unsignedInteger('creator_id');
             $table->foreign('creator_id')
                 ->references('id')->on('users')

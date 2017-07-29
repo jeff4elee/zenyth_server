@@ -29,7 +29,9 @@ define("NULL_URL", "No URL was provided");
 
 define("REQUEST_NO_RESPONSE", "Unable to get a response");
 
-define("INVALID_IMAGE_TYPE", "Image file type can only be jpg, jpeg, png, or gif");;
+define("INVALID_IMAGE_TYPE", "Image file type can only be jpg, jpeg, png, or gif");
+
+define("UPLOAD_SUCCESS", "Successfully uploaded file");
 
 define("OBJECT_FAIL_TO_CREATE", "Could not create object");
 

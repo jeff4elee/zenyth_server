@@ -7,8 +7,9 @@ use Illuminate\Database\Eloquent\Model;
 class Pinpost extends Model
 {
     protected $fillable = ['title', 'description', 'latitude', 'longitude',
-        'thumbnail', 'updated_at', 'entity_id', 'creator_id'];
+        'thumbnail_id', 'updated_at', 'entity_id', 'creator_id'];
 
+    protected $hidden = ['thumbnail_id', 'creator_id'];
     protected $table = 'pinposts';
 
     public function entity() {
@@ -19,11 +20,19 @@ class Pinpost extends Model
         return $this->belongsTo('App\User', 'creator_id');
     }
 
-    public function thumbnail() {
-        return $this->belongsTo('App\Image', 'thumbnail_id');
+    public function images() {
+        return $this->morphMany('App\Image', 'imageable');
     }
 
-    public function tag() {
-        return $this->hasMany('App\Tag', 'pinpost_id');
+    public function tags() {
+        return $this->morphToMany('App\Tag', 'taggable');
+    }
+
+    public function toArray()
+    {
+        $response = parent::toArray();
+        $response['creator'] = $this->creator;
+        $response['tags'] = $this->tags;
+        return $response;
     }
 }

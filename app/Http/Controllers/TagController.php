@@ -44,13 +44,11 @@ class TagController extends Controller
     {
         $tagName = $request->input('tag');
 
-        $query = $this->tagRepo
-            ->joinPinpostThroughPinpostTags()
-            ->tagWithExactName($tagName)
-            ->distinct()->latest();
+        $tag = $this->tagRepo->findBy('name', $tagName);
+        $query = $tag->pinposts()->latest()->get();
 
         return Response::dataResponse(true, [
-            'pinposts' => $query->all(['pinposts.*', 'tags.tag'])
+            'pinposts' => $query
         ]);
     }
 }

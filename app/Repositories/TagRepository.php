@@ -2,7 +2,7 @@
 
 namespace App\Repositories;
 
-use Illuminate\Http\Request;
+use Illuminate\Contracts\Support\Arrayable;
 use Illuminate\Support\Facades\DB;
 
 class TagRepository extends Repository
@@ -14,17 +14,6 @@ class TagRepository extends Repository
     }
 
     /**
-     * @param Request $request
-     * @return $this|\Illuminate\Database\Eloquent\Model
-     */
-    public function create(Request $request)
-    {
-        return $this->model->create([
-            'tag' => $request->get('tag')
-        ]);
-    }
-
-    /**
      * Get all tags with similar names as this tag
      * @param $tagName
      * @return mixed
@@ -32,7 +21,7 @@ class TagRepository extends Repository
     public function tagsWithSimilarNames($tagName)
     {
         $query = $this->model->select('tags.*')
-            ->where('tags.tag', 'like', '%'.$tagName.'%');
+            ->where('tags.name', 'like', '%'.$tagName.'%');
 
         $this->model = $query;
         return $this;
@@ -51,52 +40,12 @@ class TagRepository extends Repository
     }
 
     /**
-     * @return mixed
-     */
-    public function joinPinpostThroughPinpostTags()
-    {
-        $query = $this->model
-            ->join('pinpost_tags', 'pinpost_tags.tag_id', '=', 'tags.id')
-            ->join('pinposts', 'pinpost_tags.pinpost_id', '=', 'pinposts.id');
-
-        $this->model = $query;
-        return $this;
-    }
-
-    /**
-     * Join with pinpost tags table
-     * @return mixed
-     */
-    public function joinPinpostTags()
-    {
-        $query = $this->model->join('pinpost_tags',
-            'pinpost_tags.tag_id', '=', 'tags.id');
-
-        $this->model = $query;
-        return $this;
-    }
-
-    /**
      * Group by tags name
      * @return mixed
      */
     public function groupByTagsName()
     {
-        $query = $this->model->groupBy('tags.tag');
-        $this->model = $query;
-        return $this;
-    }
-
-    /**
-     * Order by how many tags there are
-     * @param $option
-     * @return mixed
-     */
-    public function orderByCount($option = 'desc')
-    {
-        $query = $this->model->orderBy
-        (DB::raw('count(pinpost_tags.id)'), $option);
-
+        $query = $this->model->groupBy('tags.name');
         $this->model = $query;
         return $this;
     }
