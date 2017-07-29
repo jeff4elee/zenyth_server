@@ -41,6 +41,7 @@ class CommentController extends Controller
         $comment = $request->get('comment');
         $commentableType = $this->getCommentableType($request);
 
+        // Check if the commentable object exists
         $exist = $this->commentableExists($commentableType, $commentable_id);
         if(!$exist)
             Exceptions::notFoundException(NOT_FOUND);
@@ -67,6 +68,7 @@ class CommentController extends Controller
     public function read(Request $request, $comment_id)
     {
         if($request->has('fields')) {
+            // Specifies fields to return
             $fields = $request->input('fields');
             $fields = explode(',', $fields);
             $comment = $this->commentRepo->read($comment_id, $fields);
@@ -107,25 +109,57 @@ class CommentController extends Controller
         if ($comment == null)
             Exceptions::notFoundException(NOT_FOUND);
 
-        /* Validate if user deleting is the same as the user from the token */
+        // Validate if user deleting is the same as the user from the token
         $api_token = $comment->user->api_token;
         $headerToken = $request->header('Authorization');
         if ($api_token != $headerToken)
             Exceptions::invalidTokenException(NOT_USERS_OBJECT);
 
-        $images = $comment->images;
-        foreach($images as $image)
-            $this->imageRepo->remove($image);
-
-        $likes = $comment->likes;
-        foreach($likes as $like)
-            $like->delete();
-
-        $this->commentRepo->delete($request, $comment_id);
+        $this->commentRepo->remove($comment);
 
         return Response::successResponse(DELETE_SUCCESS);
     }
 
+    /**
+     * Fetch all likes of this pinpost
+     * @param Request $request
+     * @param $pinpost_id
+     * @return JsonResponse
+     */
+    public function fetchLikes(Request $request, $comment_id)
+    {
+        $pin = $this->commentRepo->read($comment_id);
+        if($request->has('fields')) {
+            $fields = $request->input('fields');
+            $fields = explode(',', $fields);
+        } else
+            $fields = ['*'];
+
+        return Response::dataResponse(true, [
+            'comments' => $pin->likes()->get($fields)
+        ]);
+    }
+
+    /**
+     * Get the number of likes of this pinpost
+     * @param Request $request
+     * @param $pinpost_id
+     * @return JsonResponse
+     */
+    public function likesCount(Request $request, $comment_id)
+    {
+        $pin = $this->commentRepo->read($comment_id);
+        return Response::dataResponse(true, [
+            'count' => $pin->likesCount()
+        ]);
+    }
+
+
+    /**
+     * Get the type of comment
+     * @param Request $request
+     * @return null|string
+     */
     public function getCommentableType(Request $request)
     {
         if($request->is('api/pinpost/comment/create/*'))
@@ -134,6 +168,12 @@ class CommentController extends Controller
         return null;
     }
 
+    /**
+     * Check if the commentable object exists
+     * @param $commentableType
+     * @param $commentableId
+     * @return bool
+     */
     public function commentableExists($commentableType, $commentableId)
     {
         if($commentableType == 'App\Pinpost') {

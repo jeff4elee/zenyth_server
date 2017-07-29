@@ -79,8 +79,11 @@ class ImageController extends Controller
         );
 
         try {
+            // Create a client for a download request
             $client = new Client();
             $imageFile = $client->request('GET', $url);
+
+            // Get image mime type
             $contentType = strtolower($image->getHeader('Content-Type')[0]);
             $extension = $mimeTypes[$contentType];
 
@@ -88,6 +91,9 @@ class ImageController extends Controller
                 Exceptions::invalidImageTypeException(INVALID_IMAGE_TYPE);
 
             $filename = self::generateImageName($extension, $image);
+
+            // getBody() method retrieves the raw image byte stream
+            // Storage then writes it to a file
             Storage::disk($directory)->put($filename, $imageFile->getBody());
 
             return $filename;
@@ -98,12 +104,19 @@ class ImageController extends Controller
         }
     }
 
+    /**
+     * Upload an image
+     * @param Request $request
+     * @param $imageable_id
+     * @return \Illuminate\Http\JsonResponse
+     */
     public function uploadImage(Request $request, $imageable_id)
     {
         $user = $request->get('user');
         $image = $request->file('image');
         $imageableType = $this->getImageableType($request);
 
+        // Check if this imageable object exists
         $exist = $this->imageableExists($imageableType, $imageable_id);
         if(!$exist)
             Exceptions::notFoundException(NOT_FOUND);
@@ -121,6 +134,12 @@ class ImageController extends Controller
         ]);
     }
 
+    /**
+     * Delete an image
+     * @param Request $request
+     * @param $image_id
+     * @return \Illuminate\Http\JsonResponse
+     */
     public function deleteImage(Request $request, $image_id)
     {
         $user = $request->get('user');
@@ -154,6 +173,7 @@ class ImageController extends Controller
     {
         do {
 
+            // Concatenate image id to the end of the image
             $filename = str_random(32)."_".$image->id.".".$extension;
             // Checks if filename is already taken
             $dup_filename = Image::where('filename', $filename)->first();
@@ -163,6 +183,11 @@ class ImageController extends Controller
         return $filename;
     }
 
+    /**
+     * Get the type of imageable
+     * @param Request $request
+     * @return null|string
+     */
     public function getImageableType(Request $request)
     {
         if($request->is('api/pinpost/upload_image/*'))
@@ -175,6 +200,11 @@ class ImageController extends Controller
         return null;
     }
 
+    /**
+     * Get directory where the image should be stored
+     * @param Request $request
+     * @return string
+     */
     public function getDirectory(Request $request)
     {
         if($request->is('api/pinpost/upload_image/*'))
@@ -185,6 +215,12 @@ class ImageController extends Controller
             return 'profile_pictures';
     }
 
+    /**
+     * Check if the imageable object exists
+     * @param $imageableType
+     * @param $imageableId
+     * @return bool
+     */
     public function imageableExists($imageableType, $imageableId)
     {
         if($imageableType == 'App\Pinpost') {

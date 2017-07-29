@@ -39,19 +39,14 @@ Route::group(['middleware' => 'validation'], function() {
         Route::get('relationship/is_friend/{user1_id}/{user2_id}',
             'RelationshipController@isFriend');
 
-        Route::get('entity/likes_count/{entity_id}',
-            'EntityController@likesCount');
-        Route::get('entity/commentsCount/comments_count',
-            'EntityController@commentsCount');
-        Route::get('entity/likes_from_users/{entity_id}',
-            'EntityController@likesUsers');
-        Route::get('entity/comments/{entity_id}',
-            'EntityController@comments');
-
         Route::post('pinpost/create', 'PinpostController@create');
         Route::post('pinpost/update/{pinpost_id}', 'PinpostController@update');
         Route::delete('pinpost/delete/{pinpost_id}', 'PinpostController@delete');
-        Route::get('pinpost/comment/create', 'CommentController@create');
+        Route::get('pinpost/comment/create/{commentable_id}', 'CommentController@create');
+        Route::get('pinpost/get_comments/{pinpost_id}', 'PinpostController@fetchComments');
+        Route::get('pinpost/get_likes/{pinpost_id}', 'PinpostController@fetchLikes');
+        Route::get('pinpost/comments/count/{pinpost_id}', 'PinpostController@commentsCount');
+        Route::get('pinpost/likes/count/{pinpost_id}', 'PinpostController@likesCount');
         Route::get('pinpost/fetch', 'PinpostController@fetch');
 
         Route::post('pinpost/upload_image/{imageable_id}', 'ImageController@uploadImage');
@@ -63,6 +58,8 @@ Route::group(['middleware' => 'validation'], function() {
         Route::post('comment/upload_image/{imageable_id}', 'ImageController@uploadImage');
         Route::post('comment/update/{comment_id}', 'CommentController@update');
         Route::delete('comment/delete/{comment_id}', 'CommentController@delete');
+        Route::get('comment/get_likes/{comment_id}', 'CommentController@fetchLikes');
+        Route::get('comment/likes/count/{comment_id}', 'CommentController@likesCount');
 
 
         Route::delete('like/delete/{likeid}', 'LikeController@delete');

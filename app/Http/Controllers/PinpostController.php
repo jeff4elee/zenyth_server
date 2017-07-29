@@ -22,6 +22,9 @@ class PinpostController extends Controller
 {
     use AuthenticationTrait;
 
+    /**
+     * @var PinpostRepository
+     */
     private $pinpostRepo;
     private $imageRepo;
     private $commentRepo;
@@ -144,6 +147,75 @@ class PinpostController extends Controller
         $this->pinpostRepo->delete($request, $pinpost_id);
 
         return Response::successResponse(DELETE_SUCCESS);
+    }
+
+
+    /**
+     * Fetch all comments of this pinpost
+     * @param Request $request
+     * @param $pinpost_id
+     * @return JsonResponse
+     */
+    public function fetchComments(Request $request, $pinpost_id)
+    {
+        $pin = $this->pinpostRepo->read($pinpost_id);
+        if($request->has('fields')) {
+            $fields = $request->input('fields');
+            $fields = explode(',', $fields);
+        } else
+            $fields = ['*'];
+
+        return Response::dataResponse(true, [
+            'comments' => $pin->comments()->get($fields)
+        ]);
+    }
+
+    /**
+     * Fetch all likes of this pinpost
+     * @param Request $request
+     * @param $pinpost_id
+     * @return JsonResponse
+     */
+    public function fetchLikes(Request $request, $pinpost_id)
+    {
+        $pin = $this->pinpostRepo->read($pinpost_id);
+        if($request->has('fields')) {
+            $fields = $request->input('fields');
+            $fields = explode(',', $fields);
+        } else
+            $fields = ['*'];
+
+        return Response::dataResponse(true, [
+            'comments' => $pin->likes()->get($fields)
+        ]);
+    }
+
+    /**
+     * Get the number of comments on this pinpost
+     * @param Request $request
+     * @param $pinpost_id
+     * @return JsonResponse
+     */
+    public function commentsCount(Request $request, $pinpost_id)
+    {
+        $pin = $this->pinpostRepo->read($pinpost_id);
+        return Response::dataResponse(true, [
+            'count' => $pin->commentsCount()
+        ]);
+    }
+
+    /**
+     * Get the number of likes of this pinpost
+     * @param Request $request
+     * @param $pinpost_id
+     * @return JsonResponse
+     */
+    public function likesCount(Request $request, $pinpost_id)
+    {
+        $pin = $this->pinpostRepo->read($pinpost_id);
+        return Response::dataResponse(true, [
+            'count' => $pin->likesCount()
+        ]);
     }
 
 

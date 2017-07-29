@@ -4,10 +4,10 @@ namespace App\Http\Controllers\Auth;
 
 use App\Exceptions\Exceptions;
 use App\Exceptions\ResponseHandler as Response;
+use App\Http\Controllers\Controller;
 use App\Http\Controllers\ImageController;
 use App\Profile;
 use App\Repositories\UserRepository;
-use App\Http\Controllers\Controller;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 

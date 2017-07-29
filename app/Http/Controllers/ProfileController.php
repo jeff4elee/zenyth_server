@@ -40,17 +40,26 @@ class ProfileController extends Controller
         ]);
     }
 
+    /**
+     * Update profile picture
+     * @param Request $request
+     * @return JsonResponse
+     */
     public function updateProfilePicture(Request $request)
     {
         $user = $request->get('user');
         $profile = $user->profile;
 
-        if($profile->image_id) {
+        // Check for old profile picture, if there already is one, delete it
+        if($oldImageId = $profile->picture_id) {
             $request->merge(['user_id' => $user->id]);
-            $this->imageRepo->delete($request, $profile->image_id);
+            $profile->update(['picture_id' => null]);
+            $this->imageRepo->delete($request, $oldImageId);
         }
 
+        // UploadedFile object
         $image = $request->file('image');
+
         $request->merge([
             'user_id' => $user->id,
             'image_file' => $image,
@@ -60,7 +69,7 @@ class ProfileController extends Controller
         ]);
         $image = $this->imageRepo->create($request);
 
-        $profile->image_id = $image->id;
+        $profile->picture_id = $image->id;
         $profile->update();
 
 

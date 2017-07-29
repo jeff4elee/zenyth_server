@@ -99,7 +99,7 @@ abstract class Repository implements RepositoryInterface
     }
 
     /**
-     * Delete a model' object
+     * Delete a model's object
      * @param $request
      * @param $id
      * @return mixed
@@ -109,6 +109,11 @@ abstract class Repository implements RepositoryInterface
         return $this->model->destroy($id);
     }
 
+    /**
+     * Delete an object if it's already given
+     * @param $model
+     * @return mixed
+     */
     public function remove($model)
     {
         return $model->delete();

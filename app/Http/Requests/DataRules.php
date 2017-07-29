@@ -111,32 +111,12 @@ class DataRules
         ];
     }
 
-    static public function createPinviteRules()
-    {
-        return [
-            'title' => 'required',
-            'description' => 'required',
-            'latitude' => 'required|numeric',
-            'longitude' => 'required|numeric',
-            'thumbnail' => 'image',
-            'event_time' => 'required'
-        ];
-    }
-
     static public function pictureRules()
     {
         return ['file' => 'image'];
     }
 
-    static public function createCommentRules()
-    {
-        return [
-            'comment' => 'required|min:1',
-            'commentable_id' => 'required'
-        ];
-    }
-
-    static public function updateCommentRules()
+    static public function commentRules()
     {
         return [
             'comment' => 'required|min:1'

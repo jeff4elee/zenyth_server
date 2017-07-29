@@ -81,6 +81,7 @@ class PinpostRepository extends Repository
         if ($api_token != $headerToken)
             Exceptions::invalidTokenException(NOT_USERS_OBJECT);
 
+        // Handle cascade
         $images = $pin->images;
         foreach($images as $image)
             $this->imageRepo->remove($image);
@@ -147,6 +148,7 @@ class PinpostRepository extends Repository
         $centerLat = $center[0];
         $centerLong = $center[1];
 
+        // Haversine formula to determine distance
         if(strtolower($areaData['unit']) == 'km')
             $query = $this->model->whereRaw(
                 "2 * ASIN( SQRT( POW( SIN( ( RADIANS(latitude) - RADIANS( ? ) )/2 ) , 2 ) +

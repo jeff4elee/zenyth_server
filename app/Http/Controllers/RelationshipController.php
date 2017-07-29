@@ -36,6 +36,8 @@ class RelationshipController extends Controller
         if($userId == $requesteeId)
             Exceptions::invalidRequestException(INVALID_REQUEST_TO_SELF);
 
+        // Query for relationship between these two users to check if it has
+        // already existed
         $relationship = $this->relationshipRepo
             ->hasRelationship($userId, $requesteeId)->all()->first();
 
@@ -44,8 +46,7 @@ class RelationshipController extends Controller
 
         $request->merge([
             'requester' => $userId,
-            'requestee' => $requesteeId,
-            'status' => true
+            'requestee' => $requesteeId
         ]);
 
         $relationship = $this->relationshipRepo->create($request);
@@ -66,6 +67,8 @@ class RelationshipController extends Controller
         $user = $request->get('user');
         $requesteeId = $user->id;
 
+        // Query for relationship between these two users to check if it has
+        // already existed
         $relationship = $this->relationshipRepo
             ->hasRelationship($requester_id, $requesteeId)->all()->first();
 
@@ -95,6 +98,8 @@ class RelationshipController extends Controller
         if($deleterId == $user_id)
             Exceptions::invalidRequestException(INVALID_REQUEST_TO_SELF);
 
+        // Query for relationship between these two users to check if it has
+        // already existed
         $relationship = $this->relationshipRepo
             ->hasRelationship($deleterId, $user_id)
             ->hasFriendship()->all()->first();
@@ -121,9 +126,11 @@ class RelationshipController extends Controller
         if($blockerId == $user_id)
             Exceptions::invalidRequestException(INVALID_REQUEST_TO_SELF);
 
+        // Query for relationship between these two users to check if it has
+        // already existed
         $relationship = $this->relationshipRepo
             ->hasRelationship($blockerId, $user_id)
-            ->hasFriendship()->all()->first();
+            ->all()->first();
 
         if ($relationship) {
             if($relationship->blocked)

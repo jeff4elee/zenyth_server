@@ -41,10 +41,10 @@ class DataValidator
             return Validator::make($request->all(), Rules::uploadImageRules());
 
         else if($request->is('api/pinpost/comment/create/*'))
-            return Validator::make($request->all(), Rules::createCommentRules());
+            return Validator::make($request->all(), Rules::commentRules());
 
         else if($request->is('api/comment/update/*'))
-            return Validator::make($request->all(), Rules::updateCommentRules());
+            return Validator::make($request->all(), Rules::commentRules());
 
         else if($request->is('api/comment/upload_image/*'))
             return Validator::make($request->all(), Rules::uploadImageRules());

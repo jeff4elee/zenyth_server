@@ -40,10 +40,13 @@ class LikeController extends Controller
         $user = $request->get('user');
         $likeableType = $this->getLikeableType($request);
 
+        // Check if likeable object exists
         $exist = $this->likeableExists($likeableType, $likeable_id);
         if(!$exist)
             Exceptions::notFoundException(NOT_FOUND);
 
+        // Go through to see if this user has already liked this likeable
+        // object
         $likes = $user->likes;
         foreach($likes as $like)
             if($like->likeable_id == $likeable_id
@@ -72,16 +75,21 @@ class LikeController extends Controller
         if (!$like)
             Exceptions::notFoundException(NOT_FOUND);
 
-        /* Validate if user deleting is the same as the user from the token */
+        // Validate if user deleting is the same as the user from the token
         $api_token = $like->user->api_token;
         $headerToken = $request->header('Authorization');
         if ($api_token != $headerToken)
             Exceptions::invalidTokenException(NOT_USERS_OBJECT);
 
         $like->delete();
-        return Response::successResponse();
+        return Response::successResponse(DELETE_SUCCESS);
     }
 
+    /**
+     * Get likeable type
+     * @param Request $request
+     * @return null|string
+     */
     public function getLikeableType(Request $request)
     {
         if($request->is('api/pinpost/like/create/*'))
@@ -92,6 +100,12 @@ class LikeController extends Controller
         return null;
     }
 
+    /**
+     * Check if likeable object exists
+     * @param $likeableType
+     * @param $likeableId
+     * @return bool
+     */
     public function likeableExists($likeableType, $likeableId)
     {
         if($likeableType == 'App\Pinpost') {

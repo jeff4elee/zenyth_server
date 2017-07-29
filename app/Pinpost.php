@@ -24,8 +24,16 @@ class Pinpost extends Model
         return $this->morphMany('App\Comment', 'commentable');
     }
 
+    public function commentsCount() {
+        return $this->comments()->count();
+    }
+
     public function likes() {
         return $this->morphMany('App\Like', 'likeable');
+    }
+
+    public function likesCount() {
+        return $this->likes()->count();
     }
 
     public function tags() {

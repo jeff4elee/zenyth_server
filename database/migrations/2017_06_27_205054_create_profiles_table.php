@@ -32,9 +32,6 @@ class CreateProfilesTable extends Migration
             $table->unsignedInteger('picture_id')
                 ->nullable()
                 ->default(null);
-            $table->foreign('picture_id')
-                ->references('id')->on('images')
-                ->onDelete('cascade');
         });
     }
 

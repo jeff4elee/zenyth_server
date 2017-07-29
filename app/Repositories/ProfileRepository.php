@@ -5,8 +5,6 @@ namespace App\Repositories;
 use App\Address;
 use App\Exceptions\Exceptions;
 use App\PhoneNumber;
-use Illuminate\Contracts\Support\Arrayable;
-use Illuminate\Http\Request;
 
 class ProfileRepository extends Repository
 {

@@ -45,6 +45,9 @@ class TagController extends Controller
         $tagName = $request->input('tag');
 
         $tag = $this->tagRepo->findBy('name', $tagName);
+
+        // Get latest pinposts of this tag using eloquent polymorphic
+        // relationship
         $query = $tag->pinposts()->latest()->get();
 
         return Response::dataResponse(true, [

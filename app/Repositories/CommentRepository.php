@@ -50,6 +50,12 @@ class CommentRepository extends Repository
         return $comment;
     }
 
+    /**
+     * Delete an object given the id
+     * @param $request
+     * @param $id
+     * @return bool|null
+     */
     public function delete($request, $id)
     {
         $comment = $this->model->find($id);
@@ -64,6 +70,11 @@ class CommentRepository extends Repository
         return $comment->delete();
     }
 
+    /**
+     * Delete an object if the object is already provided
+     * @param $comment
+     * @return mixed
+     */
     public function remove($comment)
     {
         $images = $comment->images;
