@@ -19,31 +19,6 @@ class PinpostRepository extends Repository
     }
 
     /**
-     * Create a pinpost
-     * @param Request $request
-     * @return mixed
-     */
-    public function create($request)
-    {
-        $entity = $request->get('entity');
-        $user = $request->get('user');
-
-        $pin = $this->model->create([
-            'title' => $request['title'],
-            'description' => $request['description'],
-            'latitude' => (double)$request['latitude'],
-            'longitude' => (double)$request['longitude'],
-            'entity_id' => $entity->id,
-            'creator_id' => $user->id
-        ]);
-
-        if($pin)
-            return $pin;
-        else
-            Exceptions::unknownErrorException(OBJECT_FAIL_TO_CREATE);
-    }
-
-    /**
      * Update a pinpost
      * @param Request $request
      * @param $id

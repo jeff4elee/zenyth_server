@@ -5,8 +5,6 @@ namespace App\Http\Controllers;
 use App\Exceptions\Exceptions;
 use App\Exceptions\ResponseHandler as Response;
 use App\Repositories\CommentRepository;
-use App\Repositories\EntityRepository;
-use App\Repositories\EntitysPictureRepository;
 use App\Repositories\ImageRepository;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -18,54 +16,36 @@ use Illuminate\Http\Request;
 class CommentController extends Controller
 {
     private $commentRepo;
-    private $entityRepo;
     private $imageRepo;
-    private $entitysPictureRepo;
 
     function __construct(CommentRepository $commentRepo,
-                        EntityRepository $entityRepo,
-                        ImageRepository $imageRepo,
-                        EntitysPictureRepository $entitysPictureRepo)
+                        ImageRepository $imageRepo)
     {
         $this->commentRepo = $commentRepo;
         $this->entityRepo = $entityRepo;
         $this->imageRepo = $imageRepo;
-        $this->entitysPictureRepo = $entitysPictureRepo;
     }
 
     /**
      * Create a comment
      * @param Request $request, post request
-     *        rules: requires comment that is not empty and entity_id
      * @return JsonResponse
      */
     public function create(Request $request)
     {
-        $entity = $this->entityRepo->create(new Request());
         $user = $request->get('user');
+        $userId = $user->id;
+        $commentableId = $request->get('commentable_id');
+        $comment = $request->get('comment');
 
-        // Inject user so comment repo can create comment
-        $request->merge([
-            'entity' => $entity,
-            'user' => $user
-        ]);
+        $data = [
+            'user_id' => $userId,
+            'commentable_type' => $this->getCommentableType($request),
+            'comment' => $comment,
+            'commentable_id' => $commentableId
+        ];
 
-        $comment = $this->commentRepo->create($request);
-
-        $comment->entity_id = $entity->id;
-        $comment->on_entity_id = $request->input('on_entity_id');
-        $comment->comment = $request->input('comment');
-
-        if($file = $request->file('image')) {
-            $request->merge(['image_file' => $file]);
-            $image = $this->imageRepo->create($request);
-
-            $request->merge([
-                'image' => $image,
-                'entity' => $entity
-            ]);
-            $this->entitysPictureRepo->create($request);
-        }
+        $comment = $this->commentRepo->create($data);
 
         return Response::dataResponse(true, ['comment' => $comment]);
 
@@ -126,15 +106,22 @@ class CommentController extends Controller
         if ($api_token != $headerToken)
             Exceptions::invalidTokenException(NOT_USERS_OBJECT);
 
-        $entitysPictures = $comment->entity->pictures;
+        $images = $comment->images;
 
-        $request->merge(['directory' => 'images']);
-        foreach($entitysPictures as $entitysPicture) {
-            $this->imageRepo->delete($request, $entitysPicture->image_id);
+        foreach($images as $image) {
+            $this->imageRepo->delete($request, $image);
         }
-        $this->entityRepo->delete($request, $comment->entity_id);
+        $this->commentRepo->delete($request, $comment_id);
 
-        return Response::successResponse();
+        return Response::successResponse(DELETE_SUCCESS);
+    }
+
+    public function getCommentableType(Request $request)
+    {
+        if($request->is('api/pinpost/comment/create'))
+            return 'App\Pinpost';
+
+        return null;
     }
 
 }

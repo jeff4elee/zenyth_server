@@ -30,15 +30,19 @@ class LikeController extends Controller
     public function create(Request $request)
     {
         $user = $request->get('user');
-        $entityId = (int)$request['entity_id'];
+        $likeableId = $request->get('likeable_id');
 
         $likes = $user->likes;
         foreach($likes as $like)
-            if($like->entity_id == $entityId)
+            if($like->imageable_id == $likeableId)
                 Exceptions::invalidRequestException(ALREADY_LIKED_ENTITY);
 
-        $request->merge(['user_id' => $user->id]);
-        $like = $this->likeRepo->create($request);
+        $data = [
+            'likeable_type' => $this->getLikeableType($request),
+            'likeable_id' => $likeableId,
+            'user_id' => $user->id
+        ];
+        $like = $this->likeRepo->create($data);
 
         return Response::dataResponse(true, ['like' => $like]);
     }
@@ -63,6 +67,14 @@ class LikeController extends Controller
 
         $like->delete();
         return Response::successResponse();
+    }
+
+    public function getLikeableType(Request $request)
+    {
+        if($request->is('api/pinpost/like/create'))
+            return 'App\Pinpost';
+
+        return null;
     }
 
 }

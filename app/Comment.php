@@ -6,19 +6,10 @@ use Illuminate\Database\Eloquent\Model;
 
 class Comment extends Model
 {
-    protected $fillable = ['comment', 'on_entity_id', 'entity_id', 'user_id'];
+    protected $fillable = ['comment', 'user_id', 'commentable_id',
+        'commentable_type'];
     protected $table = 'comments';
     public $timestamps = false;
-
-    public function entity()
-    {
-        return $this->belongsTo('App\Entity', 'entity_id');
-    }
-
-    public function on_entity()
-    {
-        return $this->belongsTo('App\Entity', 'on_entity_id');
-    }
 
     public function user()
     {
@@ -28,5 +19,10 @@ class Comment extends Model
     public function images()
     {
         return $this->morphMany('App\Image', 'imageable');
+    }
+
+    public function commentable()
+    {
+        return $this->morphTo();
     }
 }

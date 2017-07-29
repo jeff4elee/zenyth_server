@@ -137,8 +137,7 @@ class DataRules
     {
         return [
             'comment' => 'required|min:1',
-            'on_entity_id' => 'required|numeric',
-            'image' => 'image'
+            'commentable_id' => 'required'
         ];
     }
 

@@ -5,8 +5,6 @@ namespace App\Http\Controllers;
 use App\Exceptions\Exceptions;
 use App\Exceptions\ResponseHandler as Response;
 use App\Http\Controllers\Auth\AuthenticationTrait;
-use App\Repositories\EntityRepository;
-use App\Repositories\ImageableRepository;
 use App\Repositories\ImageRepository;
 use App\Repositories\PinpostRepository;
 use App\Repositories\TaggableRepository;
@@ -23,19 +21,16 @@ class PinpostController extends Controller
     use AuthenticationTrait;
 
     private $pinpostRepo;
-    private $entityRepo;
     private $imageRepo;
     private $taggableRepo;
     private $tagRepo;
 
     public function __construct(PinpostRepository $pinpostRepo,
-                                EntityRepository $entityRepo,
                                 ImageRepository $imageRepo,
                                 TaggableRepository $taggableRepo,
                                 TagRepository $tagRepo)
     {
         $this->pinpostRepo = $pinpostRepo;
-        $this->entityRepo = $entityRepo;
         $this->imageRepo = $imageRepo;
         $this->taggableRepo = $taggableRepo;
         $this->tagRepo = $tagRepo;
@@ -50,11 +45,15 @@ class PinpostController extends Controller
      */
     public function create(Request $request)
     {
-        $entity = $this->entityRepo->create(new Request());
-        // Inject this entity into the request for the pinpost repository to
-        // use
-        $request->merge(['entity' => $entity]);
-        $pin = $this->pinpostRepo->create($request);
+        $user = $request->get('user');
+        $data = [
+            'creator_id' => $user->id,
+            'title' => $request['title'],
+            'description' => $request['description'],
+            'latitude' => (double)$request['latitude'],
+            'longitude' => (double)$request['longitude']
+        ];
+        $pin = $this->pinpostRepo->create($data);
 
         if($request->has('tags')) {
             // Tag must be in the form "tag1,tag2,tag3"
@@ -145,31 +144,16 @@ class PinpostController extends Controller
         if ($api_token != $headerToken)
             Exceptions::invalidTokenException(NOT_USERS_OBJECT);
 
-        $entitysPictures = $pin->entity->pictures;
+        $images = $pin->images;
 
-        $request->merge(['directory' => 'images']);
-        foreach($entitysPictures as $entitysPicture) {
-            $this->imageRepo->delete($request, $entitysPicture->image_id);
+        foreach($images as $image) {
+            $this->imageRepo->delete($request, $image);
         }
-        $this->entityRepo->delete($request, $pin->entity_id);
+        $this->pinpostRepo->delete($request, $pinpost_id);
 
         return Response::successResponse(DELETE_SUCCESS);
     }
 
-    public function uploadImage(Request $request, $pinpost_id)
-    {
-        $user = $request->get('user');
-        $image = $request->file('image');
-        $request->merge([
-            'user_id' => $user->id,
-            'image_file' => $image,
-            'directory' => 'images',
-            'imageable_id' => $pinpost_id,
-            'imageable_type' => 'App\Pinpost'
-        ]);
-        $this->imageRepo->create($request);
-        return Response::successResponse(UPLOAD_SUCCESS);
-    }
 
     /**
      * Fetch all pinposts of friends ordered by latest first

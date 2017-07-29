@@ -86,6 +86,21 @@ class ImageController extends Controller
         }
     }
 
+    public function uploadImage(Request $request, $imageable_id)
+    {
+        $user = $request->get('user');
+        $image = $request->file('image');
+        $request->merge([
+            'user_id' => $user->id,
+            'image_file' => $image,
+            'directory' => $this->getDirectory($request),
+            'imageable_id' => $imageable_id,
+            'imageable_type' => $this->getImageableType($request)
+        ]);
+        $this->imageRepo->create($request);
+        return Response::successResponse(UPLOAD_SUCCESS);
+    }
+
     public function deleteImage(Request $request, $image_id)
     {
         $user = $request->get('user');
@@ -126,6 +141,24 @@ class ImageController extends Controller
         } while ($dup_filename != null);
 
         return $filename;
+    }
+
+    public function getImageableType(Request $request)
+    {
+        if($request->is('api/pinpost/upload_image'))
+        {
+            return 'App\Pinpost';
+        }
+
+        return null;
+    }
+
+    public function getDirectory(Request $request)
+    {
+        if($request->is('api/pinpost/upload_image'))
+            return 'images';
+        else if($request->is('api/profile/upload_image'))
+            return 'profile_pictures';
     }
 
 }

@@ -14,28 +14,6 @@ class CommentRepository extends Repository
 
     /**
      * @param Request $request
-     * @return $this|\Illuminate\Database\Eloquent\Model
-     */
-    public function create($request)
-    {
-        $entity = $request->get('entity');
-        $user = $request->get('user');
-
-        $comment = $this->model->create([
-            'entity_id' => $entity->id,
-            'on_entity_id' => $request['on_entity_id'],
-            'comment' => $request['comment'],
-            'user_id' => $user->id
-        ]);
-
-        if($comment)
-            return $comment;
-        else
-            Exceptions::unknownErrorException(OBJECT_FAIL_TO_CREATE);
-    }
-
-    /**
-     * @param Request $request
      * @param $id
      * @param string $attribute
      * @return mixed
@@ -52,8 +30,7 @@ class CommentRepository extends Repository
         if ($api_token != $headerToken)
             Exceptions::invalidTokenException(NOT_USERS_OBJECT);
 
-        if ($request->has('comment'))
-            $comment->comment = $request['comment'];
+        $comment->comment = $request['comment'];
 
         $comment->update();
         return $comment;
