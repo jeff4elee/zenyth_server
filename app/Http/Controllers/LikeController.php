@@ -4,7 +4,9 @@ namespace App\Http\Controllers;
 
 use App\Exceptions\Exceptions;
 use App\Exceptions\ResponseHandler as Response;
+use App\Repositories\CommentRepository;
 use App\Repositories\LikeRepository;
+use App\Repositories\PinpostRepository;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
@@ -15,10 +17,16 @@ use Illuminate\Http\Request;
 class LikeController extends Controller
 {
     private $likeRepo;
+    private $commentRepo;
+    private $pinpostRepo;
 
-    function __construct(LikeRepository $likeRepo)
+    function __construct(LikeRepository $likeRepo,
+                        PinpostRepository $pinpostRepo,
+                        CommentRepository $commentRepo)
     {
         $this->likeRepo = $likeRepo;
+        $this->commentRepo = $commentRepo;
+        $this->pinpostRepo = $pinpostRepo;
     }
 
     /**
@@ -30,14 +38,20 @@ class LikeController extends Controller
     public function create(Request $request, $likeable_id)
     {
         $user = $request->get('user');
+        $likeableType = $this->getLikeableType($request);
+
+        $exist = $this->likeableExists($likeableType, $likeable_id);
+        if(!$exist)
+            Exceptions::notFoundException(NOT_FOUND);
 
         $likes = $user->likes;
         foreach($likes as $like)
-            if($like->likeable_id == $likeable_id)
+            if($like->likeable_id == $likeable_id
+                && $like->likeable_type == $likeableType)
                 Exceptions::invalidRequestException(ALREADY_LIKED_ENTITY);
 
         $data = [
-            'likeable_type' => $this->getLikeableType($request),
+            'likeable_type' => $likeableType,
             'likeable_id' => $likeable_id,
             'user_id' => $user->id
         ];
@@ -76,6 +90,19 @@ class LikeController extends Controller
             return 'App\Comment';
 
         return null;
+    }
+
+    public function likeableExists($likeableType, $likeableId)
+    {
+        if($likeableType == 'App\Pinpost') {
+            if($this->pinpostRepo->findBy('id', $likeableId))
+                return true;
+        }
+        else if($likeableType == 'App\Comment') {
+            if($this->commentRepo->findBy('id', $likeableId))
+                return true;
+        }
+        return false;
     }
 
 }

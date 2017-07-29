@@ -8,8 +8,8 @@ class Profile extends Model
 {
     public $timestamps = false;
     protected $table = 'profiles';
-    protected $fillable = ['user_id', 'first_name', 'last_name', 'gender', 'birthday', 'image_id'];
-    protected $hidden = ['id', 'image_id'];
+    protected $fillable = ['user_id', 'first_name', 'last_name', 'gender', 'birthday'];
+    protected $hidden = ['id'];
 
     public function user()
     {
@@ -34,8 +34,10 @@ class Profile extends Model
     public function toArray()
     {
         $response = parent::toArray();
-        if($this->image_id)
-            $response['picture'] = $this->profilePicture;
+        $profilePicture = $this->profilePicture;
+        if($profilePicture)
+            $response['picture'] = $profilePicture;
+
         return $response;
     }
 }

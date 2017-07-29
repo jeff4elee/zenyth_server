@@ -15,4 +15,6 @@ interface RepositoryInterface
     public function read($id, $fields = ['*']);
 
     public function findBy($attribute, $value, $columns = ['*']);
+
+    public function remove($model);
 }

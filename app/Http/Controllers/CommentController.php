@@ -6,6 +6,7 @@ use App\Exceptions\Exceptions;
 use App\Exceptions\ResponseHandler as Response;
 use App\Repositories\CommentRepository;
 use App\Repositories\ImageRepository;
+use App\Repositories\PinpostRepository;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
@@ -15,12 +16,15 @@ use Illuminate\Http\Request;
  */
 class CommentController extends Controller
 {
+    private $pinpostRepo;
     private $commentRepo;
     private $imageRepo;
 
-    function __construct(CommentRepository $commentRepo,
-                        ImageRepository $imageRepo)
+    function __construct(PinpostRepository $pinpostRepo,
+                         CommentRepository $commentRepo,
+                         ImageRepository $imageRepo)
     {
+        $this->pinpostRepo = $pinpostRepo;
         $this->commentRepo = $commentRepo;
         $this->imageRepo = $imageRepo;
     }
@@ -35,10 +39,15 @@ class CommentController extends Controller
         $user = $request->get('user');
         $userId = $user->id;
         $comment = $request->get('comment');
+        $commentableType = $this->getCommentableType($request);
+
+        $exist = $this->commentableExists($commentableType, $commentable_id);
+        if(!$exist)
+            Exceptions::notFoundException(NOT_FOUND);
 
         $data = [
             'user_id' => $userId,
-            'commentable_type' => $this->getCommentableType($request),
+            'commentable_type' => $commentableType,
             'comment' => $comment,
             'commentable_id' => $commentable_id
         ];
@@ -105,10 +114,13 @@ class CommentController extends Controller
             Exceptions::invalidTokenException(NOT_USERS_OBJECT);
 
         $images = $comment->images;
+        foreach($images as $image)
+            $this->imageRepo->remove($image);
 
-        foreach($images as $image) {
-            $this->imageRepo->delete($request, $image);
-        }
+        $likes = $comment->likes;
+        foreach($likes as $like)
+            $like->delete();
+
         $this->commentRepo->delete($request, $comment_id);
 
         return Response::successResponse(DELETE_SUCCESS);
@@ -120,6 +132,15 @@ class CommentController extends Controller
             return 'App\Pinpost';
 
         return null;
+    }
+
+    public function commentableExists($commentableType, $commentableId)
+    {
+        if($commentableType == 'App\Pinpost') {
+            if($this->pinpostRepo->findBy('id', $commentableId))
+                return true;
+        }
+        return false;
     }
 
 }

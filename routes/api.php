@@ -24,7 +24,9 @@ Route::group(['middleware' => 'validation'], function() {
         Route::get('user/blocked_users', 'UserController@blockedUsers');
         Route::get('user/friend_requests', 'UserController@getFriendRequests');
 
+
         Route::post('profile/update', 'ProfileController@update');
+        Route::post('profile/profile_picture/upload', 'ProfileController@updateProfilePicture');
 
         Route::post('relationship/friend_request',
             'RelationshipController@friendRequest');
@@ -59,6 +61,7 @@ Route::group(['middleware' => 'validation'], function() {
 
         Route::post('comment/like/create/{likeable_id}', 'LikeController@create');
         Route::post('comment/upload_image/{imageable_id}', 'ImageController@uploadImage');
+        Route::post('comment/update/{comment_id}', 'CommentController@update');
         Route::delete('comment/delete/{comment_id}', 'CommentController@delete');
 
 

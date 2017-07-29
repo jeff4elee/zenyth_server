@@ -128,11 +128,6 @@ class DataRules
         return ['file' => 'image'];
     }
 
-    static public function likeRules()
-    {
-        return ['entity_id' => 'required|numeric'];
-    }
-
     static public function createCommentRules()
     {
         return [

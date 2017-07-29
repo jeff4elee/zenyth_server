@@ -5,7 +5,10 @@ namespace App\Http\Controllers;
 use App\Exceptions\Exceptions;
 use App\Exceptions\ResponseHandler as Response;
 use App\Image;
+use App\Repositories\CommentRepository;
 use App\Repositories\ImageRepository;
+use App\Repositories\PinpostRepository;
+use App\Repositories\UserRepository;
 use GuzzleHttp\Client;
 use Illuminate\Http\Request;
 use Illuminate\Http\UploadedFile;
@@ -20,10 +23,19 @@ use Illuminate\Support\Facades\Storage;
 class ImageController extends Controller
 {
     private $imageRepo;
+    private $pinpostRepo;
+    private $commentRepo;
+    private $userRepo;
 
-    function __construct(ImageRepository $imageRepo)
+    function __construct(ImageRepository $imageRepo,
+                        PinpostRepository $pinpostRepo,
+                        CommentRepository $commentRepo,
+                        UserRepository $userRepo)
     {
         $this->imageRepo = $imageRepo;
+        $this->pinpostRepo = $pinpostRepo;
+        $this->commentRepo = $commentRepo;
+        $this->userRepo = $userRepo;
     }
 
     /**
@@ -90,15 +102,23 @@ class ImageController extends Controller
     {
         $user = $request->get('user');
         $image = $request->file('image');
+        $imageableType = $this->getImageableType($request);
+
+        $exist = $this->imageableExists($imageableType, $imageable_id);
+        if(!$exist)
+            Exceptions::notFoundException(NOT_FOUND);
+
         $request->merge([
             'user_id' => $user->id,
             'image_file' => $image,
             'directory' => $this->getDirectory($request),
             'imageable_id' => $imageable_id,
-            'imageable_type' => $this->getImageableType($request)
+            'imageable_type' => $imageableType
         ]);
-        $this->imageRepo->create($request);
-        return Response::successResponse(UPLOAD_SUCCESS);
+        $image = $this->imageRepo->create($request);
+        return Response::dataResponse(true, [
+            'image' => $image
+        ]);
     }
 
     public function deleteImage(Request $request, $image_id)
@@ -149,8 +169,8 @@ class ImageController extends Controller
             return 'App\Pinpost';
         else if($request->is('api/comment/upload_image/*'))
             return 'App\Comment';
-        else if($request->is('api/profile/upload_image/*'))
-            return 'profile_pictures';
+        else if($request->is('api/profile/profile_picture/*'))
+            return 'App\Profile';
 
         return null;
     }
@@ -161,8 +181,25 @@ class ImageController extends Controller
             return 'images';
         else if($request->is('api/comment/upload_image/*'))
             return 'images';
-        else if($request->is('api/profile/upload_image/*'))
+        else if($request->is('api/profile/profile_picture/*'))
             return 'profile_pictures';
+    }
+
+    public function imageableExists($imageableType, $imageableId)
+    {
+        if($imageableType == 'App\Pinpost') {
+            if($this->pinpostRepo->findBy('id', $imageableId))
+                return true;
+        }
+        else if($imageableType == 'App\Comment') {
+            if($this->commentRepo->findBy('id', $imageableId))
+                return true;
+        }
+        else if($imageableType == 'App\Profile') {
+            if($this->userRepo->findBy('id', $imageableId))
+                return true;
+        }
+        return false;
     }
 
 }

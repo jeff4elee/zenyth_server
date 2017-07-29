@@ -28,9 +28,7 @@ class CreateUsersTable extends Migration
 
             $table->rememberToken();
             $table->dateTime('created_at')
-                ->default(Carbon::now());
-//            $table->dateTime('created_at')
-//                    ->default(DB::raw('CURRENT_TIMESTAMP'));
+                    ->default(DB::raw('CURRENT_TIMESTAMP'));
         });
     }
 

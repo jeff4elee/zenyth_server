@@ -38,11 +38,6 @@ class User extends Model implements Authenticatable
         return $this->hasMany('App\Pinpost', 'user_id');
     }
 
-    public function pinvites()
-    {
-        return $this->hasMany('App\Pinvite', 'creator_id');
-    }
-
     public function likes()
     {
         return $this->hasMany('App\Like', 'user_id');

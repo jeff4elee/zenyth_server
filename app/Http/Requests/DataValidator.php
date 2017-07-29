@@ -28,6 +28,9 @@ class DataValidator
         else if($request->is('api/user/search_user'))
             return Validator::make($request->all(), Rules::searchUserRules());
 
+        else if($request->is('api/profile/profile_picture/upload*'))
+            return Validator::make($request->all(), Rules::uploadImageRules());
+
         else if($request->is('api/pinpost/create'))
             return Validator::make($request->all(), Rules::createPinpostRules());
 
@@ -35,6 +38,15 @@ class DataValidator
             return Validator::make($request->all(), Rules::updatePinpostRules());
 
         else if($request->is('api/pinpost/upload_image'))
+            return Validator::make($request->all(), Rules::uploadImageRules());
+
+        else if($request->is('api/pinpost/comment/create/*'))
+            return Validator::make($request->all(), Rules::createCommentRules());
+
+        else if($request->is('api/comment/update/*'))
+            return Validator::make($request->all(), Rules::updateCommentRules());
+
+        else if($request->is('api/comment/upload_image/*'))
             return Validator::make($request->all(), Rules::uploadImageRules());
 
         else if($request->is('api/pinpost/fetch')) {
@@ -50,21 +62,6 @@ class DataValidator
         }
         else if($request->is('api/tag/search') || $request->is('api/tag/info'))
             return Validator::make($request->all(), Rules::searchTagRules());
-
-        else if($request->is('api/pinvite/create'))
-            return Validator::make($request->all(), Rules::createPinviteRules());
-
-        else if($request->is('api/pinvite/uploadPicture/*'))
-            return Validator::make($request->all(), Rules::pictureRules());
-
-        else if($request->is('api/like/create'))
-            return Validator::make($request->all(), Rules::likeRules());
-
-        else if($request->is('api/comment/create'))
-            return Validator::make($request->all(), Rules::createCommentRules());
-
-        else if($request->is('api/comment/update/*'))
-            return Validator::make($request->all(), Rules::updateCommentRules());
 
         else if($request->is('api/relationship/friend_request'))
             return Validator::make($request->all(), Rules::friendRequestRules());

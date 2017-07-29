@@ -5,7 +5,9 @@ namespace App\Http\Controllers;
 use App\Exceptions\Exceptions;
 use App\Exceptions\ResponseHandler as Response;
 use App\Http\Controllers\Auth\AuthenticationTrait;
+use App\Repositories\CommentRepository;
 use App\Repositories\ImageRepository;
+use App\Repositories\LikeRepository;
 use App\Repositories\PinpostRepository;
 use App\Repositories\TaggableRepository;
 use App\Repositories\TagRepository;
@@ -22,16 +24,22 @@ class PinpostController extends Controller
 
     private $pinpostRepo;
     private $imageRepo;
+    private $commentRepo;
+    private $likeRepo;
     private $taggableRepo;
     private $tagRepo;
 
     public function __construct(PinpostRepository $pinpostRepo,
                                 ImageRepository $imageRepo,
+                                CommentRepository $commentRepo,
+                                LikeRepository $likeRepo,
                                 TaggableRepository $taggableRepo,
                                 TagRepository $tagRepo)
     {
         $this->pinpostRepo = $pinpostRepo;
         $this->imageRepo = $imageRepo;
+        $this->commentRepo = $commentRepo;
+        $this->likeRepo = $likeRepo;
         $this->taggableRepo = $taggableRepo;
         $this->tagRepo = $tagRepo;
     }
@@ -133,22 +141,6 @@ class PinpostController extends Controller
      */
     public function delete(Request $request, $pinpost_id)
     {
-        // Check if pinpost is there
-        $pin = $this->pinpostRepo->read($pinpost_id);
-        if ($pin == null)
-            Exceptions::notFoundException(NOT_FOUND);
-
-        /* Validate if user deleting is the same as the user from the token */
-        $api_token = $pin->creator->api_token;
-        $headerToken = $request->header('Authorization');
-        if ($api_token != $headerToken)
-            Exceptions::invalidTokenException(NOT_USERS_OBJECT);
-
-        $images = $pin->images;
-
-        foreach($images as $image) {
-            $this->imageRepo->delete($request, $image);
-        }
         $this->pinpostRepo->delete($request, $pinpost_id);
 
         return Response::successResponse(DELETE_SUCCESS);

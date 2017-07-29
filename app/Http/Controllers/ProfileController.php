@@ -33,25 +33,39 @@ class ProfileController extends Controller
     public function update(Request $request)
     {
         $user = $request->get('user');
-        $profile = $this->profileRepo->update($request, $user->id, 'user_id');
-
-        if($request->hasFile('image')) {
-            $request->merge([
-                'image_file' => $request->file('image'),
-                'directory' => 'profile_pictures'
-            ]);
-            if($profile->image_id) {
-                $this->imageRepo->update($request, $profile->image_id);
-            }
-            else {
-                $image = $this->imageRepo->create($request);
-                $profile->image_id = $image->id;
-                $profile->update();
-            }
-        }
+        $this->profileRepo->update($request, $user->id, 'user_id');
 
         return Response::dataResponse(true, [
             'user' => $user
+        ]);
+    }
+
+    public function updateProfilePicture(Request $request)
+    {
+        $user = $request->get('user');
+        $profile = $user->profile;
+
+        if($profile->image_id) {
+            $request->merge(['user_id' => $user->id]);
+            $this->imageRepo->delete($request, $profile->image_id);
+        }
+
+        $image = $request->file('image');
+        $request->merge([
+            'user_id' => $user->id,
+            'image_file' => $image,
+            'directory' => 'profile_pictures',
+            'imageable_id' => $profile->id,
+            'imageable_type' => 'App\Profile'
+        ]);
+        $image = $this->imageRepo->create($request);
+
+        $profile->image_id = $image->id;
+        $profile->update();
+
+
+        return Response::dataResponse(true, [
+            'profile' => $profile
         ]);
     }
 

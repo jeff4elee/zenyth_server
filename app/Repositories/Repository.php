@@ -109,6 +109,11 @@ abstract class Repository implements RepositoryInterface
         return $this->model->destroy($id);
     }
 
+    public function remove($model)
+    {
+        return $model->delete();
+    }
+
     /**
      * Read data from a model's object
      * @param $id

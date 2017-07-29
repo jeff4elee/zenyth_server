@@ -5,10 +5,26 @@ namespace App\Repositories;
 use App\Exceptions\Exceptions;
 use Illuminate\Container\Container as App;
 use Illuminate\Http\Request;
+use Illuminate\Support\Collection;
 
 class PinpostRepository extends Repository
                         implements PinpostRepositoryInterface
 {
+    private $imageRepo;
+    private $commentRepo;
+    private $likeRepo;
+
+    public function __construct(App $app, Collection $collection,
+                                ImageRepository $imageRepo,
+                                CommentRepository $commentRepo,
+                                LikeRepository $likeRepo)
+    {
+        parent::__construct($app, $collection);
+        $this->imageRepo = $imageRepo;
+        $this->commentRepo = $commentRepo;
+        $this->likeRepo = $likeRepo;
+    }
+
     /**
      * Specify Model class name
      * @return mixed
@@ -51,6 +67,33 @@ class PinpostRepository extends Repository
 
         $pin->update();
         return $pin;
+    }
+
+    public function delete($request, $id)
+    {
+        $pin = $this->model->find($id);
+        if ($pin == null)
+            Exceptions::notFoundException(NOT_FOUND);
+
+        /* Validate if user deleting is the same as the user from the token */
+        $api_token = $pin->creator->api_token;
+        $headerToken = $request->header('Authorization');
+        if ($api_token != $headerToken)
+            Exceptions::invalidTokenException(NOT_USERS_OBJECT);
+
+        $images = $pin->images;
+        foreach($images as $image)
+            $this->imageRepo->remove($image);
+
+        $comments = $pin->comments;
+        foreach($comments as $comment)
+            $this->commentRepo->remove($comment);
+
+        $likes = $pin->likes;
+        foreach($likes as $like)
+            $this->likeRepo->remove($like);
+
+        return $pin->delete();
     }
 
     /**
