@@ -145,19 +145,23 @@ class ImageController extends Controller
 
     public function getImageableType(Request $request)
     {
-        if($request->is('api/pinpost/upload_image'))
-        {
+        if($request->is('api/pinpost/upload_image/*'))
             return 'App\Pinpost';
-        }
+        else if($request->is('api/comment/upload_image/*'))
+            return 'App\Comment';
+        else if($request->is('api/profile/upload_image/*'))
+            return 'profile_pictures';
 
         return null;
     }
 
     public function getDirectory(Request $request)
     {
-        if($request->is('api/pinpost/upload_image'))
+        if($request->is('api/pinpost/upload_image/*'))
             return 'images';
-        else if($request->is('api/profile/upload_image'))
+        else if($request->is('api/comment/upload_image/*'))
+            return 'images';
+        else if($request->is('api/profile/upload_image/*'))
             return 'profile_pictures';
     }
 

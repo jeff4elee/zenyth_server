@@ -15,11 +15,6 @@ class CreatePinpostsTable extends Migration
     {
         Schema::create('pinposts', function (Blueprint $table) {
             $table->increments('id');
-            $table->unsignedInteger('entity_id');
-            $table->foreign('entity_id')
-                ->references('id')->on('entities')
-                ->onDelete('cascade');
-            $table->unique('entity_id');
             $table->string('title');
             $table->text('description');
             $table->double('latitude');

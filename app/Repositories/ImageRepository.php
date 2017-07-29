@@ -33,7 +33,13 @@ class ImageRepository extends Repository
         $imageableType = $request->get('imageable_type');
         $userId = $request->get('user_id');
 
-        $image = $this->model->create([]);
+        $image = $this->model->create([
+            'user_id' => $userId,
+            'filename' => 'temporary',
+            'imageable_type' => $imageableType,
+            'imageable_id' => $imageableId,
+            'directory' => $directory
+        ]);
 
         if($request->has('image_file')) {
             $imageFile = $request->get('image_file');
@@ -53,13 +59,7 @@ class ImageRepository extends Repository
                 $filename = ImageController::storeImageByUrl($url, $image);
         }
 
-        $image->update([
-            'user_id' => $userId,
-            'filename' => $filename,
-            'imageable_type' => $imageableType,
-            'imageable_id' => $imageableId,
-            'directory' => $directory
-        ]);
+        $image->update(['filename' => $filename]);
         return $image;
     }
 

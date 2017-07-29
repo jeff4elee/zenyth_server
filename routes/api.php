@@ -8,7 +8,6 @@ Route::get('email_taken/{email}', 'Auth\RegisterController@emailTaken');
 Route::get('username_taken/{username}', 'Auth\RegisterController@usernameTaken');
 Route::get('comment/read/{comment_id}', 'CommentController@read');
 Route::get('pinpost/read/{pinpost_id}', 'PinpostController@read');
-Route::get('pinvite/read/{pinvite_id}', 'PinviteController@read');
 
 Route::get('relationship/is_friend/{user1_id}/{user2_id}',
     'RelationshipController@isFriend');
@@ -52,16 +51,18 @@ Route::group(['middleware' => 'validation'], function() {
         Route::delete('pinpost/delete/{pinpost_id}', 'PinpostController@delete');
         Route::get('pinpost/comment/create', 'CommentController@create');
         Route::get('pinpost/fetch', 'PinpostController@fetch');
+
         Route::post('pinpost/upload_image/{imageable_id}', 'ImageController@uploadImage');
-        Route::post('pinpost/like/create', 'LikeController@create');
+        Route::post('pinpost/like/create/{likeable_id}', 'LikeController@create');
+        Route::post('pinpost/comment/create/{commentable_id}', 'CommentController@create');
 
 
-        Route::post('comment/create', 'CommentController@create');
-        Route::post('comment/update/{comment_id}', 'CommentController@update');
+        Route::post('comment/like/create/{likeable_id}', 'LikeController@create');
+        Route::post('comment/upload_image/{imageable_id}', 'ImageController@uploadImage');
         Route::delete('comment/delete/{comment_id}', 'CommentController@delete');
 
-        Route::post('like/create', 'LikeController@create');
-        Route::delete('like/delete/{entity_id}', 'LikeController@delete');
+
+        Route::delete('like/delete/{likeid}', 'LikeController@delete');
 
         Route::delete('image/delete/{image_id}', 'ImageController@deleteImage');
     });

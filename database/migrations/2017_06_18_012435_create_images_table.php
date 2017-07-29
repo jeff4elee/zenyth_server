@@ -19,7 +19,7 @@ class CreateImagesTable extends Migration
             $table->unsignedInteger('user_id')->nullable();
             $table->foreign('user_id')
                 ->references('id')->on('users');
-            $table->string('filename', 37);
+            $table->string('filename');
             $table->unsignedInteger('imageable_id');
             $table->string('imageable_type', 30);
             $table->string('directory');

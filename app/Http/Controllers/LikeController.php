@@ -27,19 +27,18 @@ class LikeController extends Controller
      *        rules: requires entity_id
      * @return JsonResponse
      */
-    public function create(Request $request)
+    public function create(Request $request, $likeable_id)
     {
         $user = $request->get('user');
-        $likeableId = $request->get('likeable_id');
 
         $likes = $user->likes;
         foreach($likes as $like)
-            if($like->imageable_id == $likeableId)
+            if($like->likeable_id == $likeable_id)
                 Exceptions::invalidRequestException(ALREADY_LIKED_ENTITY);
 
         $data = [
             'likeable_type' => $this->getLikeableType($request),
-            'likeable_id' => $likeableId,
+            'likeable_id' => $likeable_id,
             'user_id' => $user->id
         ];
         $like = $this->likeRepo->create($data);
@@ -71,8 +70,10 @@ class LikeController extends Controller
 
     public function getLikeableType(Request $request)
     {
-        if($request->is('api/pinpost/like/create'))
+        if($request->is('api/pinpost/like/create/*'))
             return 'App\Pinpost';
+        if($request->is('api/comment/like/create/*'))
+            return 'App\Comment';
 
         return null;
     }

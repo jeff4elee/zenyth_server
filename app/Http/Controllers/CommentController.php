@@ -22,7 +22,6 @@ class CommentController extends Controller
                         ImageRepository $imageRepo)
     {
         $this->commentRepo = $commentRepo;
-        $this->entityRepo = $entityRepo;
         $this->imageRepo = $imageRepo;
     }
 
@@ -31,18 +30,17 @@ class CommentController extends Controller
      * @param Request $request, post request
      * @return JsonResponse
      */
-    public function create(Request $request)
+    public function create(Request $request, $commentable_id)
     {
         $user = $request->get('user');
         $userId = $user->id;
-        $commentableId = $request->get('commentable_id');
         $comment = $request->get('comment');
 
         $data = [
             'user_id' => $userId,
             'commentable_type' => $this->getCommentableType($request),
             'comment' => $comment,
-            'commentable_id' => $commentableId
+            'commentable_id' => $commentable_id
         ];
 
         $comment = $this->commentRepo->create($data);
@@ -118,7 +116,7 @@ class CommentController extends Controller
 
     public function getCommentableType(Request $request)
     {
-        if($request->is('api/pinpost/comment/create'))
+        if($request->is('api/pinpost/comment/create/*'))
             return 'App\Pinpost';
 
         return null;

@@ -29,11 +29,6 @@ class CreateProfilesTable extends Migration
                 ->default(null);
             $table->date('birthday')->nullable()
                 ->default(null);
-            $table->unsignedInteger('image_id')
-                ->nullable()->default(null);
-            $table->foreign('image_id')
-                ->references('id')->on('images')
-                ->onDelete('cascade');
         });
     }
 

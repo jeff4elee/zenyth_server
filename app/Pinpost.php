@@ -37,6 +37,13 @@ class Pinpost extends Model
         $response = parent::toArray();
         $response['creator'] = $this->creator;
         $response['tags'] = $this->tags;
+        $response['images'] = $this->images->makeHidden([
+            'id', 'imageable_id', 'imageable_type', 'user_id'
+        ]);
+        $response['likes'] = $this->likes->makeHidden([
+            'id', ''
+        ]);
+        $response['comments'] = $this->comments;
         return $response;
     }
 }
