@@ -50,42 +50,4 @@ class CommentRepository extends Repository
         return $comment;
     }
 
-    /**
-     * Delete an object given the id
-     * @param $request
-     * @param $id
-     * @return bool|null
-     */
-    public function delete($request, $id)
-    {
-        $comment = $this->model->find($id);
-        $images = $comment->images;
-        foreach($images as $image)
-            $this->imageRepo->remove($image);
-
-        $likes = $comment->likes;
-        foreach($likes as $like)
-            $this->likeRepo->remove($like);
-
-        return $comment->delete();
-    }
-
-    /**
-     * Delete an object if the object is already provided
-     * @param $comment
-     * @return mixed
-     */
-    public function remove($comment)
-    {
-        $images = $comment->images;
-        foreach($images as $image)
-            $this->imageRepo->remove($image);
-
-        $likes = $comment->likes;
-        foreach($likes as $like)
-            $this->likeRepo->remove($like);
-
-        return $comment->delete();
-    }
-
 }

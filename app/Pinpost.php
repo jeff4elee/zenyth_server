@@ -12,6 +12,21 @@ class Pinpost extends Model
     protected $hidden = ['thumbnail_id', 'creator_id'];
     protected $table = 'pinposts';
 
+    protected static function boot()
+    {
+        parent::boot();
+        Pinpost::deleting(function($pinpost) {
+            foreach($pinpost->comments as $comment)
+                $comment->delete();
+
+            foreach($pinpost->images as $image)
+                $image->delete();
+
+            foreach($pinpost->likes as $like)
+                $like->delete();
+        });
+    }
+
     public function creator() {
         return $this->belongsTo('App\User', 'creator_id');
     }

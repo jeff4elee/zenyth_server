@@ -69,34 +69,6 @@ class PinpostRepository extends Repository
         return $pin;
     }
 
-    public function delete($request, $id)
-    {
-        $pin = $this->model->find($id);
-        if ($pin == null)
-            Exceptions::notFoundException(NOT_FOUND);
-
-        /* Validate if user deleting is the same as the user from the token */
-        $api_token = $pin->creator->api_token;
-        $headerToken = $request->header('Authorization');
-        if ($api_token != $headerToken)
-            Exceptions::invalidTokenException(NOT_USERS_OBJECT);
-
-        // Handle cascade
-        $images = $pin->images;
-        foreach($images as $image)
-            $this->imageRepo->remove($image);
-
-        $comments = $pin->comments;
-        foreach($comments as $comment)
-            $this->commentRepo->remove($comment);
-
-        $likes = $pin->likes;
-        foreach($likes as $like)
-            $this->likeRepo->remove($like);
-
-        return $pin->delete();
-    }
-
     /**
      * Get all pinposts in a rectangular box
      * @param $areaData , contain keys [top_left, bottom_right]

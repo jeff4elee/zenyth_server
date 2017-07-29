@@ -88,9 +88,9 @@ class ProfileController extends Controller
         $profile = $this->profileRepo->findBy('user_id', $user_id);
         if($profile) {
             $image = $profile->profilePicture;
-            if ($image == null) {
+            if ($image == null)
                 Exceptions::notFoundException('User does not have a profile picture');
-            }
+
             $filename = $image->filename;
             $path = 'app/profile_pictures/' . $filename;
             return Response::rawImageResponse($path);

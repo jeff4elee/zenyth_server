@@ -2,7 +2,11 @@
 
 namespace App\Providers;
 
+use App\Comment;
+use App\Image;
+use App\Pinpost;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Facades\Validator;
 
@@ -44,6 +48,7 @@ class AppServiceProvider extends ServiceProvider
 
             return true;
         });
+
     }
 
     /**

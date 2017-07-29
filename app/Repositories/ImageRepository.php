@@ -80,22 +80,7 @@ class ImageRepository extends Repository
         if($image->user_id != $userId)
             Exceptions::invalidTokenException(NOT_USERS_OBJECT);
 
-        $directory = $image->directory;
-        // Remove from storage
-        Storage::disk($directory)->delete($image->filename);
         return $image->delete();
     }
 
-    /**
-     * Delete an image if it's given
-     * @param $image
-     * @return mixed
-     */
-    public function remove($image)
-    {
-        $directory = $image->directory;
-        // Remove from storage
-        Storage::disk($directory)->delete($image->filename);
-        return $image->delete();
-    }
 }

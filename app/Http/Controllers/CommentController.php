@@ -115,7 +115,7 @@ class CommentController extends Controller
         if ($api_token != $headerToken)
             Exceptions::invalidTokenException(NOT_USERS_OBJECT);
 
-        $this->commentRepo->remove($comment);
+        $comment->delete();
 
         return Response::successResponse(DELETE_SUCCESS);
     }

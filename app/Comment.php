@@ -12,6 +12,18 @@ class Comment extends Model
     protected $table = 'comments';
     public $timestamps = false;
 
+    protected static function boot()
+    {
+        parent::boot();
+        Comment::deleting(function($comment) {
+            foreach($comment->images as $image)
+                $image->delete();
+
+            foreach($comment->likes as $like)
+                $like->delete();
+        });
+    }
+
     public function user()
     {
         return $this->belongsTo('App\User', 'user_id');

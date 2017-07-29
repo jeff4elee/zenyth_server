@@ -144,7 +144,14 @@ class PinpostController extends Controller
      */
     public function delete(Request $request, $pinpost_id)
     {
-        $this->pinpostRepo->delete($request, $pinpost_id);
+        $pin = $this->pinpostRepo->read($pinpost_id);
+        // Validate if user deleting is the same as the user from the token
+        $api_token = $pin->creator->api_token;
+        $headerToken = $request->header('Authorization');
+        if ($api_token != $headerToken)
+            Exceptions::invalidTokenException(NOT_USERS_OBJECT);
+
+        $pin->delete();
 
         return Response::successResponse(DELETE_SUCCESS);
     }
