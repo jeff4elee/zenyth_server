@@ -3,9 +3,8 @@
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
-use Carbon\Carbon;
 
-class CreateEntitysPicturesTable extends Migration
+class CreateRepliesTable extends Migration
 {
     /**
      * Run the migrations.
@@ -14,15 +13,17 @@ class CreateEntitysPicturesTable extends Migration
      */
     public function up()
     {
-        Schema::create('entitys_pictures', function (Blueprint $table) {
+        Schema::create('replies', function (Blueprint $table) {
             $table->increments('id');
-            $table->unsignedInteger('entity_id')
-                ->references('id')->on('entities')
+            $table->text('text');
+            $table->unsignedInteger('comment_id')
+                ->reference('id')->on('comments')
                 ->onDelete('cascade');
-            $table->unsignedInteger('image_id')
-                ->references('id')->on('images')
+            $table->unsignedInteger('user_id');
+            $table->foreign('user_id')
+                ->references('id')->on('users')
                 ->onDelete('cascade');
-            $table->timestamp('posted_on')
+            $table->timestamp('updated_at')
                 ->default(DB::raw('CURRENT_TIMESTAMP'));
         });
     }
@@ -34,6 +35,6 @@ class CreateEntitysPicturesTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('entitys_pictures');
+        Schema::dropIfExists('replies');
     }
 }

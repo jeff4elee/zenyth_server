@@ -2,7 +2,6 @@
 
 namespace App\Http\Traits;
 
-use App\Profile;
 use App\Relationship;
 use App\User;
 

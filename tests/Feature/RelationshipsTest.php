@@ -21,8 +21,11 @@ class RelationshipsTest extends TestCase
     public function testFriendRequest()
     {
 
-        $user_one = factory('App\User')->create();
-        $user_two = factory('App\User')->create();
+        $profile_one = factory('App\Profile')->create();
+        $profile_two = factory('App\Profile')->create();
+
+        $user_one = User::find($profile_one->user_id);
+        $user_two = User::find($profile_two->user_id);
 
         $response = $this->json('POST', '/api/relationship/friend_request', [
             'requestee_id' => $user_two->id
@@ -43,8 +46,10 @@ class RelationshipsTest extends TestCase
                                                          'status' => false,
                                                          'blocked' => false]);
 
-        $response = $this->json('POST', '/api/relationship/response/' . $relationship->requester, ['status'=>true],
-            ['Authorization' => 'bearer ' . User::find($relationship->requestee)->api_token]);
+        $response = $this->json('POST', '/api/relationship/response/' .
+            $relationship->requester, ['status'=>true],
+            ['Authorization' => 'bearer ' .
+                User::find($relationship->requestee)->api_token]);
 
         $this->assertDatabaseHas('relationships', ['requester' => $relationship->requester,
                                                          'requestee' => $relationship->requestee,
@@ -64,8 +69,10 @@ class RelationshipsTest extends TestCase
             'requestee' => $relationship->requestee,
             'status' => false, 'blocked' => false]);
 
-        $response = $this->json('POST', '/api/relationship/response/' . $relationship->requester, ['status'=>false],
-            ['Authorization' => 'bearer ' . User::find($relationship->requestee)->api_token]);
+        $response = $this->json('POST', '/api/relationship/response/' .
+            $relationship->requester, ['status'=>false],
+            ['Authorization' => 'bearer ' .
+                User::find($relationship->requestee)->api_token]);
 
         $this->assertDatabaseMissing('relationships', ['requester' => $relationship->requester,
             'requestee' => $relationship->requestee]);
@@ -119,6 +126,31 @@ class RelationshipsTest extends TestCase
             'requestee' => $relationship->requestee, 'status' => false, 'blocked' => true]);
 
     }
-    
+
+    public function testIsFriend()
+    {
+        $relationship = factory('App\Relationship')->create();
+
+        $response = $this->json('GET', '/api/relationship/is_friend/'
+        . $relationship->requester . '/' . $relationship->requestee);
+
+        $response->assertJson([
+            'success' => true,
+            'data' => [
+                'is_friend' => true
+            ]
+        ]);
+
+        $user = factory('App\User')->create();
+        $response = $this->json('GET', '/api/relationship/is_friend/'
+            . $relationship->requester . '/' . $user->id);
+
+        $response->assertJson([
+            'success' => true,
+            'data' => [
+                'is_friend' => false
+            ]
+        ]);
+    }
 
 }

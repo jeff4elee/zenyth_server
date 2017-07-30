@@ -2,24 +2,30 @@
 
 namespace App\Http\Controllers\Auth;
 
+use App\Exceptions\Exceptions;
 use App\Exceptions\ResponseHandler as Response;
+use App\Http\Controllers\Controller;
 use App\Http\Controllers\ImageController;
 use App\Profile;
-use App\User;
+use App\Repositories\UserRepository;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
-class OauthController extends RegisterController
+class OauthController extends Controller
 {
     use AuthenticationTrait;
-    protected $mergeGoogle = 'A Google account with the same email has already been created. Do you want to merge?';
-    protected $mergeFacebook = 'A Facebook account with the same email has already been created. Do you want to merge?';
-    protected $mergeAccount = 'An account with the same email has already been created. Do you want to merge?';
+
+    private $userRepo;
+
+    function __construct(UserRepository $userRepo)
+    {
+        $this->userRepo = $userRepo;
+    }
 
     /**
-     * Logs the user in with oauth
-     *
+     * Log the user in with oauth
      * @param Request $request
-     * @return \Illuminate\Contracts\Routing\ResponseFactory|\Symfony\Component\HttpFoundation\Response
+     * @return JsonResponse
      */
     public function oauthLogin(Request $request)
     {
@@ -28,8 +34,9 @@ class OauthController extends RegisterController
         $json = $request['json'];
 
         // Gets user with the same email
-        $user = User::where('email', '=', $email)->first();
-        if($user != null) {
+        $user = $this->userRepo->findBy('email', $email);
+
+        if($user) {
             $oauth = $user->oauth;
             $profile = $user->profile;
             $data = [
@@ -39,20 +46,20 @@ class OauthController extends RegisterController
             ];
             return $this->processOauth($oauth_type, $profile, $json, $oauth, $data, $request);
         }
-
+        else
+            Exceptions::invalidParameterException(INVALID_EMAIL);
     }
 
 
     /**
-     * Processes an oauth request
-     *
+     * Process an oauth request
      * @param $oauth_type
      * @param $profile
      * @param $json
      * @param $oauth
      * @param $data
      * @param $request
-     * @return \Illuminate\Contracts\Routing\ResponseFactory|\Symfony\Component\HttpFoundation\Response
+     * @return JsonResponse
      */
     public function processOauth($oauth_type, $profile, $json, $oauth, $data, $request) {
         // Previously logged in with google but now logging in with facebook
@@ -62,9 +69,10 @@ class OauthController extends RegisterController
                 // merges to facebook account
                 $oauth->setFacebook(true);
                 $this->mergeInformation($profile, $json, $oauth_type);
-                return Response::dataResponse(true, $data, 'Successfully merged account');
+                return Response::dataResponse(true, $data);
             }
-            return Response::dataResponse(false, ['mergeable' => true], $this->mergeGoogle);
+            return Response::dataResponse(false, ['mergeable' => true],
+                MERGE_GOOGLE);
         }
         // Previously logged in with facebook but now logging in with google
         else if($oauth_type == 'google' &&
@@ -73,9 +81,10 @@ class OauthController extends RegisterController
                 // merges to google account
                 $oauth->setGoogle(true);
                 $this->mergeInformation($profile, $json, $oauth_type);
-                return Response::dataResponse(true, $data, 'Successfully merged account');
+                return Response::dataResponse(true, $data);
             }
-            return Response::dataResponse(false, ['mergeable' => true], $this->mergeFacebook);
+            return Response::dataResponse(false, ['mergeable' => true],
+                MERGE_FACEBOOK);
         }
 
         // Previously created an account on the app but now logging in through oauth
@@ -87,18 +96,18 @@ class OauthController extends RegisterController
                     $oauth->setFacebook(true);
 
                 $this->mergeInformation($profile, $json, $oauth_type);
-                return Response::dataResponse(true, $data, 'Successfully merged account');
+                return Response::dataResponse(true, $data);
             }
-            return Response::dataResponse(false, ['mergeable' => true], $this->mergeAccount);
+            return Response::dataResponse(false, ['mergeable' => true],
+                MERGE_ACCOUNT);
         }
         else {
-            return Response::dataResponse(true, $data, 'Successfully logged in');
+            return Response::dataResponse(true, $data);
         }
     }
 
     /**
-     * Merges information when logged in with oauth
-     *
+     * Merge information when logged in with oauth
      * @param Profile $profile
      * @param $json
      * @param $oauth_type
