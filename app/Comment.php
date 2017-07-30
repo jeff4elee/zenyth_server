@@ -8,7 +8,7 @@ class Comment extends Model
 {
     protected $fillable = ['comment', 'user_id', 'commentable_id',
         'commentable_type'];
-    protected $hidden = ['commentable_type', 'id'];
+    protected $hidden = ['commentable_type'];
     protected $table = 'comments';
     public $timestamps = false;
 
@@ -57,14 +57,5 @@ class Comment extends Model
     public function likesCount()
     {
         return $this->likes()->count();
-    }
-
-    public function toArray()
-    {
-        $response = parent::toArray();
-        $response['user'] = $this->creator;
-        $response['likes'] = $this->likes;
-        $response['images'] = $this->images;
-        return $response;
     }
 }

@@ -84,7 +84,7 @@ class ReplyController extends Controller
         if ($reply == null)
             Exceptions::notFoundException(NOT_FOUND);
 
-        $api_token = $reply->user->api_token;
+        $api_token = $reply->creator->api_token;
         $headerToken = $request->header('Authorization');
 
         if ($api_token != $headerToken)
@@ -108,7 +108,7 @@ class ReplyController extends Controller
             Exceptions::notFoundException(NOT_FOUND);
 
         // Validate if user deleting is the same as the user from the token
-        $api_token = $reply->user->api_token;
+        $api_token = $reply->creator->api_token;
         $headerToken = $request->header('Authorization');
         if ($api_token != $headerToken)
             Exceptions::invalidTokenException(NOT_USERS_OBJECT);

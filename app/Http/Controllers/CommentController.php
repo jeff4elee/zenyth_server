@@ -90,7 +90,7 @@ class CommentController extends Controller
         if ($comment == null)
             Exceptions::notFoundException(NOT_FOUND);
 
-        $api_token = $comment->user->api_token;
+        $api_token = $comment->creator->api_token;
         $headerToken = $request->header('Authorization');
 
         if ($api_token != $headerToken)
@@ -114,7 +114,7 @@ class CommentController extends Controller
             Exceptions::notFoundException(NOT_FOUND);
 
         // Validate if user deleting is the same as the user from the token
-        $api_token = $comment->user->api_token;
+        $api_token = $comment->creator->api_token;
         $headerToken = $request->header('Authorization');
         if ($api_token != $headerToken)
             Exceptions::invalidTokenException(NOT_USERS_OBJECT);

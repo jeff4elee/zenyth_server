@@ -118,7 +118,9 @@ class PinpostController extends Controller
         if ($pin == null)
             Exceptions::notFoundException(NOT_FOUND);
 
-        return Response::dataResponse(true, ['pinpost' => $pin]);
+        return Response::dataResponse(true, [
+            'pinpost' => $pin->with(['creator.profile'])
+        ]);
     }
 
     /**
