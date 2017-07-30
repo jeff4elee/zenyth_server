@@ -20,7 +20,6 @@ trait AuthenticationTrait
 
     /**
      * Generate a unique api token
-     *
      * @return string
      */
     public function generateApiToken()
@@ -69,9 +68,12 @@ trait AuthenticationTrait
         }
         $access_token = $this->stripBearerFromToken($access_token);
 
-        $client = new Client();
-
+        // Make the oauth_type case insensitive
         $oauth_type = strtolower($request['oauth_type']);
+
+        // Create a client for making a request to facebook/google api to
+        // validate the access token
+        $client = new Client();
         $res = null;
 
         if ($oauth_type == "facebook")
@@ -82,6 +84,7 @@ trait AuthenticationTrait
         if ($res == null)
             Exceptions::invalidRequestException(REQUEST_NO_RESPONSE);
 
+        // Get json response back in an array
         $json = json_decode($res->getBody()->getContents(), true);
         return $json;
 
