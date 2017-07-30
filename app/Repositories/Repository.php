@@ -56,19 +56,7 @@ abstract class Repository implements RepositoryInterface
      */
     public function create($request)
     {
-        $columns = $this->model->getConnection()->getSchemaBuilder()
-            ->getColumnListing($this->model->getTable());
-
-        if($request instanceof Request)
-            $data = $request->all();
-        else
-            $data = $request;
-
-        // Filter out the keys in the request that aren't part of the
-        // columns
-        $filteredData = array_filter($data, function($field) use ($columns) {
-            return in_array($field, $columns);
-        }, ARRAY_FILTER_USE_KEY);
+        $filteredData = $this->filterData($request);
 
         return $this->model->create($filteredData);
     }
@@ -76,47 +64,38 @@ abstract class Repository implements RepositoryInterface
     /**
      * Update a model's object
      * @param $request
-     * @param $id
+     * @param $model, id|eloquent model
+     * @param $attribute
      * @return mixed
      */
-    public function update($request, $id, $attribute = 'id')
+    public function update($request, $model = null, $attribute = 'id')
     {
-        $columns = $this->model->getConnection()->getSchemaBuilder()
-            ->getColumnListing($this->model->getTable());
+        $filteredData = $this->filterData($request);
 
-        if($request instanceof Request)
-            $data = $request->all();
+        if($model instanceof Model)
+            return $model->update($filteredData);
+        else if($model != null)
+            return $this->model->where($attribute, '=', $model)->update
+            ($filteredData);
         else
-            $data = $request;
-
-        // Filter out the keys in the request that aren't part of the
-        // columns
-        $filteredData = array_filter($data, function($field) use ($columns) {
-            return in_array($field, $columns);
-        }, ARRAY_FILTER_USE_KEY);
-
-        return $this->model->where($attribute, '=', $id)->update($filteredData);
+            Exceptions::invalidParameterException(EITHER_MODEL_OR_ID);
     }
 
     /**
      * Delete a model's object
-     * @param $request
-     * @param $id
+     * @param $model, id|eloquent model
      * @return mixed
      */
-    public function delete($request, $id)
+    public function delete($model = null)
     {
-        return $this->model->destroy($id);
-    }
-
-    /**
-     * Delete an object if it's already given
-     * @param $model
-     * @return mixed
-     */
-    public function remove($model)
-    {
-        return $model->delete();
+        if($model instanceof Model)
+            return $model->delete();
+        else if($model != null) {
+            $model = $this->model->find($model);
+            return $model->delete();
+        }
+        else
+            Exceptions::invalidParameterException(EITHER_MODEL_OR_ID);
     }
 
     /**
@@ -253,6 +232,25 @@ abstract class Repository implements RepositoryInterface
     {
         $this->makeModel();
         return $this;
+    }
+
+    public function filterData($request)
+    {
+        $columns = $this->model->getConnection()->getSchemaBuilder()
+            ->getColumnListing($this->model->getTable());
+
+        if($request instanceof Request)
+            $data = $request->all();
+        else
+            $data = $request;
+
+        // Filter out the keys in the request that aren't part of the
+        // columns
+        $filteredData = array_filter($data, function($field) use ($columns) {
+            return in_array($field, $columns);
+        }, ARRAY_FILTER_USE_KEY);
+
+        return $filteredData;
     }
 
 }

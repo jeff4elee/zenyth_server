@@ -63,24 +63,4 @@ class ImageRepository extends Repository
         return $image;
     }
 
-    /**
-     * Delete an image
-     * @param $request
-     * @param $id
-     * @return mixed
-     */
-    public function delete($request, $id)
-    {
-        $image = $this->model->where('id', '=', $id)->first();
-        $userId = $request->get('user_id');
-
-        if(!$image)
-            Exceptions::notFoundException(NOT_FOUND);
-
-        if($image->user_id != $userId)
-            Exceptions::invalidTokenException(NOT_USERS_OBJECT);
-
-        return $image->delete();
-    }
-
 }

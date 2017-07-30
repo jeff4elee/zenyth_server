@@ -129,7 +129,21 @@ class PinpostController extends Controller
      */
     public function update(Request $request, $pinpost_id)
     {
-        $pin = $this->pinpostRepo->update($request, $pinpost_id);
+        $pin = $this->pinpostRepo->read($pinpost_id);
+
+        if (!$pin)
+            Exceptions::notFoundException(NOT_FOUND);
+
+        // Check if pinpost being updated belongs to the user making the
+        // request
+        $api_token = $pin->creator->api_token;
+        $headerToken = $request->header('Authorization');
+
+        if ($api_token != $headerToken)
+            Exceptions::invalidTokenException(NOT_USERS_OBJECT);
+
+        $this->pinpostRepo->update($request, $pin);
+
         return Response::dataResponse(true, ['pinpost' => $pin]);
     }
 
@@ -148,7 +162,7 @@ class PinpostController extends Controller
         if ($api_token != $headerToken)
             Exceptions::invalidTokenException(NOT_USERS_OBJECT);
 
-        $pin->delete();
+        $this->pinpostRepo->delete($pin);
 
         return Response::successResponse(DELETE_SUCCESS);
     }

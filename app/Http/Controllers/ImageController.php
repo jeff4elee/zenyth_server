@@ -145,8 +145,15 @@ class ImageController extends Controller
     public function deleteImage(Request $request, $image_id)
     {
         $user = $request->get('user');
-        $request->merge(['user_id', $user->id]);
-        $this->imageRepo->delete($request, $image_id);
+        $image = $this->imageRepo->read($image_id);
+        if(!$image)
+            Exceptions::notFoundException(NOT_FOUND);
+
+        $userId = $user->id;
+        if($image->user_id != $userId)
+            Exceptions::invalidTokenException(NOT_USERS_OBJECT);
+
+        $this->imageRepo->delete($image);
         return Response::successResponse(DELETE_SUCCESS);
     }
 
@@ -232,19 +239,19 @@ class ImageController extends Controller
     public function imageableExists($imageableType, $imageableId)
     {
         if($imageableType == 'App\Pinpost')
-            if($this->pinpostRepo->findBy('id', $imageableId))
+            if($this->pinpostRepo->read($imageableId))
                 return true;
 
-        else if($imageableType == 'App\Comment')
-            if($this->commentRepo->findBy('id', $imageableId))
+        if($imageableType == 'App\Comment')
+            if ($this->commentRepo->read($imageableId))
                 return true;
 
-        else if($imageableType == 'App\Profile')
-            if($this->userRepo->findBy('id', $imageableId))
+        if($imageableType == 'App\Profile')
+            if($this->userRepo->read($imageableId))
                 return true;
 
-        else if($imageableType == 'App\Reply')
-            if($this->replyRepo->findBy('id', $imageableId))
+        if($imageableType == 'App\Reply')
+            if($this->replyRepo->read($imageableId))
                 return true;
 
         Exceptions::notFoundException(NOT_FOUND);

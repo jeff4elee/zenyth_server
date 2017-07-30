@@ -79,7 +79,18 @@ class ReplyController extends Controller
      */
     public function update(Request $request, $reply_id)
     {
-        $reply = $this->replyRepo->update($request, $reply_id);
+        $reply = $this->replyRepo->read($reply_id);
+
+        if ($reply == null)
+            Exceptions::notFoundException(NOT_FOUND);
+
+        $api_token = $reply->user->api_token;
+        $headerToken = $request->header('Authorization');
+
+        if ($api_token != $headerToken)
+            Exceptions::invalidTokenException(NOT_USERS_OBJECT);
+
+        $this->replyRepo->update($request, $reply);
 
         return Response::dataResponse(true, ['reply' => $reply]);
     }
@@ -102,7 +113,7 @@ class ReplyController extends Controller
         if ($api_token != $headerToken)
             Exceptions::invalidTokenException(NOT_USERS_OBJECT);
 
-        $reply->delete();
+        $this->replyRepo->delete($reply);
 
         return Response::successResponse(DELETE_SUCCESS);
     }

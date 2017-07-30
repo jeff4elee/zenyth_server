@@ -86,7 +86,17 @@ class CommentController extends Controller
      */
     public function update(Request $request, $comment_id)
     {
-        $comment = $this->commentRepo->update($request, $comment_id);
+        $comment = $this->commentRepo->read($comment_id);
+        if ($comment == null)
+            Exceptions::notFoundException(NOT_FOUND);
+
+        $api_token = $comment->user->api_token;
+        $headerToken = $request->header('Authorization');
+
+        if ($api_token != $headerToken)
+            Exceptions::invalidTokenException(NOT_USERS_OBJECT);
+
+        $this->commentRepo->update($request, $comment);
 
         return Response::dataResponse(true, ['comment' => $comment]);
     }
@@ -109,7 +119,7 @@ class CommentController extends Controller
         if ($api_token != $headerToken)
             Exceptions::invalidTokenException(NOT_USERS_OBJECT);
 
-        $comment->delete();
+        $this->commentRepo->delete($comment);
 
         return Response::successResponse(DELETE_SUCCESS);
     }
@@ -171,7 +181,7 @@ class CommentController extends Controller
     public function commentableExists($commentableType, $commentableId)
     {
         if($commentableType == 'App\Pinpost')
-            if($this->pinpostRepo->findBy('id', $commentableId))
+            if($this->pinpostRepo->read($commentableId))
                 return true;
 
         Exceptions::notFoundException(NOT_FOUND);

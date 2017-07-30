@@ -24,7 +24,7 @@ class Comment extends Model
         });
     }
 
-    public function user()
+    public function creator()
     {
         return $this->belongsTo('App\User', 'user_id');
     }
@@ -62,7 +62,7 @@ class Comment extends Model
     public function toArray()
     {
         $response = parent::toArray();
-        $response['user'] = $this->user;
+        $response['user'] = $this->creator;
         $response['likes'] = $this->likes;
         $response['images'] = $this->images;
         return $response;

@@ -27,7 +27,7 @@ class Reply extends Model
         return $this->belongsTo('App\Comment', 'comment_id');
     }
 
-    public function user()
+    public function creator()
     {
         return $this->belongsTo('App\User', 'user_id');
     }

@@ -83,7 +83,7 @@ class LikeController extends Controller
         if ($api_token != $headerToken)
             Exceptions::invalidTokenException(NOT_USERS_OBJECT);
 
-        $like->delete();
+        $this->likeRepo->delete($like);
         return Response::successResponse(DELETE_SUCCESS);
     }
 
@@ -113,15 +113,15 @@ class LikeController extends Controller
     public function likeableExists($likeableType, $likeableId)
     {
         if($likeableType == 'App\Pinpost')
-            if($this->pinpostRepo->findBy('id', $likeableId))
+            if($this->pinpostRepo->read($likeableId))
                 return true;
 
-        else if($likeableType == 'App\Comment')
-            if($this->commentRepo->findBy('id', $likeableId))
+        if($likeableType == 'App\Comment')
+            if($this->commentRepo->read($likeableId))
                 return true;
 
-        else if($likeableType == 'App\Reply')
-            if($this->replyRepo->findBy('id', $likeableId))
+        if($likeableType == 'App\Reply')
+            if($this->replyRepo->read($likeableId))
                 return true;
 
         Exceptions::notFoundException(NOT_FOUND);

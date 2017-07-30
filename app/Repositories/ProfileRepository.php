@@ -2,9 +2,8 @@
 
 namespace App\Repositories;
 
-use App\Address;
 use App\Exceptions\Exceptions;
-use App\PhoneNumber;
+use Illuminate\Database\Eloquent\Model;
 
 class ProfileRepository extends Repository
 {
@@ -45,58 +44,27 @@ class ProfileRepository extends Repository
 
     /**
      * @param $request
-     * @param $id
+     * @param $model
      * @param string $attribute
      * @return mixed
      */
-    public function update($request, $id, $attribute = 'id')
+    public function update($request, $model = null, $attribute = 'id')
     {
-        $profile = $this->model->where($attribute, '=', $id)->first();
+        if($model instanceof Model)
+            $profile = $model;
+        else if($model != null)
+            $profile = $this->model->where($attribute, '=', $model)->first();
+        else
+            Exceptions::invalidParameterException(EITHER_MODEL_OR_ID);
+
         if($request->has('first_name'))
             $profile->first_name = $request['first_name'];
 
         if($request->has('last_name'))
             $profile->last_name = $request['last_name'];
 
-        if($request->has('phone_number')) {
-            // only dealing with U.S. numbers for now
-            // TODO: in the future make a method that parses phone number based on country
-            $numberStringArr = explode("-", $request['phone_number']);
-            $country_code = $numberStringArr[0];
-            $number = $numberStringArr[1] . $numberStringArr[2] . $numberStringArr[3];
-
-            if($phoneNumber = $profile->phoneNumber) {
-                $phoneNumber->update([
-                    'country_code' => (int)$country_code,
-                    'phone_number' => $number
-                ]);
-            }
-            else {
-                PhoneNumber::create([
-                    'profile_id' => $profile->id,
-                    'country_code' => (int)$country_code,
-                    'phone_number' => $number
-                ]);
-            }
-        }
-
-        if($request->has('gender')) {
+        if($request->has('gender'))
             $profile->gender = $request['gender'];
-        }
-
-        if($request->has('address')) {
-            $address = $request['address'];
-
-            Address::create([
-                'profile_id' => $profile->id,
-                'line' => $address['line'],
-                'apt_number' => $address['apt_number'],
-                'city' => $address['city'],
-                'state' => $address['state'],
-                'zip_code' => $address['zip_code'],
-                'country_code' => $address['country_code']
-            ]);
-        }
 
         if($request->has('birthday')) {
             $birthday = \DateTime::createFromFormat('Y-m-d', $request['birthday']);

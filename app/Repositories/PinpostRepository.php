@@ -2,28 +2,11 @@
 
 namespace App\Repositories;
 
-use App\Exceptions\Exceptions;
 use Illuminate\Container\Container as App;
-use Illuminate\Http\Request;
-use Illuminate\Support\Collection;
 
 class PinpostRepository extends Repository
                         implements PinpostRepositoryInterface
 {
-    private $imageRepo;
-    private $commentRepo;
-    private $likeRepo;
-
-    public function __construct(App $app, Collection $collection,
-                                ImageRepository $imageRepo,
-                                CommentRepository $commentRepo,
-                                LikeRepository $likeRepo)
-    {
-        parent::__construct($app, $collection);
-        $this->imageRepo = $imageRepo;
-        $this->commentRepo = $commentRepo;
-        $this->likeRepo = $likeRepo;
-    }
 
     /**
      * Specify Model class name
@@ -32,41 +15,6 @@ class PinpostRepository extends Repository
     function model()
     {
         return 'App\Pinpost';
-    }
-
-    /**
-     * Update a pinpost
-     * @param Request $request
-     * @param $id
-     * @param string $attribute
-     * @return mixed
-     */
-    public function update($request, $id, $attribute = 'id')
-    {
-        // Check if pinpost is there
-        $pin = $this->model->where($attribute, '=', $id)->first();
-        if (!$pin)
-            Exceptions::notFoundException(NOT_FOUND);
-
-        // Check if pinpost being updated belongs to the user making the
-        // request
-        $api_token = $pin->creator->api_token;
-        $headerToken = $request->header('Authorization');
-
-        if ($api_token != $headerToken)
-            Exceptions::invalidTokenException(NOT_USERS_OBJECT);
-
-        if($request->has('title'))
-            $pin->title = $request['title'];
-        if($request->has('description'))
-            $pin->description = $request['description'];
-        if($request->has('latitude'))
-            $pin->latitude = (double)$request['latitude'];
-        if($request->has('description'))
-            $pin->longitude = (double)$request['longitude'];
-
-        $pin->update();
-        return $pin;
     }
 
     /**
