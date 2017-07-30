@@ -22,7 +22,6 @@ class TagRepository extends Repository
     {
         $query = $this->model->select('tags.*')
             ->where('tags.name', 'like', '%'.$tagName.'%');
-
         $this->model = $query;
         return $this;
     }
@@ -34,7 +33,7 @@ class TagRepository extends Repository
      */
     public function tagWithExactName($tagName)
     {
-        $query = $this->model->where('tag', '=', $tagName);
+        $query = $this->model->where('name', '=', $tagName);
         $this->model = $query;
         return $this;
     }
@@ -45,9 +44,35 @@ class TagRepository extends Repository
      */
     public function groupByTagsName()
     {
-        $query = $this->model->groupBy('tags.name');
+        $query = $this->model->groupBy('tags.id');
         $this->model = $query;
         return $this;
     }
+
+    /**
+     * Join taggables table
+     * @return mixed
+     */
+    public function joinTaggables()
+    {
+        $query = $this->model->join('taggables',
+            'taggables.tag_id', '=', 'tags.id');
+        $this->model = $query;
+        return $this;
+    }
+
+    /**
+     * Order by the number of objects associated with the tag in descending
+     * order
+     * @return mixed
+     */
+    public function orderByCount()
+    {
+        $query = $this->model->orderBy(DB::raw('count(taggables.tag_id)'),
+            'desc');
+        $this->model = $query;
+        return $this;
+    }
+
 
 }

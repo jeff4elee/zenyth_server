@@ -130,5 +130,17 @@ class UserRepository extends Repository
         return $this;
     }
 
+    /**
+     * Get all users that have id that is in this array
+     * @param $idArray
+     * @return mixed
+     */
+    public function allUsersInIdArray($idArray)
+    {
+        $query = $this->model->whereIn('id', $idArray);
+        $this->model = $query;
+        return $this;
+    }
+
 
 }

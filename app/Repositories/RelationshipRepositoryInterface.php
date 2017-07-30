@@ -37,10 +37,17 @@ interface RelationshipRepositoryInterface
     public function hasFriendship();
 
     /**
+     * All relationships that are blocked
+     * @return mixed
+     */
+    public function isBlocked();
+
+    /**
      * All relationships between two users
-     * @param $userOne
-     * @param $userTwo
+     * @param $userOneId
+     * @param $userTwoId
      * @return mixed
      */
     public function hasRelationship($userOneId, $userTwoId);
+
 }

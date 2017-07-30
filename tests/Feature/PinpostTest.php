@@ -24,7 +24,7 @@ class PinpostTest extends TestCase
      */
     public function testPinpostCreation()
     {
-        //create pesudouser
+        //create pseudouser
         $api_token = factory('App\User')->create()->api_token;
 
         //perform the json request
@@ -41,7 +41,6 @@ class PinpostTest extends TestCase
             'latitude' => 33.33,
             'longitude' => 69.69
         ]);
-
     }
 
     public function testTagCreation()

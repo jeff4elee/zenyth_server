@@ -13,18 +13,23 @@
 
 /** @var \Illuminate\Database\Eloquent\Factory $factory */
 use Illuminate\Support\Facades\Storage;
+use App\User;
 
 $factory->define(App\User::class, function (Faker\Generator $faker) {
     static $password;
 
     do {
         $username = $faker->userName;
-
-    } while(strlen($username) > 20 || !ctype_alnum($username));
+        $user = User::where('username', $username)->first();
+    } while(strlen($username) > 20 || !ctype_alnum($username) || $user != null);
+    do {
+        $email = $faker->safeEmail;
+        $user = User::where('email', $email)->first();
+    } while($user != null);
 
     return [
         'username' => $username,
-        'email' => $faker->unique()->safeEmail,
+        'email' => $email,
         'password' => \Illuminate\Support\Facades\Hash::make('password'),
         'api_token' => str_random(60),
     ];

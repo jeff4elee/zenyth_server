@@ -76,6 +76,17 @@ class RelationshipRepository extends Repository
     }
 
     /**
+     * All relationships that are blocked
+     * @return mixed
+     */
+    public function isBlocked()
+    {
+        $query = $this->model->where('blocked', '=', true);
+        $this->model = $query;
+        return $this;
+    }
+
+    /**
      * All relationships between two users
      * @param $userOneId
      * @param $userTwoId

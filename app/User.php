@@ -65,7 +65,7 @@ class User extends Model implements Authenticatable
     public function toArray()
     {
         $response = parent::toArray();
-        $response['profile'] = $this->profile->makeHidden('user_id');
+        $response['profile'] = $this->profile;
         return $response;
     }
 
@@ -110,6 +110,32 @@ class User extends Model implements Authenticatable
             if($relationship->status)
                 array_push($idArray, $relationship->requester);
         }
+        return $idArray;
+    }
+
+    public function blockedUsersId()
+    {
+        $requesterRelationships = $this->requesterRelationships;
+        $idArray = array();
+
+        foreach($requesterRelationships as $relationship) {
+            if($relationship->blocked)
+                array_push($idArray, $relationship->requestee);
+        }
+
+        return $idArray;
+    }
+
+    public function friendRequestsUsersId()
+    {
+        $requesteeRelationships = $this->requesteeRelationships;
+        $idArray = array();
+
+        foreach($requesteeRelationships as $relationship) {
+            if(!$relationship->blocked && !$relationship->status)
+                array_push($idArray, $relationship->requester);
+        }
+
         return $idArray;
     }
 
