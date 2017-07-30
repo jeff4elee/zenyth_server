@@ -46,4 +46,11 @@ interface UserRepositoryInterface
      * @return mixed
      */
     public function joinRelationships($option);
+
+    /**
+     * Get all users that have id that is in this array
+     * @param $idArray
+     * @return mixed
+     */
+    public function allUsersInIdArray($idArray);
 }

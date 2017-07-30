@@ -19,8 +19,8 @@ class CreatePinpostsTable extends Migration
             $table->text('description');
             $table->double('latitude');
             $table->double('longitude');
-            $table->unsignedInteger('creator_id');
-            $table->foreign('creator_id')
+            $table->unsignedInteger('user_id');
+            $table->foreign('user_id')
                 ->references('id')->on('users')
                 ->onDelete('cascade');
             $table->timestamps();

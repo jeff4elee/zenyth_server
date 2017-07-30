@@ -54,7 +54,7 @@ class PinpostController extends Controller
     {
         $user = $request->get('user');
         $data = [
-            'creator_id' => $user->id,
+            'user_id' => $user->id,
             'title' => $request['title'],
             'description' => $request['description'],
             'latitude' => (double)$request['latitude'],
@@ -119,7 +119,7 @@ class PinpostController extends Controller
             Exceptions::notFoundException(NOT_FOUND);
 
         return Response::dataResponse(true, [
-            'pinpost' => $pin->with(['creator.profile'])
+            'pinpost' => $pin
         ]);
     }
 

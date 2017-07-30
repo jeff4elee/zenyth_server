@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 class Pinpost extends Model
 {
     protected $fillable = ['title', 'description', 'latitude', 'longitude',
-        'thumbnail_id', 'updated_at', 'entity_id', 'creator_id'];
+        'thumbnail_id', 'updated_at', 'entity_id', 'user_id'];
 
     protected $hidden = ['thumbnail_id', 'creator_id'];
     protected $table = 'pinposts';
@@ -28,7 +28,7 @@ class Pinpost extends Model
     }
 
     public function creator() {
-        return $this->belongsTo('App\User', 'creator_id');
+        return $this->belongsTo('App\User', 'user_id');
     }
 
     public function images() {
