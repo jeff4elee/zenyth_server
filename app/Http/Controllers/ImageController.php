@@ -8,6 +8,7 @@ use App\Image;
 use App\Repositories\CommentRepository;
 use App\Repositories\ImageRepository;
 use App\Repositories\PinpostRepository;
+use App\Repositories\ReplyRepository;
 use App\Repositories\UserRepository;
 use GuzzleHttp\Client;
 use Illuminate\Http\Request;
@@ -26,16 +27,19 @@ class ImageController extends Controller
     private $pinpostRepo;
     private $commentRepo;
     private $userRepo;
+    private $replyRepo;
 
     function __construct(ImageRepository $imageRepo,
                         PinpostRepository $pinpostRepo,
                         CommentRepository $commentRepo,
-                        UserRepository $userRepo)
+                        UserRepository $userRepo,
+                        ReplyRepository $replyRepo)
     {
         $this->imageRepo = $imageRepo;
         $this->pinpostRepo = $pinpostRepo;
         $this->commentRepo = $commentRepo;
         $this->userRepo = $userRepo;
+        $this->replyRepo = $replyRepo;
     }
 
     /**
@@ -117,9 +121,7 @@ class ImageController extends Controller
         $imageableType = $this->getImageableType($request);
 
         // Check if this imageable object exists
-        $exist = $this->imageableExists($imageableType, $imageable_id);
-        if(!$exist)
-            Exceptions::notFoundException(NOT_FOUND);
+        $this->imageableExists($imageableType, $imageable_id);
 
         $request->merge([
             'user_id' => $user->id,
@@ -143,8 +145,15 @@ class ImageController extends Controller
     public function deleteImage(Request $request, $image_id)
     {
         $user = $request->get('user');
-        $request->merge(['user_id', $user->id]);
-        $this->imageRepo->delete($request, $image_id);
+        $image = $this->imageRepo->read($image_id);
+        if(!$image)
+            Exceptions::notFoundException(NOT_FOUND);
+
+        $userId = $user->id;
+        if($image->user_id != $userId)
+            Exceptions::invalidTokenException(NOT_USERS_OBJECT);
+
+        $this->imageRepo->delete($image);
         return Response::successResponse(DELETE_SUCCESS);
     }
 
@@ -196,8 +205,10 @@ class ImageController extends Controller
             return 'App\Comment';
         else if($request->is('api/profile/profile_picture/*'))
             return 'App\Profile';
+        else if($request->is('api/reply/like/create/*'))
+            return 'App\Reply';
 
-        return null;
+        Exceptions::invalidRequestException();
     }
 
     /**
@@ -213,6 +224,10 @@ class ImageController extends Controller
             return 'images';
         else if($request->is('api/profile/profile_picture/*'))
             return 'profile_pictures';
+        else if($request->is('api/reply/upload_image/*'))
+            return 'images';
+        else
+            return 'images';
     }
 
     /**
@@ -223,19 +238,23 @@ class ImageController extends Controller
      */
     public function imageableExists($imageableType, $imageableId)
     {
-        if($imageableType == 'App\Pinpost') {
-            if($this->pinpostRepo->findBy('id', $imageableId))
+        if($imageableType == 'App\Pinpost')
+            if($this->pinpostRepo->read($imageableId))
                 return true;
-        }
-        else if($imageableType == 'App\Comment') {
-            if($this->commentRepo->findBy('id', $imageableId))
+
+        if($imageableType == 'App\Comment')
+            if ($this->commentRepo->read($imageableId))
                 return true;
-        }
-        else if($imageableType == 'App\Profile') {
-            if($this->userRepo->findBy('id', $imageableId))
+
+        if($imageableType == 'App\Profile')
+            if($this->userRepo->read($imageableId))
                 return true;
-        }
-        return false;
+
+        if($imageableType == 'App\Reply')
+            if($this->replyRepo->read($imageableId))
+                return true;
+
+        Exceptions::notFoundException(NOT_FOUND);
     }
 
 }

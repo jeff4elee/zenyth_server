@@ -52,9 +52,7 @@ class ProfileController extends Controller
 
         // Check for old profile picture, if there already is one, delete it
         if($oldImageId = $profile->picture_id) {
-            $request->merge(['user_id' => $user->id]);
-            $profile->update(['picture_id' => null]);
-            $this->imageRepo->delete($request, $oldImageId);
+            $this->imageRepo->delete($oldImageId);
         }
 
         // UploadedFile object

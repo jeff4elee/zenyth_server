@@ -56,3 +56,5 @@ define("RESET_PW_SUCCESS", "Successfully reset password");
 define("CHECK_EMAIL", "Check your email");
 
 define("ACCOUNT_VERIFIED", "Your account has been verified");
+
+define("EITHER_MODEL_OR_ID", "Must provide either Eloquent model or ID of the object");

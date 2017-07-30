@@ -21,11 +21,4 @@ class Like extends Model
         return $this->belongsTo('App\User', 'user_id');
     }
 
-    public function toArray()
-    {
-        $response = parent::toArray();
-        $response['user'] = $this->user;
-        return $response;
-    }
-
 }

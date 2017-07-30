@@ -6,7 +6,6 @@ use App\Exceptions\Exceptions;
 use App\Exceptions\ResponseHandler as Response;
 use App\Http\Controllers\Auth\AuthenticationTrait;
 use App\Repositories\CommentRepository;
-use App\Repositories\ImageRepository;
 use App\Repositories\LikeRepository;
 use App\Repositories\PinpostRepository;
 use App\Repositories\TaggableRepository;
@@ -26,21 +25,18 @@ class PinpostController extends Controller
      * @var PinpostRepository
      */
     private $pinpostRepo;
-    private $imageRepo;
     private $commentRepo;
     private $likeRepo;
     private $taggableRepo;
     private $tagRepo;
 
     public function __construct(PinpostRepository $pinpostRepo,
-                                ImageRepository $imageRepo,
                                 CommentRepository $commentRepo,
                                 LikeRepository $likeRepo,
                                 TaggableRepository $taggableRepo,
                                 TagRepository $tagRepo)
     {
         $this->pinpostRepo = $pinpostRepo;
-        $this->imageRepo = $imageRepo;
         $this->commentRepo = $commentRepo;
         $this->likeRepo = $likeRepo;
         $this->taggableRepo = $taggableRepo;
@@ -105,6 +101,7 @@ class PinpostController extends Controller
 
     /**
      * Give back information on Pinpost
+     * @param $request
      * @param $pinpost_id
      * @return JsonResponse
      */
@@ -121,7 +118,9 @@ class PinpostController extends Controller
         if ($pin == null)
             Exceptions::notFoundException(NOT_FOUND);
 
-        return Response::dataResponse(true, ['pinpost' => $pin]);
+        return Response::dataResponse(true, [
+            'pinpost' => $pin->with(['creator.profile'])
+        ]);
     }
 
     /**
@@ -132,7 +131,21 @@ class PinpostController extends Controller
      */
     public function update(Request $request, $pinpost_id)
     {
-        $pin = $this->pinpostRepo->update($request, $pinpost_id);
+        $pin = $this->pinpostRepo->read($pinpost_id);
+
+        if (!$pin)
+            Exceptions::notFoundException(NOT_FOUND);
+
+        // Check if pinpost being updated belongs to the user making the
+        // request
+        $api_token = $pin->creator->api_token;
+        $headerToken = $request->header('Authorization');
+
+        if ($api_token != $headerToken)
+            Exceptions::invalidTokenException(NOT_USERS_OBJECT);
+
+        $this->pinpostRepo->update($request, $pin);
+
         return Response::dataResponse(true, ['pinpost' => $pin]);
     }
 
@@ -151,7 +164,7 @@ class PinpostController extends Controller
         if ($api_token != $headerToken)
             Exceptions::invalidTokenException(NOT_USERS_OBJECT);
 
-        $pin->delete();
+        $this->pinpostRepo->delete($pin);
 
         return Response::successResponse(DELETE_SUCCESS);
     }

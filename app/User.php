@@ -2,10 +2,9 @@
 
 namespace App;
 
-use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Auth\Authenticatable as AuthenticableTrait;
+use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Collection;
 
 class User extends Model implements Authenticatable
 {
@@ -48,6 +47,11 @@ class User extends Model implements Authenticatable
         return $this->hasMany('App\Comment', 'user_id');
     }
 
+    public function replies()
+    {
+        return $this->hasMany('App\Reply', 'user_id');
+    }
+
     public function profile()
     {
         return $this->hasOne('App\Profile', 'user_id');
@@ -62,7 +66,6 @@ class User extends Model implements Authenticatable
     {
         $response = parent::toArray();
         $response['profile'] = $this->profile->makeHidden('user_id');
-        $response['oauth'] = $this->oauth;
         return $response;
     }
 

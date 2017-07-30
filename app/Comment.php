@@ -8,7 +8,7 @@ class Comment extends Model
 {
     protected $fillable = ['comment', 'user_id', 'commentable_id',
         'commentable_type'];
-    protected $hidden = ['commentable_id', 'commentable_type', 'id', 'user_id'];
+    protected $hidden = ['commentable_type'];
     protected $table = 'comments';
     public $timestamps = false;
 
@@ -24,9 +24,19 @@ class Comment extends Model
         });
     }
 
-    public function user()
+    public function creator()
     {
         return $this->belongsTo('App\User', 'user_id');
+    }
+
+    public function replies()
+    {
+        return $this->hasMany('App\Reply', 'comment_id');
+    }
+
+    public function repliesCount()
+    {
+        return $this->replies()->count();
     }
 
     public function images()
@@ -47,14 +57,5 @@ class Comment extends Model
     public function likesCount()
     {
         return $this->likes()->count();
-    }
-
-    public function toArray()
-    {
-        $response = parent::toArray();
-        $response['user'] = $this->user;
-        $response['likes'] = $this->likes;
-        $response['images'] = $this->images;
-        return $response;
     }
 }

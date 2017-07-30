@@ -123,6 +123,13 @@ class DataRules
         ];
     }
 
+    static public function replyRules()
+    {
+        return [
+            'text' => 'required|min:1'
+        ];
+    }
+
     static public function friendRequestRules()
     {
         return [

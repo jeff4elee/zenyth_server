@@ -8,13 +8,11 @@ interface RepositoryInterface
 
     public function create($request);
 
-    public function update($request, $id);
+    public function update($request, $model, $attribute = 'id');
 
-    public function delete($request, $id);
+    public function delete($model);
 
     public function read($id, $fields = ['*']);
 
     public function findBy($attribute, $value, $columns = ['*']);
-
-    public function remove($model);
 }

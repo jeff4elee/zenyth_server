@@ -49,6 +49,15 @@ class DataValidator
         else if($request->is('api/comment/upload_image/*'))
             return Validator::make($request->all(), Rules::uploadImageRules());
 
+        else if($request->is('api/reply/create/*'))
+            return Validator::make($request->all(), Rules::replyRules());
+
+        else if($request->is('api/reply/update/*'))
+            return Validator::make($request->all(), Rules::replyRules());
+
+        else if($request->is('api/reply/upload_image/*'))
+            return Validator::make($request->all(), Rules::uploadImageRules());
+
         else if($request->is('api/pinpost/fetch')) {
             $coordError = 'Geographic coordinate must be in the form {lat,long}'
                 .' and satisfies the geographic coordinate rules';

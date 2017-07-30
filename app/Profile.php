@@ -31,15 +31,5 @@ class Profile extends Model
     {
         return $this->belongsTo('App\Image', 'picture_id');
     }
-
-    public function toArray()
-    {
-        $response = parent::toArray();
-        $profilePicture = $this->profilePicture;
-        if($profilePicture)
-            $response['picture'] = $profilePicture;
-
-        return $response;
-    }
 }
 
