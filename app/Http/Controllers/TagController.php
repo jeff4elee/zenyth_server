@@ -27,7 +27,7 @@ class TagController extends Controller
         $tagName = $request->input('tag');
         $tags = $this->tagRepo
             ->tagsWithSimilarNames($tagName)
-            ->joinPinpostTags()->groupByTagsName()->orderByCount()
+            ->joinTaggables()->groupByTagsName()->orderByCount()
             ->paginate(10);
 
         return Response::dataResponse(true, [

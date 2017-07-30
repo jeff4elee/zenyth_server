@@ -29,4 +29,17 @@ interface TagRepositoryInterface
      */
     public function groupByTagsName();
 
+    /**
+     * Join taggables table
+     * @return mixed
+     */
+    public function joinTaggables();
+
+    /**
+     * Order by the number of objects associated with the tag in descending
+     * order
+     * @return mixed
+     */
+    public function orderByCount();
+
 }
