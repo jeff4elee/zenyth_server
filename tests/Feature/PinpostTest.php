@@ -28,29 +28,40 @@ class PinpostTest extends TestCase
         $api_token = factory('App\User')->create()->api_token;
 
         //perform the json request
-        $response = $this->json('POST', '/api/pinpost/create', [
+        $this->json('POST', '/api/pinpost/create', [
             'title' => 'testpin',
             'description' => 'fake description for fake pins',
             'latitude' => 33.33,
-            'longitude' => 69.69,
-            'thumbnail' => UploadedFile::fake()->image('pinimage.jpg')
+            'longitude' => 69.69
         ], ['Authorization' => 'bearer ' . $api_token]);
-
-        //get the id of the newly created post
-        $image_id = $response->decodeResponseJson()['data']['thumbnail_id'];
-
-        //check if the id exists
-        if($this->assertDatabaseHas('images', ['id' => $image_id]))
-            Storage::disk('images')->assertExists(basename(Image::find($image_id)->filename));
 
         $this->assertDatabaseHas('pinposts', [
             'title' => 'testpin',
             'description' => 'fake description for fake pins',
             'latitude' => 33.33,
-            'longitude' => 69.69,
-            'thumbnail_id' => $image_id
+            'longitude' => 69.69
         ]);
 
+    }
+
+    public function testTagCreation()
+    {
+        //create pesudouser
+        $api_token = factory('App\User')->create()->api_token;
+
+        //perform the json request
+        $this->json('POST', '/api/pinpost/create', [
+            'title' => 'testpin',
+            'description' => 'fake description for fake pins',
+            'latitude' => 33.33,
+            'longitude' => 69.69,
+            'tags' => 'hello,hi,howareyou,imokay'
+        ], ['Authorization' => 'bearer ' . $api_token]);
+
+        $this->assertDatabaseHas('tags', ['name' => 'hello']);
+        $this->assertDatabaseHas('tags', ['name' => 'hi']);
+        $this->assertDatabaseHas('tags', ['name' => 'howareyou']);
+        $this->assertDatabaseHas('tags', ['name' => 'imokay']);
     }
 
     public function testPinpostRead()
@@ -58,20 +69,18 @@ class PinpostTest extends TestCase
 
         //create a pinpost, with the title 'pintoread' and no image
         $pinpost = factory('App\Pinpost')->create(['title' => 'pintoread']);
-
         $response = $this->json('GET', '/api/pinpost/read/' . $pinpost->id, [],
             ['Authorization' => 'bearer ' . 'token']);
 
         $response->assertJson([
             'success' => true,
             'data' => [
-                'entity_id' => $pinpost->entity_id,
-                'title' => $pinpost->title,
-                'description' => $pinpost->description,
-                'latitude' => $pinpost->latitude,
-                'longitude' => $pinpost->longitude,
-                'thumbnail_id' => $pinpost->thumbnail_id,
-                'creator_id' => $pinpost->creator_id
+                'pinpost' => [
+                    'title' => $pinpost->title,
+                    'description' => $pinpost->description,
+                    'latitude' => $pinpost->latitude,
+                    'longitude' => $pinpost->longitude
+                ]
             ]
         ]);
 
@@ -80,12 +89,8 @@ class PinpostTest extends TestCase
     public function testPinpostUpdate()
     {
 
-        Storage::disk('images');
-
         //create a pinpost, with the title 'pintoupdate' and no image
         $pinpost = factory('App\Pinpost')->create(['title' => 'pintoupdate']);
-
-        $filename = Image::find($pinpost->thumbnail_id)->filename;
 
         //post request to update the created pin with new values
         $this->json('POST', '/api/pinpost/update/' . $pinpost->id, [
@@ -93,8 +98,7 @@ class PinpostTest extends TestCase
             'description' => 'fake description for fake pins',
             'latitude' => 33.33,
             'longitude' => 69.69,
-            'thumbnail' => UploadedFile::fake()->image('pinimage.jpg')
-        ], ['Authorization' => 'bearer ' . User::find($pinpost->creator_id)->api_token]);
+        ], ['Authorization' => 'bearer ' . User::find($pinpost->user_id)->api_token]);
 
         //check if pin title has been changed
         $this->assertDatabaseHas('pinposts', [
@@ -102,8 +106,6 @@ class PinpostTest extends TestCase
             'latitude' => 33.33,
             'longitude' => 69.69
         ]);
-
-        Storage::disk('images')->assertMissing(basename($filename));
 
     }
 
@@ -116,10 +118,46 @@ class PinpostTest extends TestCase
         $this->assertDatabaseHas('pinposts', ['title' => 'pintodelete']);
 
         $this->json('DELETE', '/api/pinpost/delete/' . $pinpost->id, [],
-            ['Authorization' => 'bearer ' . User::find($pinpost->creator_id)->api_token]);
+            ['Authorization' => 'bearer ' . User::find($pinpost->user_id)
+                    ->api_token]);
 
         $this->assertDatabaseMissing('pinposts', ['title' => 'pintodelete']);
 
+        $pinpost = factory('App\Pinpost')->create(['title' => 'fail to delete']);
+        $user = factory('App\User')->create();
+        $response = $this->json('DELETE', '/api/pinpost/delete/' .
+            $pinpost->id, [],
+            ['Authorization' => 'bearer ' . $user->api_token]);
+        $response
+            ->assertJson([
+                'success' => false,
+                'error' => [
+                    'type' => 'InvalidTokenException'
+                ]
+            ]);
+        $this->assertDatabaseHas('pinposts', ['title' => 'fail to delete']);
+
+        $pinpost = factory('App\Pinpost')->create(['title' => 'test pin to delete cascade']);
+        $comment = factory('App\Comment')->create(['commentable_id' =>
+            $pinpost->id, 'comment' => 'test comment to delete cascade']);
+        $likeOne = factory('App\Like')->create(['likeable_id' => $pinpost->id]);
+        $likeTwo = factory('App\Like')->create(['likeable_id' =>
+            $comment->id, 'likeable_type' => 'App\Comment']);
+
+        $this->assertDatabaseHas('pinposts', ['id' => $pinpost->id]);
+        $this->assertDatabaseHas('comments', ['id' => $comment->id]);
+        $this->assertDatabaseHas('likes', ['likeable_id' => $pinpost->id]);
+        $this->assertDatabaseHas('likes', ['likeable_id' => $comment->id]);
+
+        $response = $this->json('DELETE', '/api/pinpost/delete/' .
+            $pinpost->id, [],
+            ['Authorization' => 'bearer ' . User::find($pinpost->user_id)->api_token]);
+
+        $response->assertStatus(200);
+        $this->assertDatabaseMissing('pinposts', ['id' => $pinpost->id]);
+        $this->assertDatabaseMissing('comments', ['id' => $comment->id]);
+        $this->assertDatabaseMissing('likes', ['id' => $likeOne->id]);
+        $this->assertDatabaseMissing('likes', ['id' => $likeTwo->id]);
     }
 
 

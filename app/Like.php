@@ -6,13 +6,14 @@ use Illuminate\Database\Eloquent\Model;
 
 class Like extends Model
 {
-
+    protected $fillable = ['user_id', 'likeable_id', 'likeable_type'];
+    protected $hidden = ['id', 'likeable_id', 'likeable_type', 'user_id'];
     public $timestamps = false;
     protected $table = 'likes';
 
-    public function entity()
+    public function likeable()
     {
-        return $this->belongsTo('App\Entity', 'entity_id');
+        return $this->morphTo();
     }
 
     public function user()

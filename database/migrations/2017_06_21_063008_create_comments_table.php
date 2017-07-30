@@ -3,7 +3,6 @@
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
-use Carbon\Carbon;
 
 class CreateCommentsTable extends Migration
 {
@@ -16,19 +15,12 @@ class CreateCommentsTable extends Migration
     {
         Schema::create('comments', function (Blueprint $table) {
             $table->increments('id');
-            $table->unsignedInteger('entity_id');
-            $table->foreign('entity_id')
-                ->references('id')->on('entities')
-                ->onDelete('cascade');
-
             $table->text('comment');
 
-            $table->unsignedInteger('on_entity_id');
-            $table->foreign('on_entity_id')
-                ->references('id')->on('entities')
-                ->onDelete('cascade');
+            $table->unsignedInteger('commentable_id');
+            $table->string('commentable_type');
 
-            $table->integer('user_id')->unsigned();
+            $table->unsignedInteger('user_id');
             $table->foreign('user_id')
                 ->references('id')->on('users')
                 ->onDelete('cascade');

@@ -19,6 +19,11 @@ class Exceptions
         throw new UnknownErrorException($message, 3);
     }
 
+    static public function repositoryException($message = "")
+    {
+        throw new RepositoryException($message, 4);
+    }
+
     static public function invalidParameterException($message = "")
     {
         throw new InvalidParameterException($message, 100);
@@ -34,7 +39,7 @@ class Exceptions
         throw new UnauthenticatedException($message, 201);
     }
 
-    static public function invalidConfirmationException($message = "")
+    static public function invalidConfirmationCodeException($message = "")
     {
         throw new InvalidConfirmationCodeException($message, 202);
     }
@@ -54,6 +59,11 @@ class Exceptions
         throw new UnconfirmedAccountException($message, 205);
     }
 
+    static public function invalidColumnException($message = "")
+    {
+        throw new InvalidColumnException($message, 206);
+    }
+
     static public function nullException($message = "")
     {
         throw new NullException($message, 300);
@@ -62,5 +72,10 @@ class Exceptions
     static public function notFoundException($message = "")
     {
         throw new NotFoundException($message, 301);
+    }
+
+    static public function invalidImageTypeException($message = "")
+    {
+        throw new InvalidImageTypeException($message, 302);
     }
 }

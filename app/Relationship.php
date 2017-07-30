@@ -10,7 +10,8 @@ class Relationship extends Model
 {
 
     public $timestamps = false;
-    protected $fillable = ['requester', 'requestee', 'status'];
+    protected $fillable = ['requester', 'requestee', 'status', 'blocked'];
+    protected $hidden = ['id'];
     protected $table = 'relationships';
 
     public function getRequester()
@@ -21,6 +22,14 @@ class Relationship extends Model
     public function getRequestee()
     {
         return $this->belongsTo('App\User', 'requestee');
+    }
+
+    public function toArray()
+    {
+        $response = parent::toArray();
+        $response['requester'] = $this->getRequester;
+        $response['requestee'] = $this->getRequestee;
+        return $response;
     }
 
 }

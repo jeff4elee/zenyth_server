@@ -15,7 +15,8 @@ class CreatePhoneNumbersTable extends Migration
     {
         Schema::create('phone_numbers', function (Blueprint $table) {
             $table->increments('id');
-            $table->unsignedInteger('profile_id')
+            $table->unsignedInteger('profile_id');
+            $table->foreign('profile_id')
                 ->references('id')->on('profiles')
                 ->onDelete('cascade');
 

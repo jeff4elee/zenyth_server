@@ -2,10 +2,9 @@
 
 namespace App;
 
-use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Auth\Authenticatable as AuthenticableTrait;
+use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Collection;
 
 class User extends Model implements Authenticatable
 {
@@ -22,7 +21,8 @@ class User extends Model implements Authenticatable
     ];
 
     protected $hidden = [
-        'password', 'token_expired_on', 'api_token', 'confirmation_code'
+        'password', 'token_expired_on', 'api_token', 'confirmation_code',
+        'remember_token'
     ];
 
     public $timestamps = false;
@@ -37,11 +37,6 @@ class User extends Model implements Authenticatable
         return $this->hasMany('App\Pinpost', 'user_id');
     }
 
-    public function pinvites()
-    {
-        return $this->hasMany('App\Pinvite', 'creator_id');
-    }
-
     public function likes()
     {
         return $this->hasMany('App\Like', 'user_id');
@@ -52,6 +47,11 @@ class User extends Model implements Authenticatable
         return $this->hasMany('App\Comment', 'user_id');
     }
 
+    public function replies()
+    {
+        return $this->hasMany('App\Reply', 'user_id');
+    }
+
     public function profile()
     {
         return $this->hasOne('App\Profile', 'user_id');
@@ -60,6 +60,13 @@ class User extends Model implements Authenticatable
     public function oauth()
     {
         return $this->hasOne('App\Oauth', 'user_id');
+    }
+
+    public function toArray()
+    {
+        $response = parent::toArray();
+        $response['profile'] = $this->profile->makeHidden('user_id');
+        return $response;
     }
 
     public function name()

@@ -8,7 +8,9 @@ class Profile extends Model
 {
     public $timestamps = false;
     protected $table = 'profiles';
-    protected $fillable = ['user_id', 'first_name', 'last_name', 'gender', 'birthday', 'image_id'];
+    protected $fillable = ['user_id', 'first_name', 'last_name', 'gender',
+        'birthday', 'picture_id'];
+    protected $hidden = ['id'];
 
     public function user()
     {
@@ -20,14 +22,14 @@ class Profile extends Model
         return $this->hasOne('App\Address', 'profile_id');
     }
 
-    public function phoneNumbers()
+    public function phoneNumber()
     {
-        return $this->hasMany('App\PhoneNumber', 'profile_id');
+        return $this->hasOne('App\PhoneNumber', 'profile_id');
     }
 
     public function profilePicture()
     {
-        return $this->belongsTo('App\Image', 'image_id');
+        return $this->belongsTo('App\Image', 'picture_id');
     }
 }
 

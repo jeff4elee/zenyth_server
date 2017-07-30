@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "content-hash": "efb703b705bd5194497bac2409db1ac3",
+    "content-hash": "ba986c58cead6fcec0ca4324191ccafc",
     "packages": [
         {
             "name": "dnoegel/php-xdg-base-dir",
@@ -1069,45 +1069,6 @@
                 "schedule"
             ],
             "time": "2017-01-23T04:29:33+00:00"
-        },
-        {
-            "name": "nardev/laravel-5.1-phpredis",
-            "version": "dev-master",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/nardev/laravel-5.1-phpredis.git",
-                "reference": "58fb17cba761e5c196f0104e370de232497fcff2"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/nardev/laravel-5.1-phpredis/zipball/58fb17cba761e5c196f0104e370de232497fcff2",
-                "reference": "58fb17cba761e5c196f0104e370de232497fcff2",
-                "shasum": ""
-            },
-            "type": "library",
-            "autoload": {
-                "psr-0": {
-                    "Nardev\\PhpRedis": "src/"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "Apache"
-            ],
-            "authors": [
-                {
-                    "name": "Vedran Alajbegovic",
-                    "email": "vedran@nardev.org"
-                }
-            ],
-            "description": "Use phpredis as the redis connection in Laravel 5.1",
-            "keywords": [
-                "Laravel 5.1",
-                "laravel",
-                "phpredis",
-                "redis"
-            ],
-            "time": "2015-06-29T14:44:11+00:00"
         },
         {
             "name": "nesbot/carbon",
@@ -4076,9 +4037,7 @@
     ],
     "aliases": [],
     "minimum-stability": "stable",
-    "stability-flags": {
-        "nardev/laravel-5.1-phpredis": 20
-    },
+    "stability-flags": [],
     "prefer-stable": false,
     "prefer-lowest": false,
     "platform": {

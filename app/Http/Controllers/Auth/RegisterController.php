@@ -5,270 +5,141 @@ namespace App\Http\Controllers\Auth;
 use App\Exceptions\Exceptions;
 use App\Exceptions\ResponseHandler as Response;
 use App\Http\Controllers\Controller;
-use App\Http\Controllers\ImageController;
-use App\Oauth;
-use App\Profile;
-use App\User;
-use Carbon\Carbon;
+use App\Repositories\ImageRepository;
+use App\Repositories\OauthRepository;
+use App\Repositories\ProfileRepository;
+use App\Repositories\UserRepository;
 use Illuminate\Foundation\Auth\RegistersUsers;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Hash;
 
 class RegisterController extends Controller
 {
-    /*
-    |--------------------------------------------------------------------------
-    | Register Controller
-    |--------------------------------------------------------------------------
-    |
-    | This controller handles the registration of new users as well as their
-    | validation and creation. By default this controller uses a trait to
-    | provide this functionality without requiring any additional code.
-    |
-    */
-
     use RegistersUsers;
     use AuthenticationTrait;
+
+    private $userRepo;
+    private $profileRepo;
+    private $oauthRepo;
+    private $imageRepo;
+
+    /**
+     * Create a new controller instance.
+     * @param $userRepo
+     * @param $profileRepo
+     * @param $oauthRepo
+     * @param $imageRepo
+     */
+    public function __construct(UserRepository $userRepo, ProfileRepository
+                                $profileRepo, OauthRepository $oauthRepo,
+                                ImageRepository $imageRepo)
+    {
+        $this->userRepo = $userRepo;
+        $this->profileRepo = $profileRepo;
+        $this->oauthRepo = $oauthRepo;
+        $this->imageRepo = $imageRepo;
+    }
 
     /**
      * Register user
      * @param Request $request
-     * @return response
+     * @return JsonResponse
      */
     public function register(Request $request)
     {
-        $userArr = $this->create($request);
+        $user = $this->userRepo->create($request);
 
-        if($userArr != null)
-        {
-            $user = $userArr[0];
-            $profile = $userArr[1];
-            Oauth::create(['user_id' => $user->id]);
+        // Inject user into the request so that profile can create a user
+        // associated to this user
+        $request->merge(['user' => $user]);
 
+        $profile = $this->profileRepo->create($request);
+
+        if($request->has('picture_url')) {
+            $request->merge([
+                'image_url' => $request['picture_url'],
+                'directory' => 'profile_pictures'
+            ]);
+            $image = $this->imageRepo->create($request);
+            $profile->image_id = $image->id;
+            $profile->update();
+        }
+        $this->oauthRepo->create($request);
+
+        if($request->is('api/register')) {
             // Send confirmation email
             $name = $profile->first_name . " " . $profile->last_name;
             $infoArray = ['confirmation_code' => $user->confirmation_code];
             $subject = 'Verify your email address';
-//            $this->sendEmail('confirmation', $infoArray, $user->email, $name, $subject);
-
-            return Response::dataResponse(true, ['user' => $user, 'profile' => $profile],
-                'Successfully registered');
+//          $this->sendEmail('confirmation', $infoArray, $user->email, $name, $subject);
         }
 
-        Exceptions::unknownErrorException('Unable to create user');
-    }
-
-    /**
-     * Register user with oauth
-     * @param Request $request
-     * @return response
-     */
-    public function oauthRegister(Request $request)
-    {
-        // Use for case insensitive check
-        $oauth_type = strtolower($request['oauth_type']);
-
-        $email = $request['email'];
-        $user = User::where('email', '=', $email)->first();
-
-        // Override the user with oauth account if user has not been confirmed
-        if($user != null && !$this->emailConfirmed($user))
-            $user->delete();
-
-        // Creates a user with random password
-        $user = User::create([
-            'email' => $email,
-            'username' => $request['username'],
-            'password' => Hash::make(str_random(16)),
-            'api_token' => $this->generateApiToken(),
-            'confirmation_code' => null
+        return Response::dataResponse(true, [
+            'user' => $user->makeVisible('api_token')
         ]);
-
-        if($user != null) {
-            $user->token_expired_on = Carbon::now()->addDays(365);
-            $user->update();
-            $profile = $this->createProfile($request, $user);
-
-            // Setting the appropriate oauth for the user
-            $oauth = Oauth::create(['user_id' => $user->id]);
-            if($oauth_type == 'facebook')
-                $oauth->facebook = true;
-            else if ($oauth_type == 'google')
-                $oauth->google = true;
-
-            return Response::dataResponse(true, [
-                'user' => $user,
-                'api_token' => $user->api_token,
-                'profile' => $profile
-            ], 'Successfully registered');
-        }
     }
-
 
     /**
      * Check if email is taken
      * @param $email
-     * @return response
+     * @return JsonResponse
      */
     public function emailTaken($email)
     {
-
-        $user = User::where('email', '=', $email)->first();
-        $confirmed = false;
-        if($user != null && $user->confirmation_code == null)
-            $confirmed = true;
-
-        return $this->takenResponse($user, $confirmed);
-
+        $user = $this->userRepo->findBy('email', $email);
+        if($user) {
+            $confirmed = $user->confirmation_code == null;
+            return Response::dataResponse(true, [
+                'taken' => true,
+                'confirmed' => $confirmed
+            ]);
+        }
+        else
+            return Response::dataResponse(true, [
+                'taken' => false
+            ]);
     }
 
     /**
      * Check if username is taken
      * @param $username
-     * @return response
+     * @return JsonResponse
      */
     public function usernameTaken($username)
     {
-
-        $user = User::where('username', '=', $username)->first();
-        $confirmed = false;
-        if($user != null && $user->confirmation_code == null)
-            $confirmed = true;
-
-        return $this->takenResponse($user, $confirmed);
-
-    }
-
-    /**
-     * Helper method returning a response for usernameTaken and emailTaken
-     *
-     * @param $user
-     * @param $confirmed
-     * @return response
-     */
-    public function takenResponse($user, $confirmed)
-    {
-        if($user == null) {
-            return Response::dataResponse(true, ['taken' => false]);
-
-        }
-        else
+        $user = $this->userRepo->findBy('username', $username);
+        if($user) {
+            $confirmed = $user->confirmation_code == null;
             return Response::dataResponse(true, [
                 'taken' => true,
                 'confirmed' => $confirmed
             ]);
-    }
-
-    /**
-     * Check if user is confirmed
-     * @param $user
-     * @return bool
-     */
-    public function emailConfirmed($user)
-    {
-        return $user->confirmation_code == null;
+        }
+        else
+            return Response::dataResponse(true, [
+                'taken' => false
+            ]);
     }
 
     /**
      * Confirm user
      * @param $confirmation_code
-     * @return response
+     * @return JsonResponse
      */
     public function confirm($confirmation_code)
     {
-
         if($confirmation_code == null)
-            Exceptions::invalidConfirmationException();
+            Exceptions::invalidConfirmationCodeException();
 
-        $user = User::where('confirmation_code', '=', $confirmation_code)->first();
+        $user = $this->userRepo->findBy('confirmation_code',
+            $confirmation_code);
 
-        if($user == null)
-            Exceptions::invalidConfirmationException();
+        if($user) {
+            $user->update(['confirmation_code' => null]);
+            return Response::successResponse(ACCOUNT_VERIFIED);
+        }
 
-        $user->confirmation_code = null;
-        $user->update();
-
-        return Response::successResponse('Account verified');
-
-    }
-
-    /**
-     * Where to redirect users after registration.
-     * @var string
-     */
-    protected $redirectTo = '/home';
-
-    /**
-     * Create a new controller instance.
-     * @return void
-     */
-    public function __construct()
-    {
-        $this->middleware('guest');
-    }
-
-    /**
-     * Create a new user instance after a valid registration.
-     * @param  Request $request
-     * @return array containing user and profile
-     */
-    public function create(Request $request)
-    {
-
-        $confirmation_code = str_random(30);
-        $user = User::create([
-                'email' => $request['email'],
-                'username' => $request['username'],
-                'password' => Hash::make($request['password']),
-                'api_token' => $this->generateApiToken(),
-                'token_expired_on' => Carbon::now()->addDays(365),
-                'confirmation_code' => $confirmation_code
-                ]);
-
-        if($user == null)
-            return null;
-
-        $profile = $this->createProfile($request, $user);
-
-        return [$user, $profile];
-
-    }
-
-    /**
-     * Creates a profile for a user
-     * @param Request $request
-     * @param $user
-     * @return mixed
-     */
-    public function createProfile(Request $request, $user)
-    {
-        $gender = $request->input('gender');
-        $first_name = $request->input('first_name');
-        $last_name = $request->input('last_name');
-
-        if($request->has('birthday')) // Format birthday
-            $birthday = \DateTime::createFromFormat('Y-m-d', $request->input('birthday'));
-        else
-            $birthday = null;
-
-        // Stores image into local storage
-        $image = ImageController::storeProfileImage($request->input('picture_url'));
-        if($image != null)
-            $image_id = $image->id;
-        else
-            $image_id = null;
-
-        $profile = Profile::create([
-            'user_id' => $user->id,
-            'gender' => $gender,
-            'first_name' => $first_name,
-            'last_name' => $last_name,
-            'birthday' => $birthday,
-            'image_id' => $image_id
-        ]);
-
-        return $profile;
-
+        Exceptions::invalidConfirmationCodeException();
     }
 
 }
