@@ -6,8 +6,6 @@ use App\Exceptions\Exceptions;
 use App\Exceptions\ResponseHandler as Response;
 use App\Http\Controllers\Controller;
 use App\Repositories\UserRepository;
-use App\User;
-use Illuminate\Foundation\Auth\AuthenticatesUsers;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
@@ -46,8 +44,7 @@ class LoginController extends Controller
             // checks password against hashed pw
 
             return Response::dataResponse(true, [
-                'user' => $user,
-                'api_token' => $user->api_token
+                'user' => $user->makeVisible('api_token')
             ]);
         }
 

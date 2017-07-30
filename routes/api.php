@@ -1,19 +1,5 @@
 <?php
 
-use Illuminate\Http\Request;
-
-
-/*
-|--------------------------------------------------------------------------
-| API Routes
-|--------------------------------------------------------------------------
-|
-| Here is where you can register API routes for your application. These
-| routes are loaded by the RouteServiceProvider within a group which
-| is assigned the "api" middleware group. Enjoy building your API!
-|
-*/
-
 Route::post('password/reset/{token}',
     'Auth\ForgotPasswordController@restorePassword')->name('api_pw_reset');
 
@@ -22,7 +8,7 @@ Route::get('email_taken/{email}', 'Auth\RegisterController@emailTaken');
 Route::get('username_taken/{username}', 'Auth\RegisterController@usernameTaken');
 Route::get('comment/read/{comment_id}', 'CommentController@read');
 Route::get('pinpost/read/{pinpost_id}', 'PinpostController@read');
-Route::get('pinvite/read/{pinvite_id}', 'PinviteController@read');
+Route::get('reply/read/{reply_id}', 'ReplyController@read');
 
 Route::get('relationship/is_friend/{user1_id}/{user2_id}',
     'RelationshipController@isFriend');
@@ -39,7 +25,9 @@ Route::group(['middleware' => 'validation'], function() {
         Route::get('user/blocked_users', 'UserController@blockedUsers');
         Route::get('user/friend_requests', 'UserController@getFriendRequests');
 
+
         Route::post('profile/update', 'ProfileController@update');
+        Route::post('profile/profile_picture/upload', 'ProfileController@updateProfilePicture');
 
         Route::post('relationship/friend_request',
             'RelationshipController@friendRequest');
@@ -49,38 +37,42 @@ Route::group(['middleware' => 'validation'], function() {
             'RelationshipController@deleteFriend');
         Route::get('relationship/block/{user_id}',
             'RelationshipController@blockUser');
-        Route::get('relationship/is_friend/{user1_id}/{user2_id}',
-            'RelationshipController@isFriend');
 
-        Route::get('entity/likes_count/{entity_id}',
-            'EntityController@likesCount');
-        Route::get('entity/commentsCount/comments_count',
-            'EntityController@commentsCount');
-        Route::get('entity/likes_from_users/{entity_id}',
-            'EntityController@likesUsers');
-        Route::get('entity/comments/{entity_id}',
-            'EntityController@comments');
 
         Route::post('pinpost/create', 'PinpostController@create');
         Route::post('pinpost/update/{pinpost_id}', 'PinpostController@update');
         Route::delete('pinpost/delete/{pinpost_id}', 'PinpostController@delete');
+        Route::get('pinpost/comment/create/{commentable_id}', 'CommentController@create');
+        Route::get('pinpost/get_comments/{pinpost_id}', 'PinpostController@fetchComments');
+        Route::get('pinpost/get_likes/{pinpost_id}', 'PinpostController@fetchLikes');
+        Route::get('pinpost/comments/count/{pinpost_id}', 'PinpostController@commentsCount');
+        Route::get('pinpost/likes/count/{pinpost_id}', 'PinpostController@likesCount');
         Route::get('pinpost/fetch', 'PinpostController@fetch');
 
+        Route::post('pinpost/upload_image/{imageable_id}', 'ImageController@uploadImage');
+        Route::post('pinpost/like/create/{likeable_id}', 'LikeController@create');
+        Route::post('pinpost/comment/create/{commentable_id}', 'CommentController@create');
 
-        Route::post('pinvite/create', 'PinviteController@create');
-        Route::post('pinvite/update/{pinvite_id}', 'PinviteController@update');
-        Route::delete('pinvite/delete/{pinvite_id}', 'PinviteController@delete');
-        Route::post('pinvite/uploadPicture/{pinvite_id}',
-            'PinviteController@uploadPicture');
-        Route::delete('pinvite/deletePicture/{image_id}',
-            'PinviteController@deletePicture');
 
-        Route::post('comment/create', 'CommentController@create');
+        Route::post('comment/like/create/{likeable_id}', 'LikeController@create');
+        Route::post('comment/upload_image/{imageable_id}', 'ImageController@uploadImage');
         Route::post('comment/update/{comment_id}', 'CommentController@update');
         Route::delete('comment/delete/{comment_id}', 'CommentController@delete');
+        Route::get('comment/get_likes/{comment_id}', 'CommentController@fetchLikes');
+        Route::get('comment/likes/count/{comment_id}', 'CommentController@likesCount');
 
-        Route::post('like/create', 'LikeController@create');
-        Route::delete('like/delete/{entity_id}', 'LikeController@delete');
+
+        Route::post('reply/like/create/{reply_id}', 'LikeController@create');
+        Route::post('reply/upload_image/{reply_id}', 'ImageController@uploadImage');
+        Route::post('reply/create/{comment_id}', 'ReplyController@create');
+        Route::post('reply/update/{reply_id}', 'ReplyController@update');
+        Route::delete('reply/delete/{reply_id}', 'ReplyController@delete');
+        Route::get('reply/get_likes/{reply_id}', 'ReplyController@fetchLikes');
+
+
+        Route::delete('like/delete/{likeid}', 'LikeController@delete');
+
+        Route::delete('image/delete/{image_id}', 'ImageController@deleteImage');
     });
 
     Route::group(['middleware' => 'oauth'], function() {

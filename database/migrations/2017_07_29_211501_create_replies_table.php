@@ -3,9 +3,8 @@
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
-use Carbon\Carbon;
 
-class CreateInvitationsTable extends Migration
+class CreateRepliesTable extends Migration
 {
     /**
      * Run the migrations.
@@ -14,18 +13,18 @@ class CreateInvitationsTable extends Migration
      */
     public function up()
     {
-        Schema::create('invitations', function (Blueprint $table) {
+        Schema::create('replies', function (Blueprint $table) {
             $table->increments('id');
-            $table->unsignedInteger('pinvite_id');
-            $table->foreign('pinvite_id')
-                ->references('id')->on('pinvites')
+            $table->text('text');
+            $table->unsignedInteger('comment_id')
+                ->reference('id')->on('comments')
                 ->onDelete('cascade');
-            $table->boolean('status')->default(false);
-            $table->unsignedInteger('invitee_id')
+            $table->unsignedInteger('user_id');
+            $table->foreign('user_id')
                 ->references('id')->on('users')
                 ->onDelete('cascade');
-            $table->timestamp('invited_on')
-                ->nullable();
+            $table->timestamp('updated_at')
+                ->default(DB::raw('CURRENT_TIMESTAMP'));
         });
     }
 
@@ -36,6 +35,6 @@ class CreateInvitationsTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('invitations');
+        Schema::dropIfExists('replies');
     }
 }

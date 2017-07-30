@@ -10,6 +10,7 @@ class Oauth extends Model
     public $timestamps = false;
 
     protected $fillable = ['user_id', 'facebook', 'google'];
+    protected $hidden = ['id', 'user_id'];
 
     public function user()
     {

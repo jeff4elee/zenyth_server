@@ -20,7 +20,7 @@ class DataRules
         return [
             'username' => 'required|min:3|max:20',
             'email' => 'required|email|max:255',
-            'oauth_type' => 'required',
+            'oauth_type' => 'required|in:facebook,google',
             'picture_url' => 'url',
             'birthday' => 'date_format:Y-m-d'
         ];
@@ -29,7 +29,7 @@ class DataRules
     static public function oauthLoginRules()
     {
         return [
-            'oauth_type' => 'required',
+            'oauth_type' => 'required|in:facebook,google',
             'email' => 'required'
         ];
     }
@@ -71,15 +71,23 @@ class DataRules
             'title' => 'required',
             'description' => 'required',
             'latitude' => 'required',
-            'longitude' => 'required',
-            'thumbnail' => 'image',
+            'longitude' => 'required'
+        ];
+    }
+
+    static public function uploadImageRules()
+    {
+        return [
+            'image' => 'required|image'
         ];
     }
 
     static public function updatePinpostRules()
     {
         return [
-            'thumbnail' => 'image'
+            'image' => 'image',
+            'latitude' => 'numeric',
+            'longitude' => 'numeric'
         ];
     }
 
@@ -89,8 +97,8 @@ class DataRules
             'type' => 'required|in:radius,frame',
             'radius' => 'required_if:type,radius|numeric|min:0',
             'center' => 'required_if:type,radius|valid_coord',
-            'first_coord' => 'required_if:type,frame|valid_coord',
-            'second_coord' => 'required_if:type,frame|valid_coord',
+            'top_left' => 'required_if:type,frame|valid_coord',
+            'bottom_right' => 'required_if:type,frame|valid_coord',
             'unit' => 'in:km,mi',
             'scope' => 'in:self,friends,public'
         ];
@@ -103,55 +111,36 @@ class DataRules
         ];
     }
 
-    static public function createPinviteRules()
-    {
-        return [
-            'title' => 'required',
-            'description' => 'required',
-            'latitude' => 'required',
-            'longitude' => 'required',
-            'thumbnail' => 'image',
-            'event_time' => 'required'
-        ];
-    }
-
     static public function pictureRules()
     {
         return ['file' => 'image'];
     }
 
-    static public function likeRules()
-    {
-        return ['entity_id' => 'required'];
-    }
-
-    static public function createCommentRules()
-    {
-        return [
-            'comment' => 'required|min:1',
-            'on_entity_id' => 'required',
-            'image' => 'image'
-        ];
-    }
-
-    static public function updateCommentRules()
+    static public function commentRules()
     {
         return [
             'comment' => 'required|min:1'
         ];
     }
 
+    static public function replyRules()
+    {
+        return [
+            'text' => 'required|min:1'
+        ];
+    }
+
     static public function friendRequestRules()
     {
         return [
-            'requestee_id' => 'required|exists:users,id'
+            'requestee_id' => 'required|exists:users,id|numeric'
         ];
     }
 
     static public function responseToFriendRequestRules()
     {
         return [
-            'status' => 'required'
+            'status' => 'required|boolean'
         ];
     }
 

@@ -4,10 +4,10 @@
 namespace App\Repositories;
 
 
-class EntityRepository extends Repository
+class ReplyRepository extends Repository
 {
     function model()
     {
-        return 'App\Entity';
+        return 'App\Reply';
     }
 }

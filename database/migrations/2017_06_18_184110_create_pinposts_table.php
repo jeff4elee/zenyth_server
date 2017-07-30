@@ -15,22 +15,12 @@ class CreatePinpostsTable extends Migration
     {
         Schema::create('pinposts', function (Blueprint $table) {
             $table->increments('id');
-            $table->unsignedInteger('entity_id');
-            $table->foreign('entity_id')
-                ->references('id')->on('entities')
-                ->onDelete('cascade');
-            $table->unique('entity_id');
             $table->string('title');
             $table->text('description');
             $table->double('latitude');
             $table->double('longitude');
-            $table->unsignedInteger('thumbnail_id')
-                ->nullable()->default(null);
-            $table->foreign('thumbnail_id')
-                ->references('id')->on('images')
-                ->onDelete('set null');
-            $table->unsignedInteger('creator_id');
-            $table->foreign('creator_id')
+            $table->unsignedInteger('user_id');
+            $table->foreign('user_id')
                 ->references('id')->on('users')
                 ->onDelete('cascade');
             $table->timestamps();

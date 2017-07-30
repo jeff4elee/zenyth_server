@@ -2,12 +2,9 @@
 
 namespace Tests\Feature;
 
-use Tests\TestCase;
-use Illuminate\Foundation\Testing\WithoutMiddleware;
-use Illuminate\Foundation\Testing\DatabaseMigrations;
+use App\User;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
-use Illuminate\Support\Facades\User;
-use Illuminate\Support\Facades\Hash;
+use Tests\TestCase;
 
 
 class AuthTest extends TestCase
@@ -40,17 +37,50 @@ class AuthTest extends TestCase
     public function testRegistration()
     {
 
-        $response = $this->json('POST', '/api/register', ['username' => 'testman', 'gender' => 'gay', 'email' => 'test@email.com', 'password' => 'password', 'password_confirmation' => 'password']);
+        $response = $this->json('POST', '/api/register', [
+            'username' => 'testman',
+            'gender' => 'non-binary',
+            'email' => 'test@email.com',
+            'password' => 'password',
+            'password_confirmation' => 'password']);
 
         $response
             ->assertStatus(200)
             ->assertJson([
                 'success' => true,
                 'data' => [
-                    'email' => 'test@email.com',
-                    'username' => 'testman'
+                    'user' => [
+                        'email' => 'test@email.com',
+                        'username' => 'testman'
+                    ]
+                ]
+            ])
+            ->assertJsonStructure([
+                'success',
+                'data' => [
+                    'user' => [
+                        'email',
+                        'username',
+                        'api_token',
+                        'id',
+                        'profile' => [
+                            'first_name',
+                            'last_name',
+                            'gender',
+                            'birthday',
+                            'picture_id'
+                        ]
+                    ]
                 ]
             ]);
+        $this->assertDatabaseHas('users', [
+            'username' => 'testman',
+            'email' => 'test@email.com'
+        ]);
+
+        $user_id = $response->decodeResponseJson()['data']['user']['id'];
+
+        $this->assertDatabaseHas('profiles', ['user_id' => $user_id]);
 
     }
 
@@ -64,14 +94,63 @@ class AuthTest extends TestCase
 
     public function testLogin(){
 
-        $user = factory('App\User')->create(['password' => Hash::make('password')]);
+        $profile = factory('App\Profile')->create();
 
-        $response = $this->json('POST', '/api/login', ['username' => $user->email, 'password' => 'password']);
+        $response = $this->json('POST', '/api/login', [
+            'username' => User::find($profile->user_id)->username,
+            'password' => 'password'
+        ]);
 
         $response->assertStatus(200);
 
         $response->assertJson(['success' => true]);
 
+    }
+
+    public function testEmailTaken()
+    {
+        $user = factory('App\User')->create();
+        $response = $this->json('GET', '/api/email_taken/'
+        . $user->email, []);
+
+        $response->assertJson([
+            'success' => true,
+            'data' => [
+                'taken' => true
+            ]
+        ]);
+
+        $response = $this->json('GET', '/api/email_taken/'
+            . 'averyrandomemail@email.com', []);
+        $response->assertJson([
+            'success' => true,
+            'data' => [
+                'taken' => false
+            ]
+        ]);
+    }
+
+    public function testUsernameTaken()
+    {
+        $user = factory('App\User')->create();
+        $response = $this->json('GET', '/api/username_taken/'
+            . $user->username, []);
+
+        $response->assertJson([
+            'success' => true,
+            'data' => [
+                'taken' => true
+            ]
+        ]);
+
+        $response = $this->json('GET', '/api/email_taken/'
+            . 'averyrandomusername', []);
+        $response->assertJson([
+            'success' => true,
+            'data' => [
+                'taken' => false
+            ]
+        ]);
     }
 
 }

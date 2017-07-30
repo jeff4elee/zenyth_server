@@ -46,7 +46,7 @@ class ForgotPasswordController extends Controller
         $this->sendEmail('restore_password_email', $infoArray, $email, $name, $subject);
 
         return Response::dataResponse(true, ['email' => $email],
-            'Check your email');
+            CHECK_EMAIL);
     }
 
     public function showPasswordResetBlade($token)
@@ -90,7 +90,7 @@ class ForgotPasswordController extends Controller
 
         return response()->json([
             'success' => true,
-            'message' => 'Successfully reset password'
+            'message' => RESET_PW_SUCCESS
         ], 200);
 
     }

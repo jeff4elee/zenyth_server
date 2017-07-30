@@ -9,6 +9,10 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
 
+/**
+ * Class Repository
+ * @package App\Repositories
+ */
 abstract class Repository implements RepositoryInterface
 {
     /**
@@ -32,6 +36,10 @@ abstract class Repository implements RepositoryInterface
         $this->makeModel();
     }
 
+    /**
+     * @param array $fields
+     * @return \Illuminate\Database\Eloquent\Collection|static[]
+     */
     public function all(array $fields = ['*'])
     {
         $data = $this->model->get($fields);
@@ -43,56 +51,51 @@ abstract class Repository implements RepositoryInterface
 
     /**
      * Create a model's object
-     * @param Request $request
+     * @param $request
      * @return mixed
      */
-    public function create(Request $request)
+    public function create($request)
     {
-        $columns = $this->model->getConnection()->getSchemaBuilder()
-            ->getColumnListing($this->model->getTable());
-
-        $data = $request->all();
-
-        // Filter out the keys in the request that aren't part of the
-        // columns
-        $filteredData = array_filter($data, function($field) use ($columns) {
-            return in_array($field, $columns);
-        }, ARRAY_FILTER_USE_KEY);
+        $filteredData = $this->filterData($request);
 
         return $this->model->create($filteredData);
     }
 
     /**
      * Update a model's object
-     * @param Request $request
-     * @param $id
+     * @param $request
+     * @param $model, id|eloquent model
+     * @param $attribute
      * @return mixed
      */
-    public function update(Request $request, $id, $attribute = 'id')
+    public function update($request, $model = null, $attribute = 'id')
     {
-        $columns = $this->model->getConnection()->getSchemaBuilder()
-            ->getColumnListing($this->model->getTable());
+        $filteredData = $this->filterData($request);
 
-        $data = $request->all();
-
-        // Filter out the keys in the request that aren't part of the
-        // columns
-        $filteredData = array_filter($data, function($field) use ($columns) {
-            return in_array($field, $columns);
-        }, ARRAY_FILTER_USE_KEY);
-
-        return $this->model->where($attribute, '=', $id)->update($filteredData);
+        if($model instanceof Model)
+            return $model->update($filteredData);
+        else if($model != null)
+            return $this->model->where($attribute, '=', $model)->update
+            ($filteredData);
+        else
+            Exceptions::invalidParameterException(EITHER_MODEL_OR_ID);
     }
 
     /**
-     * Delete a model' object
-     * @param Request $request
-     * @param $id
+     * Delete a model's object
+     * @param $model, id|eloquent model
      * @return mixed
      */
-    public function delete(Request $request, $id)
+    public function delete($model = null)
     {
-        return $this->model->destroy($id);
+        if($model instanceof Model)
+            return $model->delete();
+        else if($model != null) {
+            $model = $this->model->find($model);
+            return $model->delete();
+        }
+        else
+            Exceptions::invalidParameterException(EITHER_MODEL_OR_ID);
     }
 
     /**
@@ -121,6 +124,12 @@ abstract class Repository implements RepositoryInterface
 
     }
 
+    /**
+     * @param $attribute
+     * @param $value
+     * @param array $columns
+     * @return mixed
+     */
     public function findBy($attribute, $value, $columns = ['*'])
     {
         return $this->model->where($attribute, '=', $value)->first($columns);
@@ -148,6 +157,10 @@ abstract class Repository implements RepositoryInterface
         return $this;
     }
 
+    /**
+     * @param array $fields
+     * @return $this
+     */
     public function select($fields = ['*'])
     {
         $query = $this->model->select($fields);
@@ -166,6 +179,11 @@ abstract class Repository implements RepositoryInterface
         return $this;
     }
 
+    /**
+     * @param $queryOne
+     * @param $queryTwo
+     * @return $this
+     */
     public function union($queryOne, $queryTwo)
     {
         $query = $queryOne->union($queryTwo);
@@ -197,6 +215,10 @@ abstract class Repository implements RepositoryInterface
         return $this->model = $model;
     }
 
+    /**
+     * Get the query object
+     * @return Model
+     */
     public function getQuery()
     {
         return $this->model;
@@ -210,6 +232,25 @@ abstract class Repository implements RepositoryInterface
     {
         $this->makeModel();
         return $this;
+    }
+
+    public function filterData($request)
+    {
+        $columns = $this->model->getConnection()->getSchemaBuilder()
+            ->getColumnListing($this->model->getTable());
+
+        if($request instanceof Request)
+            $data = $request->all();
+        else
+            $data = $request;
+
+        // Filter out the keys in the request that aren't part of the
+        // columns
+        $filteredData = array_filter($data, function($field) use ($columns) {
+            return in_array($field, $columns);
+        }, ARRAY_FILTER_USE_KEY);
+
+        return $filteredData;
     }
 
 }

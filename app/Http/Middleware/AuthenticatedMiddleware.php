@@ -33,12 +33,12 @@ class AuthenticatedMiddleware
 
         $api_token = $request->header('Authorization');
         if($api_token == null)
-            Exceptions::unauthenticatedException('This request requires an access token');
+            Exceptions::unauthenticatedException(REQUIRES_ACCESS_TOKEN);
 
         $api_token = $this->stripBearerFromToken($api_token);
 
         if($api_token == null)
-            Exceptions::invalidTokenException('Invalid access token');
+            Exceptions::invalidTokenException(INVALID_TOKEN);
 
         $user = $this->userRepo->findBy('api_token', $api_token);
 

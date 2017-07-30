@@ -5,73 +5,62 @@ namespace App\Repositories;
 
 use App\Exceptions\Exceptions;
 use App\Http\Controllers\ImageController;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 
+/**
+ * Class ImageRepository
+ * @package App\Repositories
+ */
 class ImageRepository extends Repository
 {
+    /**
+     * @return string
+     */
     function model()
     {
         return 'App\Image';
     }
 
-    public function create(Request $request)
+    /**
+     * Create an image and store it into storage
+     * @param $request
+     * @return $this|\Illuminate\Database\Eloquent\Model
+     */
+    public function create($request)
     {
         $directory = $request->get('directory');
+        $imageableId = $request->get('imageable_id');
+        $imageableType = $request->get('imageable_type');
+        $userId = $request->get('user_id');
+
+        $image = $this->model->create([
+            'user_id' => $userId,
+            'filename' => 'temporary',
+            'imageable_type' => $imageableType,
+            'imageable_id' => $imageableId,
+            'directory' => $directory
+        ]);
+
         if($request->has('image_file')) {
             $imageFile = $request->get('image_file');
             if($directory)
                 $filename = ImageController::storeImageByUploadedFile($imageFile,
-                    $directory);
+                    $image, $directory);
             else
-                $filename = ImageController::storeImageByUploadedFile($imageFile);
+                $filename = ImageController::storeImageByUploadedFile
+                ($imageFile, $image);
         }
         else {
             $url = $request->get('image_url');
             if($directory)
-                $filename = ImageController::storeImageByUrl($url, $directory);
+                $filename = ImageController::storeImageByUrl($url,
+                    $image, $directory);
             else
-                $filename = ImageController::storeImageByUrl($url);
+                $filename = ImageController::storeImageByUrl($url, $image);
         }
 
-        $image = $this->model->create(['filename' => $filename]);
+        $image->update(['filename' => $filename]);
         return $image;
     }
-
-    public function update(Request $request, $id, $attribute = 'id')
-    {
-        $image = $this->model->where($attribute, '=', $id)->first();
-        $directory = $request->get('directory');
-        if(!$image)
-            Exceptions::notFoundException('Image not found');
-
-        $oldFilename = $image->filename;
-        Storage::disk($directory)->delete($oldFilename);
-
-        if($request->has('image_file')) {
-            $imageFile = $request->get('image_file');
-            $filename = ImageController::storeImageByUploadedFile($imageFile,
-                $directory);
-        }
-        else {
-            $url = $request->get('image_url');
-            $filename = ImageController::storeImageByUrl($url, $directory);
-        }
-        $image->filename = $filename;
-        $image->update();
-        return $image;
-    }
-
-    public function delete(Request $request, $id)
-    {
-        $image = $this->model->where('id', '=', $id)->first();
-        if(!$image)
-            Exceptions::notFoundException('Image not found');
-
-        $directory = $request->get('directory');
-        Storage::disk($directory)->delete($image->filename);
-        return $image->delete();
-    }
-
 
 }

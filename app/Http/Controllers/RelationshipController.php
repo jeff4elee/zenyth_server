@@ -7,7 +7,6 @@ use App\Exceptions\ResponseHandler as Response;
 use App\Repositories\RelationshipRepository;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Cache;
 
 /**
  * Class RelationshipController
@@ -35,20 +34,21 @@ class RelationshipController extends Controller
         $requesteeId = (int)$request['requestee_id'];
 
         if($userId == $requesteeId)
-            Exceptions::invalidRequestException('Cannot send a friend request to yourself');
+            Exceptions::invalidRequestException(INVALID_REQUEST_TO_SELF);
 
+        // Query for relationship between these two users to check if it has
+        // already existed
         $relationship = $this->relationshipRepo
             ->hasRelationship($userId, $requesteeId)->all()->first();
 
         if ($relationship)
-            Exceptions::invalidRequestException('Existed friendship or pending friend request');
+            Exceptions::invalidRequestException(EXISTED_RELATIONSHIP);
 
         $request->merge([
             'requester' => $userId,
             'requestee' => $requesteeId
         ]);
 
-        $this->relationshipRepo->resetScope();
         $relationship = $this->relationshipRepo->create($request);
 
         return Response::dataResponse(true, ['relationship' => $relationship]);
@@ -67,22 +67,20 @@ class RelationshipController extends Controller
         $user = $request->get('user');
         $requesteeId = $user->id;
 
-        $this->relationshipRepo->pushCriteria(
-            new HaveRelationship($requester_id, $requesteeId));
-
+        // Query for relationship between these two users to check if it has
+        // already existed
         $relationship = $this->relationshipRepo
             ->hasRelationship($requester_id, $requesteeId)->all()->first();
 
         if ($relationship == null || $relationship->status == true)
-            Exceptions::invalidRequestException('No pending request');
+            Exceptions::invalidRequestException(NO_PENDING_REQUEST);
 
         if ((bool)$request->input('status')) {
             $relationship->update(['status' => true]);
-            return Response::dataResponse(true, ['relationship' => $relationship],
-                'Friendship created');
+            return Response::dataResponse(true, ['relationship' => $relationship]);
         } else {
             $relationship->delete();
-            return Response::successResponse('Friend request ignored');
+            return Response::successResponse(IGNORED_FRIEND_REQUEST);
         }
     }
 
@@ -98,8 +96,10 @@ class RelationshipController extends Controller
         $deleterId = $user->id;
 
         if($deleterId == $user_id)
-            Exceptions::invalidRequestException('Cannot delete yourself');
+            Exceptions::invalidRequestException(INVALID_REQUEST_TO_SELF);
 
+        // Query for relationship between these two users to check if it has
+        // already existed
         $relationship = $this->relationshipRepo
             ->hasRelationship($deleterId, $user_id)
             ->hasFriendship()->all()->first();
@@ -109,15 +109,7 @@ class RelationshipController extends Controller
 
         $relationship->delete();
 
-        $this->swapVal($user->id, $deleterId);
-
-        $key = 'friend' . $user->id . $deleterId;
-
-        if(Cache::has($key)){
-            return Cache::forget($key);
-        }
-
-        return Response::successResponse('Unfriended');
+        return Response::successResponse(DELETE_SUCCESS);
     }
 
     /**
@@ -132,22 +124,23 @@ class RelationshipController extends Controller
         $blockerId = $user->id;
 
         if($blockerId == $user_id)
-            Exceptions::invalidRequestException('Cannot block yourself');
+            Exceptions::invalidRequestException(INVALID_REQUEST_TO_SELF);
 
+        // Query for relationship between these two users to check if it has
+        // already existed
         $relationship = $this->relationshipRepo
             ->hasRelationship($blockerId, $user_id)
-            ->hasFriendship()->all()->first();
+            ->all()->first();
 
         if ($relationship) {
             if($relationship->blocked)
-                Exceptions::invalidRequestException('Already blocked');
+                Exceptions::invalidRequestException(EXISTED_RELATIONSHIP);
 
             $relationship->blocked = true;
             $relationship->requester = $blockerId;
             $relationship->requestee = $user_id;
             $relationship->status = false;
             $relationship->update();
-
         } else {
             $request->merge([
                 'requester' => $blockerId,
@@ -156,26 +149,7 @@ class RelationshipController extends Controller
             ]);
             $relationship = $this->relationshipRepo->create($request);
         }
-
-
-        $this->swapVal($user->id, $blockerId);
-
-        $key = 'friend' . $user->id . $blockerId;
-
-        if(Cache::has($key)){
-            return Cache::forget($key);
-        }
-
-        return Response::dataResponse(true, ['relationship' => $relationship],
-            'Successfully blocked user');
-    }
-
-    private function swapVal($user1_id, $user2_id){
-        if(intval($user1_id) > intval($user2_id)){
-            $tmp=$user1_id;
-            $user1_id = $user2_id;
-            $user2_id = $tmp;
-        }
+        return Response::dataResponse(true, ['relationship' => $relationship]);
     }
 
     /**
@@ -187,32 +161,18 @@ class RelationshipController extends Controller
      */
     public function isFriend(Request $request, $user1_id, $user2_id)
     {
-
-        $this->swapVal($user1_id, $user2_id);
-
-        $key = 'friend' . $user1_id . $user2_id;
-
-        if(Cache::has($key)){
-            return Cache::get($key);
-        }
-
         $relationship = $this->relationshipRepo
             ->hasRelationship($user1_id, $user2_id)
             ->hasFriendship()->all()->first();
 
         if($relationship) {
-            $response = Response::dataResponse(true, [
+            return Response::dataResponse(true, [
                 'relationship' => $relationship,
                 'is_friend' => true
             ]);
-
         } else {
-            $response = Response::dataResponse(true, ['is_friend' => false]);
+            return Response::dataResponse(true, ['is_friend' => false]);
         }
-
-        Cache::put($key, $response, 20);
-        return $response;
-
     }
 
 }

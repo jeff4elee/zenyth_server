@@ -37,7 +37,10 @@ class UserController extends Controller
      */
     public function getFriends($user_id)
     {
-        $friends = $this->relationshipRepo->getAllFriends($user_id)->all();
+        $user = $this->userRepo->read($user_id);
+        $friendsIds = $user->friendsId();
+        $friends = $this->userRepo
+            ->allUsersInIdArray($friendsIds)->all();
 
         return Response::dataResponse(true, ['users' => $friends]);
     }
@@ -50,10 +53,9 @@ class UserController extends Controller
     public function blockedUsers(Request $request)
     {
         $user = $request->get('user');
-        $userId = $user->id;
-        $blockedUsers = $this->relationshipRepo
-            ->getAllBlockedUsers($userId)
-            ->all();
+        $blockedUsersIds = $user->blockedUsersId();
+        $blockedUsers = $this->userRepo
+            ->allUsersInIdArray($blockedUsersIds)->all();
 
         return Response::dataResponse(true, ['users' => $blockedUsers]);
     }
@@ -66,10 +68,9 @@ class UserController extends Controller
     public function getFriendRequests(Request $request)
     {
         $user = $request->get('user');
-        $userId = $user->id;
 
-        $friendRequests = $this->relationshipRepo
-            ->getAllFriendRequests($userId)->all();
+        $friendRequestsIds = $user->friendRequestsUsersId();
+        $friendRequests = $this->userRepo->allUsersInIdArray($friendRequestsIds);
 
         return Response::dataResponse(true, ['users' => $friendRequests]);
     }
@@ -101,12 +102,12 @@ class UserController extends Controller
         $user = null;
         // Validating the token since this route is not in the middleware
         if(!$api_token)
-            Exceptions::invalidTokenException('Invalid token');
+            Exceptions::invalidTokenException(INVALID_TOKEN);
         else
             $user = $this->userRepo->findBy('api_token', $api_token);
 
         if(!$user)
-            Exceptions::invalidTokenException('Invalid token');
+            Exceptions::invalidTokenException(INVALID_TOKEN);
 
         $keyword = strtolower($request->input('keyword'));
         $keyword = str_replace(" ", "%", $keyword);

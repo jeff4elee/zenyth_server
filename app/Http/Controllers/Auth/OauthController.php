@@ -4,10 +4,10 @@ namespace App\Http\Controllers\Auth;
 
 use App\Exceptions\Exceptions;
 use App\Exceptions\ResponseHandler as Response;
+use App\Http\Controllers\Controller;
 use App\Http\Controllers\ImageController;
 use App\Profile;
 use App\Repositories\UserRepository;
-use App\Http\Controllers\Controller;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
@@ -47,7 +47,7 @@ class OauthController extends Controller
             return $this->processOauth($oauth_type, $profile, $json, $oauth, $data, $request);
         }
         else
-            Exceptions::invalidParameterException('Invalid email');
+            Exceptions::invalidParameterException(INVALID_EMAIL);
     }
 
 

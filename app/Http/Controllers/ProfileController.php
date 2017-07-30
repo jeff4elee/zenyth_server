@@ -33,22 +33,43 @@ class ProfileController extends Controller
     public function update(Request $request)
     {
         $user = $request->get('user');
-        $profile = $this->profileRepo->update($request, $user->id, 'user_id');
+        $this->profileRepo->update($request, $user->id, 'user_id');
 
-        if($request->hasFile('image')) {
-            $request->merge([
-                'image_file' => $request->file('image'),
-                'directory' => 'profile_pictures'
-            ]);
-            if($profile->image_id) {
-                $this->imageRepo->update($request, $profile->image_id);
-            }
-            else {
-                $image = $this->imageRepo->create($request);
-                $profile->image_id = $image->id;
-                $profile->update();
-            }
+        return Response::dataResponse(true, [
+            'user' => $user
+        ]);
+    }
+
+    /**
+     * Update profile picture
+     * @param Request $request
+     * @return JsonResponse
+     */
+    public function updateProfilePicture(Request $request)
+    {
+        $user = $request->get('user');
+        $profile = $user->profile;
+
+        // Check for old profile picture, if there already is one, delete it
+        if($oldImageId = $profile->picture_id) {
+            $this->imageRepo->delete($oldImageId);
         }
+
+        // UploadedFile object
+        $image = $request->file('image');
+
+        $request->merge([
+            'user_id' => $user->id,
+            'image_file' => $image,
+            'directory' => 'profile_pictures',
+            'imageable_id' => $profile->id,
+            'imageable_type' => 'App\Profile'
+        ]);
+        $image = $this->imageRepo->create($request);
+
+        $profile->picture_id = $image->id;
+        $profile->update();
+
 
         return Response::dataResponse(true, [
             'profile' => $profile
@@ -65,15 +86,15 @@ class ProfileController extends Controller
         $profile = $this->profileRepo->findBy('user_id', $user_id);
         if($profile) {
             $image = $profile->profilePicture;
-            if ($image == null) {
+            if ($image == null)
                 Exceptions::notFoundException('User does not have a profile picture');
-            }
+
             $filename = $image->filename;
             $path = 'app/profile_pictures/' . $filename;
             return Response::rawImageResponse($path);
         }
 
-        Exceptions::notFoundException('Invalid user id');
+        Exceptions::notFoundException(INVALID_USER_ID);
     }
 
 }

@@ -2,7 +2,7 @@
 
 namespace App\Repositories;
 
-use Illuminate\Http\Request;
+use Illuminate\Contracts\Support\Arrayable;
 use Illuminate\Support\Facades\DB;
 
 class TagRepository extends Repository
@@ -13,13 +13,6 @@ class TagRepository extends Repository
         return 'App\Tag';
     }
 
-    public function create(Request $request)
-    {
-        return $this->model->create([
-            'tag' => $request->get('tag')
-        ]);
-    }
-
     /**
      * Get all tags with similar names as this tag
      * @param $tagName
@@ -28,8 +21,7 @@ class TagRepository extends Repository
     public function tagsWithSimilarNames($tagName)
     {
         $query = $this->model->select('tags.*')
-            ->where('tags.tag', 'like', '%'.$tagName.'%');
-
+            ->where('tags.name', 'like', '%'.$tagName.'%');
         $this->model = $query;
         return $this;
     }
@@ -41,33 +33,7 @@ class TagRepository extends Repository
      */
     public function tagWithExactName($tagName)
     {
-        $query = $this->model->where('tag', '=', $tagName);
-        $this->model = $query;
-        return $this;
-    }
-
-    /**
-     * @return mixed
-     */
-    public function joinPinpostThroughPinpostTags()
-    {
-        $query = $this->model
-            ->join('pinpost_tags', 'pinpost_tags.tag_id', '=', 'tags.id')
-            ->join('pinposts', 'pinpost_tags.pinpost_id', '=', 'pinposts.id');
-
-        $this->model = $query;
-        return $this;
-    }
-
-    /**
-     * Join with pinpost tags table
-     * @return mixed
-     */
-    public function joinPinpostTags()
-    {
-        $query = $this->model->join('pinpost_tags',
-            'pinpost_tags.tag_id', '=', 'tags.id');
-
+        $query = $this->model->where('name', '=', $tagName);
         $this->model = $query;
         return $this;
     }
@@ -78,23 +44,35 @@ class TagRepository extends Repository
      */
     public function groupByTagsName()
     {
-        $query = $this->model->groupBy('tags.tag');
+        $query = $this->model->groupBy('tags.id');
         $this->model = $query;
         return $this;
     }
 
     /**
-     * Order by how many tags there are
-     * @param $option
+     * Join taggables table
      * @return mixed
      */
-    public function orderByCount($option = 'desc')
+    public function joinTaggables()
     {
-        $query = $this->model->orderBy
-        (DB::raw('count(pinpost_tags.id)'), $option);
-
+        $query = $this->model->join('taggables',
+            'taggables.tag_id', '=', 'tags.id');
         $this->model = $query;
         return $this;
     }
+
+    /**
+     * Order by the number of objects associated with the tag in descending
+     * order
+     * @return mixed
+     */
+    public function orderByCount()
+    {
+        $query = $this->model->orderBy(DB::raw('count(taggables.tag_id)'),
+            'desc');
+        $this->model = $query;
+        return $this;
+    }
+
 
 }

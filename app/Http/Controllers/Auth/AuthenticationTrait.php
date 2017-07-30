@@ -65,7 +65,7 @@ trait AuthenticationTrait
     {
         $access_token = $request->header('Authorization');
         if ($access_token == null) {
-            Exceptions::oauthException('Invalid access token');
+            Exceptions::oauthException(INVALID_TOKEN);
         }
         $access_token = $this->stripBearerFromToken($access_token);
 
@@ -80,7 +80,7 @@ trait AuthenticationTrait
             $res = $client->get($this->googleApi . $access_token);
         
         if ($res == null)
-            Exceptions::invalidRequestException('Unable to get a response');
+            Exceptions::invalidRequestException(REQUEST_NO_RESPONSE);
 
         $json = json_decode($res->getBody()->getContents(), true);
         return $json;
@@ -89,7 +89,6 @@ trait AuthenticationTrait
 
     /**
      * Send email
-     *
      * @param $blade
      * @param $infoArray
      * @param $email

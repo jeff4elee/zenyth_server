@@ -27,7 +27,7 @@ class TagController extends Controller
         $tagName = $request->input('tag');
         $tags = $this->tagRepo
             ->tagsWithSimilarNames($tagName)
-            ->joinPinpostTags()->groupByTagsName()->orderByCount()
+            ->joinTaggables()->groupByTagsName()->orderByCount()
             ->paginate(10);
 
         return Response::dataResponse(true, [
@@ -44,13 +44,14 @@ class TagController extends Controller
     {
         $tagName = $request->input('tag');
 
-        $query = $this->tagRepo
-            ->joinPinpostThroughPinpostTags()
-            ->tagWithExactName($tagName)
-            ->distinct()->latest();
+        $tag = $this->tagRepo->findBy('name', $tagName);
+
+        // Get latest pinposts of this tag using eloquent polymorphic
+        // relationship
+        $query = $tag->pinposts()->latest()->get();
 
         return Response::dataResponse(true, [
-            'pinposts' => $query->all(['pinposts.*', 'tags.tag'])
+            'pinposts' => $query
         ]);
     }
 }

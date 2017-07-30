@@ -2,14 +2,12 @@
 
 namespace App\Repositories;
 
-use App\Exceptions\Exceptions;
 use Illuminate\Container\Container as App;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Cache;
 
 class PinpostRepository extends Repository
                         implements PinpostRepositoryInterface
 {
+
     /**
      * Specify Model class name
      * @return mixed
@@ -19,134 +17,43 @@ class PinpostRepository extends Repository
         return 'App\Pinpost';
     }
 
-    public function create(Request $request)
-    {
-        $entity = $request->get('entity');
-        $user = $request->get('user');
-
-        $pin = $this->model->create([
-            'title' => $request['title'],
-            'description' => $request['description'],
-            'latitude' => (double)$request['latitude'],
-            'longitude' => (double)$request['longitude'],
-            'entity_id' => $entity->id,
-            'creator_id' => $user->id
-        ]);
-
-        if ($pin) {
-            $key = 'pinpost' . $pin->id;
-            Cache::put($key, $pin);
-            return $pin;
-        }
-
-        else
-            Exceptions::unknownErrorException('Error creating pinpost');
-
-    }
-
-    public function update(Request $request, $id, $attribute = 'id')
-    {
-        // Check if pinpost is there
-        $pin = $this->model->where($attribute, '=', $id)->first();
-        if (!$pin)
-            Exceptions::notFoundException('Pinpost not found');
-
-        // Check if pinpost being updated belongs to the user making the
-        // request
-        $api_token = $pin->creator->api_token;
-        $headerToken = $request->header('Authorization');
-
-        if ($api_token != $headerToken)
-            Exceptions::invalidTokenException('Pinpost does not associate with this token');
-
-        if($request->has('title'))
-            $pin->title = $request['title'];
-        if($request->has('description'))
-            $pin->description = $request['description'];
-        if($request->has('latitude'))
-            $pin->latitude = (double)$request['latitude'];
-        if($request->has('description'))
-            $pin->longitude = (double)$request['longitude'];
-
-        $pin->update();
-
-        $key = 'pinpost' . $pin->id;
-        Cache::put($key, $pin);
-
-        return $pin;
-    }
-
     /**
      * Get all pinposts in a rectangular box
-     * @param $areaData , contain keys [first_coord, second_coord]
+     * @param $areaData , contain keys [top_left, bottom_right]
      * @return mixed
      */
     public function pinpostsInFrame($areaData)
     {
-        $firstCoord = explode(",", $areaData['first_coord']);
-        $secondCoord = explode(",", $areaData['second_coord']);
+        $topLeft = explode(",", $areaData['top_left']);
+        $bottomRight = explode(",", $areaData['bottom_right']);
 
-        // The following logic is used to get the smaller and the larger of the
-        // latitude and longitude so we can form one query. This is done so that
-        // the user does not have to specifically specify which corner the
-        // coordinate is
-        if($firstCoord[0] > $secondCoord[0]) {
-            $smallLat = $secondCoord[0];
-            $largeLat = $firstCoord[0];
-        } else {
-            $smallLat = $firstCoord[0];
-            $largeLat = $secondCoord[0];
+        $lat1 = $topLeft[0];
+        $long1 = $topLeft[1];
+        $lat2 = $bottomRight[0];
+        $long2 = $bottomRight[1];
+
+        // $long1 will always be less than $long2 unless we're at the edge
+        // where the left is positive and the right is negative
+        if($long1 > $long2) {
+            $query = $this->model->where([
+                ['latitude', '>=', $lat1],
+                ['latitude', '<=', $lat2],
+                ['longitude', '<=', $long1],
+                ['longitude', '>=', $long2]
+            ]);
         }
-
-        if($firstCoord[1] > $secondCoord[1]) {
-            $smallLong = $secondCoord[1];
-            $largeLong = $firstCoord[1];
-        } else {
-            $smallLong = $firstCoord[1];
-            $largeLong = $secondCoord[1];
+        else {
+            $query = $this->model->where([
+                ['latitude', '>=', $lat1],
+                ['latitude', '<=', $lat2],
+                ['longitude', '>=', $long1],
+                ['longitude', '<=', $long2]
+            ]);
         }
-
-        // Get all pinposts inside the box
-        $query = $this->model->where([
-            ['latitude', '>=', $smallLat],
-            ['latitude', '<=', $largeLat],
-            ['longitude', '>=', $smallLong],
-            ['longitude', '<=', $largeLong]
-        ]);
 
         $this->model = $query;
         return $this;
     }
-
-
-
-    public function read($id, $fields = ['*'])
-    {
-
-        $key = 'pinpost' . $id;
-
-        if (Cache::has($key)) {
-            return Cache::get($key);
-        } else {
-            $pin = parent::read($id, $fields);
-            Cache::put($key, $pin);
-            return $pin;
-        }
-
-    }
-
-    public function delete(Request $request, $id)
-    {
-        $key = 'pinpost' . $id;
-
-        if (Cache::has($key)) {
-            Cache::forget($key);
-        }
-
-        parent::delete($request, $id);
-
-    }
-
 
     /**
      * Get all pinposts in a radius
@@ -161,14 +68,19 @@ class PinpostRepository extends Repository
         $centerLat = $center[0];
         $centerLong = $center[1];
 
+        // Haversine formula to determine distance
         if(strtolower($areaData['unit']) == 'km')
             $query = $this->model->whereRaw(
-                "( (SQRT( POW( (latitude - ?), 2) +  POW( (longitude - ?), 2) ) ) * 69.09 * 1.609344 ) <= ?",
-                [$centerLat, $centerLong, $radius]);
+                "2 * ASIN( SQRT( POW( SIN( ( RADIANS(latitude) - RADIANS( ? ) )/2 ) , 2 ) +
+                 COS( RADIANS( ? ) ) * COS( RADIANS( latitude ) ) *
+                  POW( SIN( ( RADIANS(longitude) - RADIANS( ? ))/2 ) , 2 ) ) ) * 6371 <= ?",
+                [$centerLat, $centerLat, $centerLong , $radius]);
         else
             $query = $this->model->whereRaw(
-                "( (SQRT( POW( (latitude - ?), 2) +  POW( (longitude - ?), 2) ) ) * 69.09 ) <= ?",
-                [$centerLat, $centerLong, $radius]);
+                "2 * ASIN( SQRT( POW( SIN( ( RADIANS(latitude) - RADIANS( ? ) )/2 ) , 2 ) +
+                 COS( RADIANS( ? ) ) * COS( RADIANS( latitude ) ) *
+                  POW( SIN( ( RADIANS(longitude) - RADIANS( ? ))/2 ) , 2 ) ) ) * 6371 * 0.621371 <= ?",
+                [$centerLat, $centerLat, $centerLong , $radius]);
 
         $this->model = $query;
         return $this;
@@ -182,7 +94,6 @@ class PinpostRepository extends Repository
      */
     public function pinpostsWithScope($scope, $user)
     {
-
         $scope = strtolower($scope);
         if($scope == 'self') {
             $query = $this->model->where('creator_id', '=', $user->id);
@@ -202,6 +113,5 @@ class PinpostRepository extends Repository
             $this->model = $query;
             return $this;
         }
-
     }
 }

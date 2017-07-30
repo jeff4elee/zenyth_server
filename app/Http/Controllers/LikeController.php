@@ -4,7 +4,10 @@ namespace App\Http\Controllers;
 
 use App\Exceptions\Exceptions;
 use App\Exceptions\ResponseHandler as Response;
+use App\Repositories\CommentRepository;
 use App\Repositories\LikeRepository;
+use App\Repositories\PinpostRepository;
+use App\Repositories\ReplyRepository;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
@@ -15,10 +18,19 @@ use Illuminate\Http\Request;
 class LikeController extends Controller
 {
     private $likeRepo;
+    private $commentRepo;
+    private $pinpostRepo;
+    private $replyRepo;
 
-    function __construct(LikeRepository $likeRepo)
+    function __construct(LikeRepository $likeRepo,
+                        PinpostRepository $pinpostRepo,
+                        CommentRepository $commentRepo,
+                        ReplyRepository $replyRepo)
     {
         $this->likeRepo = $likeRepo;
+        $this->commentRepo = $commentRepo;
+        $this->pinpostRepo = $pinpostRepo;
+        $this->replyRepo = $replyRepo;
     }
 
     /**
@@ -27,18 +39,28 @@ class LikeController extends Controller
      *        rules: requires entity_id
      * @return JsonResponse
      */
-    public function create(Request $request)
+    public function create(Request $request, $likeable_id)
     {
         $user = $request->get('user');
-        $entityId = (int)$request['entity_id'];
+        $likeableType = $this->getLikeableType($request);
 
+        // Check if likeable object exists
+        $this->likeableExists($likeableType, $likeable_id);
+
+        // Go through to see if this user has already liked this likeable
+        // object
         $likes = $user->likes;
         foreach($likes as $like)
-            if($like->entity_id == $entityId)
-                Exceptions::invalidRequestException('This entity has already been liked by this user');
+            if($like->likeable_id == $likeable_id
+                && $like->likeable_type == $likeableType)
+                Exceptions::invalidRequestException(ALREADY_LIKED_ENTITY);
 
-        $request->merge(['user_id' => $user->id]);
-        $like = $this->likeRepo->create($request);
+        $data = [
+            'likeable_type' => $likeableType,
+            'likeable_id' => $likeable_id,
+            'user_id' => $user->id
+        ];
+        $like = $this->likeRepo->create($data);
 
         return Response::dataResponse(true, ['like' => $like]);
     }
@@ -55,14 +77,54 @@ class LikeController extends Controller
         if (!$like)
             Exceptions::notFoundException(NOT_FOUND);
 
-        /* Validate if user deleting is the same as the user from the token */
+        // Validate if user deleting is the same as the user from the token
         $api_token = $like->user->api_token;
         $headerToken = $request->header('Authorization');
         if ($api_token != $headerToken)
-            Exceptions::invalidTokenException('Like does not associate with this token');
+            Exceptions::invalidTokenException(NOT_USERS_OBJECT);
 
-        $like->delete();
-        return Response::successResponse();
+        $this->likeRepo->delete($like);
+        return Response::successResponse(DELETE_SUCCESS);
+    }
+
+    /**
+     * Get likeable type
+     * @param Request $request
+     * @return null|string
+     */
+    public function getLikeableType(Request $request)
+    {
+        if($request->is('api/pinpost/like/create/*'))
+            return 'App\Pinpost';
+        else if($request->is('api/comment/like/create/*'))
+            return 'App\Comment';
+        else if($request->is('api/reply/like/create/*'))
+            return 'App\Reply';
+
+        Exceptions::invalidRequestException();
+    }
+
+    /**
+     * Check if likeable object exists
+     * @param $likeableType
+     * @param $likeableId
+     * @return bool
+     */
+    public function likeableExists($likeableType, $likeableId)
+    {
+        if($likeableType == 'App\Pinpost')
+            if($this->pinpostRepo->read($likeableId))
+                return true;
+
+        if($likeableType == 'App\Comment')
+            if($this->commentRepo->read($likeableId))
+                return true;
+
+        if($likeableType == 'App\Reply')
+            if($this->replyRepo->read($likeableId))
+                return true;
+
+        Exceptions::notFoundException(NOT_FOUND);
     }
 
 }

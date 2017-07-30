@@ -5,11 +5,10 @@ namespace App\Http\Controllers;
 use App\Exceptions\Exceptions;
 use App\Exceptions\ResponseHandler as Response;
 use App\Http\Controllers\Auth\AuthenticationTrait;
-use App\Repositories\EntityRepository;
-use App\Repositories\EntitysPictureRepository;
-use App\Repositories\ImageRepository;
-use App\Repositories\PinpostRepository as PinpostRepo;
-use App\Repositories\PinpostTagRepository;
+use App\Repositories\CommentRepository;
+use App\Repositories\LikeRepository;
+use App\Repositories\PinpostRepository;
+use App\Repositories\TaggableRepository;
 use App\Repositories\TagRepository;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -22,25 +21,25 @@ class PinpostController extends Controller
 {
     use AuthenticationTrait;
 
+    /**
+     * @var PinpostRepository
+     */
     private $pinpostRepo;
-    private $entityRepo;
-    private $entitysPictureRepo;
-    private $imageRepo;
-    private $pinpostTagRepo;
+    private $commentRepo;
+    private $likeRepo;
+    private $taggableRepo;
     private $tagRepo;
 
-    public function __construct(PinpostRepo $pinpostRepo,
-                                EntityRepository $entityRepo,
-                                EntitysPictureRepository $entitysPictureRepo,
-                                ImageRepository $imageRepo,
-                                PinpostTagRepository $pinpostTagRepo,
+    public function __construct(PinpostRepository $pinpostRepo,
+                                CommentRepository $commentRepo,
+                                LikeRepository $likeRepo,
+                                TaggableRepository $taggableRepo,
                                 TagRepository $tagRepo)
     {
         $this->pinpostRepo = $pinpostRepo;
-        $this->entityRepo = $entityRepo;
-        $this->entitysPictureRepo = $entitysPictureRepo;
-        $this->imageRepo = $imageRepo;
-        $this->pinpostTagRepo = $pinpostTagRepo;
+        $this->commentRepo = $commentRepo;
+        $this->likeRepo = $likeRepo;
+        $this->taggableRepo = $taggableRepo;
         $this->tagRepo = $tagRepo;
     }
 
@@ -53,29 +52,15 @@ class PinpostController extends Controller
      */
     public function create(Request $request)
     {
-        $entity = $this->entityRepo->create(new Request());
-        // Inject this entity into the request for the pinpost repository to
-        // use
-        $request->merge(['entity' => $entity]);
-        $pin = $this->pinpostRepo->create($request);
-
-        if($file = $request->file('thumbnail')) {
-            // Inject image file into request so we can create the image in
-            // ImageRepository
-            $request->merge(['image_file' => $file]);
-
-            $image = $this->imageRepo->create($request);
-
-            // Inject image object and entity object into request so we can
-            // create the entitys picture that associates with this image
-            $request->merge([
-                'image' => $image,
-                'entity' => $entity
-            ]);
-            $this->entitysPictureRepo->create($request);
-            $pin->thumbnail_id = $image->id;
-            $pin->update();
-        }
+        $user = $request->get('user');
+        $data = [
+            'user_id' => $user->id,
+            'title' => $request['title'],
+            'description' => $request['description'],
+            'latitude' => (double)$request['latitude'],
+            'longitude' => (double)$request['longitude']
+        ];
+        $pin = $this->pinpostRepo->create($data);
 
         if($request->has('tags')) {
             // Tag must be in the form "tag1,tag2,tag3"
@@ -84,20 +69,30 @@ class PinpostController extends Controller
             $tags = explode(",", $tags);
             $request->merge(['pinpost' => $pin]);
             foreach($tags as $tagName) {
-                $tag = $this->tagRepo->findBy('tag', $tagName);
+                $tag = $this->tagRepo->findBy('name', $tagName);
 
                 // If tag already exists, create another PinpostTag that
                 // associates with this pinpost and the tag
                 if($tag) {
-                    $request->merge(['tag' => $tag]);
-                    $this->pinpostTagRepo->create($request);
+                    $data = [
+                        'taggable_type' => 'App\Pinpost',
+                        'tag_id' => $tag->id,
+                        'taggable_id' => $pin->id
+                    ];
+                    $this->taggableRepo->create($data);
                 }
                 // If tag does not exist, create one
                 else {
-                    $request->merge(['tag' => $tagName]);
-                    $tag = $this->tagRepo->create($request);
-                    $request->merge(['tag' => $tag]);
-                    $this->pinpostTagRepo->create($request);
+                    $data = [
+                        'name' => $tagName
+                    ];
+                    $tag = $this->tagRepo->create($data);
+                    $data = [
+                        'tag_id' => $tag->id,
+                        'taggable_type' => 'App\Pinpost',
+                        'taggable_id' => $pin->id
+                    ];
+                    $this->taggableRepo->create($data);
                 }
             }
         }
@@ -106,6 +101,7 @@ class PinpostController extends Controller
 
     /**
      * Give back information on Pinpost
+     * @param $request
      * @param $pinpost_id
      * @return JsonResponse
      */
@@ -122,7 +118,9 @@ class PinpostController extends Controller
         if ($pin == null)
             Exceptions::notFoundException(NOT_FOUND);
 
-        return Response::dataResponse(true, ['pinpost' => $pin]);
+        return Response::dataResponse(true, [
+            'pinpost' => $pin
+        ]);
     }
 
     /**
@@ -133,14 +131,20 @@ class PinpostController extends Controller
      */
     public function update(Request $request, $pinpost_id)
     {
-        $pin = $this->pinpostRepo->update($request, $pinpost_id);
+        $pin = $this->pinpostRepo->read($pinpost_id);
 
-        if($file = $request->file('thumbnail')) {
-            // Inject image file into request so we can create the image in
-            // ImageRepository
-            $request->merge(['image_file' => $file]);
-            $this->imageRepo->update($request, $pin->thumbnail_id);
-        }
+        if (!$pin)
+            Exceptions::notFoundException(NOT_FOUND);
+
+        // Check if pinpost being updated belongs to the user making the
+        // request
+        $api_token = $pin->creator->api_token;
+        $headerToken = $request->header('Authorization');
+
+        if ($api_token != $headerToken)
+            Exceptions::invalidTokenException(NOT_USERS_OBJECT);
+
+        $this->pinpostRepo->update($request, $pin);
 
         return Response::dataResponse(true, ['pinpost' => $pin]);
     }
@@ -153,27 +157,87 @@ class PinpostController extends Controller
      */
     public function delete(Request $request, $pinpost_id)
     {
-        // Check if pinpost is there
         $pin = $this->pinpostRepo->read($pinpost_id);
-        if ($pin == null)
-            Exceptions::notFoundException(NOT_FOUND);
-
-        /* Validate if user deleting is the same as the user from the token */
+        // Validate if user deleting is the same as the user from the token
         $api_token = $pin->creator->api_token;
         $headerToken = $request->header('Authorization');
         if ($api_token != $headerToken)
-            Exceptions::invalidTokenException('Pinpost does not associate with this token');
+            Exceptions::invalidTokenException(NOT_USERS_OBJECT);
 
-        $entitysPictures = $pin->entity->pictures;
+        $this->pinpostRepo->delete($pin);
 
-        $request->merge(['directory' => 'images']);
-        foreach($entitysPictures as $entitysPicture) {
-            $this->imageRepo->delete($request, $entitysPicture->image_id);
-        }
-        $this->entityRepo->delete($request, $pin->entity_id);
-
-        return Response::successResponse();
+        return Response::successResponse(DELETE_SUCCESS);
     }
+
+
+    /**
+     * Fetch all comments of this pinpost
+     * @param Request $request
+     * @param $pinpost_id
+     * @return JsonResponse
+     */
+    public function fetchComments(Request $request, $pinpost_id)
+    {
+        $pin = $this->pinpostRepo->read($pinpost_id);
+        if($request->has('fields')) {
+            $fields = $request->input('fields');
+            $fields = explode(',', $fields);
+        } else
+            $fields = ['*'];
+
+        return Response::dataResponse(true, [
+            'comments' => $pin->comments()->get($fields)
+        ]);
+    }
+
+    /**
+     * Fetch all likes of this pinpost
+     * @param Request $request
+     * @param $pinpost_id
+     * @return JsonResponse
+     */
+    public function fetchLikes(Request $request, $pinpost_id)
+    {
+        $pin = $this->pinpostRepo->read($pinpost_id);
+        if($request->has('fields')) {
+            $fields = $request->input('fields');
+            $fields = explode(',', $fields);
+        } else
+            $fields = ['*'];
+
+        return Response::dataResponse(true, [
+            'comments' => $pin->likes()->get($fields)
+        ]);
+    }
+
+    /**
+     * Get the number of comments on this pinpost
+     * @param Request $request
+     * @param $pinpost_id
+     * @return JsonResponse
+     */
+    public function commentsCount(Request $request, $pinpost_id)
+    {
+        $pin = $this->pinpostRepo->read($pinpost_id);
+        return Response::dataResponse(true, [
+            'count' => $pin->commentsCount()
+        ]);
+    }
+
+    /**
+     * Get the number of likes of this pinpost
+     * @param Request $request
+     * @param $pinpost_id
+     * @return JsonResponse
+     */
+    public function likesCount(Request $request, $pinpost_id)
+    {
+        $pin = $this->pinpostRepo->read($pinpost_id);
+        return Response::dataResponse(true, [
+            'count' => $pin->likesCount()
+        ]);
+    }
+
 
     /**
      * Fetch all pinposts of friends ordered by latest first
@@ -192,10 +256,11 @@ class PinpostController extends Controller
             $this->pinpostRepo->pinpostsInFrame($request->all());
 
         $this->pinpostRepo->pinpostsWithScope($scope, $user);
-        $this->pinpostRepo->latestPinposts();
+        $this->pinpostRepo->latest();
 
         // FriendsScope is either not provided or public. Return all pinposts in the
         // area
+
         return Response::dataResponse(true, [
             'pinposts' => $this->pinpostRepo->all() // get all the pinposts
         ]);

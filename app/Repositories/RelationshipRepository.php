@@ -1,10 +1,6 @@
 <?php
 
-
 namespace App\Repositories;
-
-
-use Illuminate\Support\Facades\DB;
 
 class RelationshipRepository extends Repository
                             implements RelationshipRepositoryInterface
@@ -75,6 +71,17 @@ class RelationshipRepository extends Repository
     public function hasFriendship()
     {
         $query = $this->model->where('status', '=', true);
+        $this->model = $query;
+        return $this;
+    }
+
+    /**
+     * All relationships that are blocked
+     * @return mixed
+     */
+    public function isBlocked()
+    {
+        $query = $this->model->where('blocked', '=', true);
         $this->model = $query;
         return $this;
     }

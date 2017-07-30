@@ -2,17 +2,15 @@
 
 namespace App\Repositories;
 
-use Illuminate\Http\Request;
-
 interface RepositoryInterface
 {
     public function all(array $fields = ['*']);
 
-    public function create(Request $data);
+    public function create($request);
 
-    public function update(Request $data, $id);
+    public function update($request, $model, $attribute = 'id');
 
-    public function delete(Request $request, $id);
+    public function delete($model);
 
     public function read($id, $fields = ['*']);
 

@@ -24,26 +24,22 @@ interface TagRepositoryInterface
     public function tagWithExactName($tagName);
 
     /**
-     * @return mixed
-     */
-    public function joinPinpostThroughPinpostTags();
-
-    /**
-     * Join with pinpost tags table
-     * @return mixed
-     */
-    public function joinPinpostTags();
-
-    /**
      * Group by tags name
      * @return mixed
      */
     public function groupByTagsName();
 
     /**
-     * Order by how many tags there are
+     * Join taggables table
      * @return mixed
      */
-    public function orderByCount($option = 'desc');
+    public function joinTaggables();
+
+    /**
+     * Order by the number of objects associated with the tag in descending
+     * order
+     * @return mixed
+     */
+    public function orderByCount();
 
 }

@@ -64,8 +64,7 @@ class RegisterController extends Controller
             $profile->image_id = $image->id;
             $profile->update();
         }
-
-        $oauth = $this->oauthRepo->create($request);
+        $this->oauthRepo->create($request);
 
         if($request->is('api/register')) {
             // Send confirmation email
@@ -76,9 +75,7 @@ class RegisterController extends Controller
         }
 
         return Response::dataResponse(true, [
-            'user' => $user,
-            'profile' => $profile,
-            'oauth' => $oauth
+            'user' => $user->makeVisible('api_token')
         ]);
     }
 
@@ -139,7 +136,7 @@ class RegisterController extends Controller
 
         if($user) {
             $user->update(['confirmation_code' => null]);
-            return Response::successResponse('Account verified');
+            return Response::successResponse(ACCOUNT_VERIFIED);
         }
 
         Exceptions::invalidConfirmationCodeException();

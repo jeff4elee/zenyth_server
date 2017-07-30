@@ -5,9 +5,7 @@ namespace App\Http\Controllers;
 use App\Exceptions\Exceptions;
 use App\Exceptions\ResponseHandler as Response;
 use App\Repositories\CommentRepository;
-use App\Repositories\EntityRepository;
-use App\Repositories\EntitysPictureRepository;
-use App\Repositories\ImageRepository;
+use App\Repositories\PinpostRepository;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
@@ -17,55 +15,40 @@ use Illuminate\Http\Request;
  */
 class CommentController extends Controller
 {
+    private $pinpostRepo;
     private $commentRepo;
-    private $entityRepo;
-    private $imageRepo;
-    private $entitysPictureRepo;
 
-    function __construct(CommentRepository $commentRepo,
-                        EntityRepository $entityRepo,
-                        ImageRepository $imageRepo,
-                        EntitysPictureRepository $entitysPictureRepo)
+    function __construct(PinpostRepository $pinpostRepo,
+                         CommentRepository $commentRepo)
     {
+        $this->pinpostRepo = $pinpostRepo;
         $this->commentRepo = $commentRepo;
-        $this->entityRepo = $entityRepo;
-        $this->imageRepo = $imageRepo;
-        $this->entitysPictureRepo = $entitysPictureRepo;
     }
 
     /**
      * Create a comment
      * @param Request $request, post request
-     *        rules: requires comment that is not empty and entity_id
+     * @param $commentable_id
      * @return JsonResponse
      */
-    public function create(Request $request)
+    public function create(Request $request, $commentable_id)
     {
-        $entity = $this->entityRepo->create(new Request());
         $user = $request->get('user');
+        $userId = $user->id;
+        $comment = $request->get('comment');
+        $commentableType = $this->getCommentableType($request);
 
-        // Inject user so comment repo can create comment
-        $request->merge([
-            'entity' => $entity,
-            'user' => $user
-        ]);
+        // Check if the commentable object exists
+        $this->commentableExists($commentableType, $commentable_id);
 
-        $comment = $this->commentRepo->create($request);
+        $data = [
+            'user_id' => $userId,
+            'commentable_type' => $commentableType,
+            'comment' => $comment,
+            'commentable_id' => $commentable_id
+        ];
 
-        $comment->entity_id = $entity->id;
-        $comment->on_entity_id = $request->input('on_entity_id');
-        $comment->comment = $request->input('comment');
-
-        if($file = $request->file('image')) {
-            $request->merge(['image_file' => $file]);
-            $image = $this->imageRepo->create($request);
-
-            $request->merge([
-                'image' => $image,
-                'entity' => $entity
-            ]);
-            $this->entitysPictureRepo->create($request);
-        }
+        $comment = $this->commentRepo->create($data);
 
         return Response::dataResponse(true, ['comment' => $comment]);
 
@@ -80,6 +63,7 @@ class CommentController extends Controller
     public function read(Request $request, $comment_id)
     {
         if($request->has('fields')) {
+            // Specifies fields to return
             $fields = $request->input('fields');
             $fields = explode(',', $fields);
             $comment = $this->commentRepo->read($comment_id, $fields);
@@ -91,7 +75,6 @@ class CommentController extends Controller
             Exceptions::notFoundException(NOT_FOUND);
 
         return Response::dataResponse(true, ['comment' => $comment]);
-
     }
 
     /**
@@ -103,7 +86,17 @@ class CommentController extends Controller
      */
     public function update(Request $request, $comment_id)
     {
-        $comment = $this->commentRepo->update($request, $comment_id);
+        $comment = $this->commentRepo->read($comment_id);
+        if ($comment == null)
+            Exceptions::notFoundException(NOT_FOUND);
+
+        $api_token = $comment->creator->api_token;
+        $headerToken = $request->header('Authorization');
+
+        if ($api_token != $headerToken)
+            Exceptions::invalidTokenException(NOT_USERS_OBJECT);
+
+        $this->commentRepo->update($request, $comment);
 
         return Response::dataResponse(true, ['comment' => $comment]);
     }
@@ -120,21 +113,78 @@ class CommentController extends Controller
         if ($comment == null)
             Exceptions::notFoundException(NOT_FOUND);
 
-        /* Validate if user deleting is the same as the user from the token */
-        $api_token = $comment->user->api_token;
+        // Validate if user deleting is the same as the user from the token
+        $api_token = $comment->creator->api_token;
         $headerToken = $request->header('Authorization');
         if ($api_token != $headerToken)
-            Exceptions::invalidTokenException('Comment does not associate with this token');
+            Exceptions::invalidTokenException(NOT_USERS_OBJECT);
 
-        $entitysPictures = $comment->entity->pictures;
+        $this->commentRepo->delete($comment);
 
-        $request->merge(['directory' => 'images']);
-        foreach($entitysPictures as $entitysPicture) {
-            $this->imageRepo->delete($request, $entitysPicture->image_id);
-        }
-        $this->entityRepo->delete($request, $comment->entity_id);
+        return Response::successResponse(DELETE_SUCCESS);
+    }
 
-        return Response::successResponse();
+    /**
+     * Fetch all likes of this pinpost
+     * @param Request $request
+     * @param $pinpost_id
+     * @return JsonResponse
+     */
+    public function fetchLikes(Request $request, $comment_id)
+    {
+        $pin = $this->commentRepo->read($comment_id);
+        if($request->has('fields')) {
+            $fields = $request->input('fields');
+            $fields = explode(',', $fields);
+        } else
+            $fields = ['*'];
+
+        return Response::dataResponse(true, [
+            'likes' => $pin->likes()->get($fields)
+        ]);
+    }
+
+    /**
+     * Get the number of likes of this pinpost
+     * @param Request $request
+     * @param $pinpost_id
+     * @return JsonResponse
+     */
+    public function likesCount(Request $request, $comment_id)
+    {
+        $pin = $this->commentRepo->read($comment_id);
+        return Response::dataResponse(true, [
+            'count' => $pin->likesCount()
+        ]);
+    }
+
+
+    /**
+     * Get the type of comment
+     * @param Request $request
+     * @return null|string
+     */
+    public function getCommentableType(Request $request)
+    {
+        if($request->is('api/pinpost/comment/create/*'))
+            return 'App\Pinpost';
+
+        Exceptions::invalidRequestException();
+    }
+
+    /**
+     * Check if the commentable object exists
+     * @param $commentableType
+     * @param $commentableId
+     * @return bool
+     */
+    public function commentableExists($commentableType, $commentableId)
+    {
+        if($commentableType == 'App\Pinpost')
+            if($this->pinpostRepo->read($commentableId))
+                return true;
+
+        Exceptions::notFoundException(NOT_FOUND);
     }
 
 }
