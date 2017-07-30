@@ -8,8 +8,8 @@ use App\Image;
 use App\Repositories\CommentRepository;
 use App\Repositories\ImageRepository;
 use App\Repositories\PinpostRepository;
+use App\Repositories\ProfileRepository;
 use App\Repositories\ReplyRepository;
-use App\Repositories\UserRepository;
 use GuzzleHttp\Client;
 use Illuminate\Http\Request;
 use Illuminate\Http\UploadedFile;
@@ -26,19 +26,19 @@ class ImageController extends Controller
     private $imageRepo;
     private $pinpostRepo;
     private $commentRepo;
-    private $userRepo;
+    private $profileRepo;
     private $replyRepo;
 
     function __construct(ImageRepository $imageRepo,
                         PinpostRepository $pinpostRepo,
                         CommentRepository $commentRepo,
-                        UserRepository $userRepo,
+                        ProfileRepository $profileRepo,
                         ReplyRepository $replyRepo)
     {
         $this->imageRepo = $imageRepo;
         $this->pinpostRepo = $pinpostRepo;
         $this->commentRepo = $commentRepo;
-        $this->userRepo = $userRepo;
+        $this->profileRepo = $profileRepo;
         $this->replyRepo = $replyRepo;
     }
 
@@ -121,7 +121,9 @@ class ImageController extends Controller
         $imageableType = $this->getImageableType($request);
 
         // Check if this imageable object exists
-        $this->imageableExists($imageableType, $imageable_id);
+        $imageable = $this->imageableExists($imageableType, $imageable_id);
+        if($imageable->user_id != $user->id)
+            Exceptions::invalidTokenException(NOT_USERS_OBJECT);
 
         $request->merge([
             'user_id' => $user->id,
@@ -203,8 +205,6 @@ class ImageController extends Controller
             return 'App\Pinpost';
         else if($request->is('api/comment/upload_image/*'))
             return 'App\Comment';
-        else if($request->is('api/profile/profile_picture/*'))
-            return 'App\Profile';
         else if($request->is('api/reply/like/create/*'))
             return 'App\Reply';
 
@@ -222,8 +222,6 @@ class ImageController extends Controller
             return 'images';
         else if($request->is('api/comment/upload_image/*'))
             return 'images';
-        else if($request->is('api/profile/profile_picture/*'))
-            return 'profile_pictures';
         else if($request->is('api/reply/upload_image/*'))
             return 'images';
         else
@@ -239,20 +237,16 @@ class ImageController extends Controller
     public function imageableExists($imageableType, $imageableId)
     {
         if($imageableType == 'App\Pinpost')
-            if($this->pinpostRepo->read($imageableId))
-                return true;
+            if($imageable = $this->pinpostRepo->read($imageableId))
+                return $imageable;
 
         if($imageableType == 'App\Comment')
-            if ($this->commentRepo->read($imageableId))
-                return true;
-
-        if($imageableType == 'App\Profile')
-            if($this->userRepo->read($imageableId))
-                return true;
+            if ($imageable = $this->commentRepo->read($imageableId))
+                return $imageable;
 
         if($imageableType == 'App\Reply')
-            if($this->replyRepo->read($imageableId))
-                return true;
+            if($imageable = $this->replyRepo->read($imageableId))
+                return $imageable;
 
         Exceptions::notFoundException(NOT_FOUND);
     }

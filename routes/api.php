@@ -37,8 +37,7 @@ Route::group(['middleware' => 'validation'], function() {
             'RelationshipController@deleteFriend');
         Route::get('relationship/block/{user_id}',
             'RelationshipController@blockUser');
-        Route::get('relationship/is_friend/{user1_id}/{user2_id}',
-            'RelationshipController@isFriend');
+
 
         Route::post('pinpost/create', 'PinpostController@create');
         Route::post('pinpost/update/{pinpost_id}', 'PinpostController@update');

@@ -59,10 +59,10 @@ class ReplyController extends Controller
             // Specifies fields to return
             $fields = $request->input('fields');
             $fields = explode(',', $fields);
-            $reply = $this->commentRepo->read($reply_id, $fields);
+            $reply = $this->replyRepo->read($reply_id, $fields);
         }
         else
-            $reply = $this->commentRepo->read($reply_id);
+            $reply = $this->replyRepo->read($reply_id);
 
         if ($reply == null)
             Exceptions::notFoundException(NOT_FOUND);
