@@ -55,6 +55,7 @@ class LikeController extends Controller
                 && $like->likeable_type == $likeableType)
                 Exceptions::invalidRequestException(ALREADY_LIKED_ENTITY);
 
+        // Like data to be created
         $data = [
             'likeable_type' => $likeableType,
             'likeable_id' => $likeable_id,
@@ -77,7 +78,7 @@ class LikeController extends Controller
         if (!$like)
             Exceptions::notFoundException(NOT_FOUND);
 
-        // Validate if user deleting is the same as the user from the token
+        // Validate if like belongs to this user
         $api_token = $like->user->api_token;
         $headerToken = $request->header('Authorization');
         if ($api_token != $headerToken)
@@ -86,6 +87,9 @@ class LikeController extends Controller
         $this->likeRepo->delete($like);
         return Response::successResponse(DELETE_SUCCESS);
     }
+
+    /* The functions below are to determine the likeable type for
+    polymorphism */
 
     /**
      * Get likeable type

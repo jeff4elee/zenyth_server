@@ -112,8 +112,14 @@ class UserController extends Controller
         $keyword = strtolower($request->input('keyword'));
         $keyword = str_replace(" ", "%", $keyword);
 
+        // All users' id's where username, first name, or last name are similar
+        // to the keyword
         $allResultsId = $this->getRelevantResults($keyword, $user->id);
+
+        // All users' id's where they are friends of this user
         $friendsId = $this->getAllFriendsId($user);
+
+        // All users' id's where they are mutual friends of this user
         $mutualFriendsId = $this->getAllMutualFriendsId($friendsId);
 
         // Get the final result array containing the users' id in the order

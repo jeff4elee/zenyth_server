@@ -58,6 +58,8 @@ class ProfileController extends Controller
         // UploadedFile object
         $image = $request->file('image');
 
+        // Inject data into the request and send the data to imageRepo to create
+        // an image
         $request->merge([
             'user_id' => $user->id,
             'image_file' => $image,

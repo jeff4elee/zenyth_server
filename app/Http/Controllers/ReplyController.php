@@ -32,12 +32,13 @@ class ReplyController extends Controller
     public function create(Request $request, $comment_id)
     {
         $user = $request->get('user');
-
         $text = $request['text'];
 
+        // Check if the comment exists
         if(!$this->commentRepo->findBy('id', $comment_id))
             Exceptions::notFoundException(NOT_FOUND);
 
+        // Data of reply
         $data = [
             'text' => $text,
             'user_id' => $user->id,
@@ -84,9 +85,9 @@ class ReplyController extends Controller
         if ($reply == null)
             Exceptions::notFoundException(NOT_FOUND);
 
+        // Validate if reply belongs to user
         $api_token = $reply->creator->api_token;
         $headerToken = $request->header('Authorization');
-
         if ($api_token != $headerToken)
             Exceptions::invalidTokenException(NOT_USERS_OBJECT);
 
@@ -107,7 +108,7 @@ class ReplyController extends Controller
         if ($reply == null)
             Exceptions::notFoundException(NOT_FOUND);
 
-        // Validate if user deleting is the same as the user from the token
+        // Validate if reply belongs to user
         $api_token = $reply->creator->api_token;
         $headerToken = $request->header('Authorization');
         if ($api_token != $headerToken)

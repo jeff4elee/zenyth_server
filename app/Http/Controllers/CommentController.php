@@ -41,6 +41,7 @@ class CommentController extends Controller
         // Check if the commentable object exists
         $this->commentableExists($commentableType, $commentable_id);
 
+        // Data passed in to create a comment
         $data = [
             'user_id' => $userId,
             'commentable_type' => $commentableType,
@@ -90,6 +91,7 @@ class CommentController extends Controller
         if ($comment == null)
             Exceptions::notFoundException(NOT_FOUND);
 
+        // Validate comment owner
         $api_token = $comment->creator->api_token;
         $headerToken = $request->header('Authorization');
 
@@ -113,7 +115,7 @@ class CommentController extends Controller
         if ($comment == null)
             Exceptions::notFoundException(NOT_FOUND);
 
-        // Validate if user deleting is the same as the user from the token
+        // Validate comment owner
         $api_token = $comment->creator->api_token;
         $headerToken = $request->header('Authorization');
         if ($api_token != $headerToken)
@@ -158,6 +160,8 @@ class CommentController extends Controller
         ]);
     }
 
+    /* The functions below are used to determine what commentable type the
+    comment is being placed on */
 
     /**
      * Get the type of comment
