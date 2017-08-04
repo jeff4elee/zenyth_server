@@ -48,7 +48,7 @@ class ForgotPasswordController extends Controller
         $passwordReset = $user->passwordReset;
         $email = $user->email;
         $name = $user->name();
-        if($passwordReset)
+        if($passwordReset->first())
             $token = $passwordReset->token;
         else { // Generate unique token
             do {
