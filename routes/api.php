@@ -73,6 +73,9 @@ Route::group(['middleware' => 'validation'], function() {
         Route::delete('like/delete/{likeid}', 'LikeController@delete');
 
         Route::delete('image/delete/{image_id}', 'ImageController@deleteImage');
+
+        Route::get('tag/search', 'TagController@searchTags');
+        Route::get('tag/info', 'TagController@getTagInfo');
     });
 
     Route::group(['middleware' => 'oauth'], function() {
@@ -84,8 +87,7 @@ Route::group(['middleware' => 'validation'], function() {
     Route::post('login', 'Auth\LoginController@login');
     Route::post('password/send_reset_password',
         'Auth\ForgotPasswordController@sendResetPasswordEmail');
-    Route::get('tag/search', 'TagController@searchTags');
-    Route::get('tag/info', 'TagController@getTagInfo');
+
     Route::post('user/search_user', 'UserController@searchUser');
 
 });

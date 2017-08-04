@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class CreatePinpostsTable extends Migration
+class CreateUserPrivaciesTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,19 +13,19 @@ class CreatePinpostsTable extends Migration
      */
     public function up()
     {
-        Schema::create('pinposts', function (Blueprint $table) {
+        Schema::create('user_privacies', function (Blueprint $table) {
             $table->increments('id');
-            $table->string('title');
-            $table->text('description');
-            $table->double('latitude');
-            $table->double('longitude');
             $table->unsignedInteger('user_id');
             $table->foreign('user_id')
                 ->references('id')->on('users')
                 ->onDelete('cascade');
 
-            $table->string('privacy')->default('public');
-            $table->timestamps();
+            $table->string('email_privacy')
+                ->default('public');
+            $table->string('gender_privacy')
+                ->default('public');
+            $table->string('birthday_privacy')
+                ->default('public');
         });
     }
 
@@ -36,6 +36,6 @@ class CreatePinpostsTable extends Migration
      */
     public function down()
     {
-      Schema::dropIfExists('pinposts');
+        Schema::dropIfExists('user_privacies');
     }
 }

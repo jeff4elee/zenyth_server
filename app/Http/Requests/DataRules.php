@@ -71,7 +71,8 @@ class DataRules
             'title' => 'required',
             'description' => 'required',
             'latitude' => 'required',
-            'longitude' => 'required'
+            'longitude' => 'required',
+            'privacy' => 'in:self,friends,public'
         ];
     }
 
@@ -87,7 +88,8 @@ class DataRules
         return [
             'image' => 'image',
             'latitude' => 'numeric',
-            'longitude' => 'numeric'
+            'longitude' => 'numeric',
+            'privacy' => 'in:self,friends,public'
         ];
     }
 

@@ -3,6 +3,7 @@
 namespace App\Repositories;
 
 use Illuminate\Container\Container as App;
+use Illuminate\Support\Collection;
 
 class PinpostRepository extends Repository
                         implements PinpostRepositoryInterface
@@ -113,5 +114,32 @@ class PinpostRepository extends Repository
             $this->model = $query;
             return $this;
         }
+    }
+
+    public function filterByPrivacy($user, $pinposts)
+    {
+        $filteredPinposts = new Collection();
+
+        foreach($pinposts as $pinpost) {
+            if($pinpost->privacy == 'public') {
+                $filteredPinposts->push($pinpost);
+            }
+
+            else if($pinpost->privacy == 'self') {
+                $creator = $pinpost->creator;
+                if($creator->id == $user->id)
+                    $filteredPinposts->push($pinpost);
+            }
+
+            else if($pinpost->privacy == 'friends') {
+                $creator = $pinpost->creator;
+                $userId = $user->id;
+                $creatorsFriendsId = $creator->friendsId();
+                if(isset($userId, $creatorsFriendsId))
+                    $filteredPinposts->push($pinpost);
+            }
+        }
+
+        return $filteredPinposts;
     }
 }

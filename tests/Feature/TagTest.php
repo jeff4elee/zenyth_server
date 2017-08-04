@@ -19,7 +19,8 @@ class TagTest extends TestCase
             'tags' => 'hello,hi,howareyou,imokay,disneyland'
         ], ['Authorization' => 'bearer ' . $api_token]);
 
-        $response = $this->json('GET', '/api/tag/search?tag=howareyou');
+        $response = $this->json('GET', '/api/tag/search?tag=howareyou', [],
+            ['Authorization' => 'bearer ' . $api_token]);
         $response->assertJson([
             'success' => true,
             'data' => [
@@ -41,7 +42,8 @@ class TagTest extends TestCase
             'tags' => 'hello,hi,howareyou,imokay,disneyland'
         ], ['Authorization' => 'bearer ' . $api_token]);
 
-        $response = $this->json('GET', '/api/tag/info?tag=howareyou');
+        $response = $this->json('GET', '/api/tag/info?tag=howareyou', [],
+            ['Authorization' => 'bearer ' . $api_token]);
         $response->assertJson([
             'success' => true,
             'data' => [

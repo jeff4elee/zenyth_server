@@ -57,7 +57,6 @@ abstract class Repository implements RepositoryInterface
     public function create($request)
     {
         $filteredData = $this->filterData($request);
-
         return $this->model->create($filteredData);
     }
 

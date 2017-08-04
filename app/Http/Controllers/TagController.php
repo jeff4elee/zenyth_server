@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Exceptions\ResponseHandler as Response;
+use App\Repositories\PinpostRepository;
 use App\Repositories\TagRepository;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -10,10 +11,12 @@ use Illuminate\Http\Request;
 class TagController extends Controller
 {
     private $tagRepo;
+    private $pinpostRepo;
 
-    function __construct(TagRepository $tagRepo)
+    function __construct(TagRepository $tagRepo, PinpostRepository $pinpostRepo)
     {
         $this->tagRepo = $tagRepo;
+        $this->pinpostRepo = $pinpostRepo;
     }
 
     /**
@@ -43,15 +46,17 @@ class TagController extends Controller
     public function getTagInfo(Request $request)
     {
         $tagName = $request->input('tag');
+        $user = $request->get('user');
 
         $tag = $this->tagRepo->findBy('name', $tagName);
 
         // Get latest pinposts of this tag using eloquent polymorphic
         // relationship
-        $query = $tag->pinposts()->latest()->get();
+        $pinposts = $tag->pinposts()->latest()->get();
+        $pinposts = $this->pinpostRepo->filterByPrivacy($user, $pinposts);
 
         return Response::dataResponse(true, [
-            'pinposts' => $query
+            'pinposts' => $pinposts
         ]);
     }
 }
