@@ -28,7 +28,7 @@ class LikesAndCommentsTest extends TestCase
 
         $this->assertEquals(0, $pinpost->likesCount());
 
-        $this->json('POST', '/api/pinpost/like/create/' . $pinpost->id,
+        $this->json('POST', '/api/pinpost/like/' . $pinpost->id,
             [], ['Authorization' => 'bearer ' . $user->api_token]);
 
         $this->assertEquals(1, $pinpost->likesCount());
@@ -43,7 +43,7 @@ class LikesAndCommentsTest extends TestCase
         $pinpost = Pinpost::find($like->likeable_id);
         $numLikes = $pinpost->likesCount();
 
-        $this->json('DELETE', '/api/like/delete/' . $like->id, [], ['Authorization' => 'bearer ' . $like->user->api_token]);
+        $this->json('DELETE', '/api/like/' . $like->id, [], ['Authorization' => 'bearer ' . $like->user->api_token]);
 
         $this->assertEquals($numLikes-1, $pinpost->likesCount());
 
@@ -57,7 +57,7 @@ class LikesAndCommentsTest extends TestCase
 
         $this->assertEquals(0, $pinpost->commentsCount());
 
-        $response = $this->json('POST', '/api/pinpost/comment/create/' .
+        $response = $this->json('POST', '/api/pinpost/comment/' .
             $pinpost->id, ['comment' => 'test comment'],
             ['Authorization' => 'bearer ' . $user->api_token]);
 
@@ -94,7 +94,7 @@ class LikesAndCommentsTest extends TestCase
 
         $text = $comment->comment;
 
-        $response = $this->json('POST', '/api/comment/update/' . $comment->id, ['comment' => 'NewText!!'],
+        $response = $this->json('PATCH', '/api/comment/' . $comment->id, ['comment' => 'NewText!!'],
             ['Authorization' => 'bearer ' . User::find($comment->user_id)
                     ->api_token]);
 
@@ -113,7 +113,7 @@ class LikesAndCommentsTest extends TestCase
         $comment = factory('App\Comment')->create();
         $user = User::find($comment->user_id);
 
-        $this->json('DELETE', '/api/comment/delete/' . $comment->id, [],
+        $this->json('DELETE', '/api/comment/' . $comment->id, [],
             ['Authorization' => 'bearer ' .$user->api_token]);
 
         $this->assertDatabaseMissing('comments', ['id' => $comment->id]);

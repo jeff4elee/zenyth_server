@@ -6,41 +6,62 @@ use App\Exceptions\ResponseHandler as Response;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\DataValidator;
 use App\PasswordReset;
+use App\Repositories\PasswordResetRepository;
+use App\Repositories\UserRepository;
 use App\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 
+/**
+ * Class ForgotPasswordController
+ * @package App\Http\Controllers\Auth
+ */
 class ForgotPasswordController extends Controller
 {
     use AuthenticationTrait;
+    private $pwResetRepo;
+    private $userRepo;
 
-    public function __construct()
+    /**
+     * ForgotPasswordController constructor.
+     */
+    public function __construct(PasswordResetRepository $pwResetRepo,
+                                UserRepository $userRepo)
     {
-        $this->middleware('guest');
+        $this->pwResetRepo = $pwResetRepo;
+        $this->userRepo = $userRepo;
     }
 
+    /**
+     * Send the reset password email
+     * @param Request $request
+     * @return \Illuminate\Http\JsonResponse
+     */
     public function sendResetPasswordEmail(Request $request)
     {
         if($request->has('email'))
-            $user = User::where('email','=', $request['email'])->first();
+            $user = $this->userRepo->findBy('email', $request['email']);
         else
-            $user = User::where('username','=', $request['username'])->first();
+            $user = $this->userRepo->findBy('username', $request['username']);
 
         // If there already is a password reset token for this user, resend the email with this token
         $passwordReset = $user->passwordReset;
         $email = $user->email;
         $name = $user->name();
-        if($passwordReset)
+        if($passwordReset->first())
             $token = $passwordReset->token;
         else { // Generate unique token
             do {
                 $token = str_random(30);
-                $dup_token = PasswordReset::where('token', '=', $token)->first();
+                $dup_token = $this->pwResetRepo->findBy('token', $token);
             } while ($dup_token != null);
 
-            PasswordReset::create(['email' => $email, 'token' => $token]);
+            // Create a password reset object with a token that is used to
+            // validate the user's request to restore password
+            $this->pwResetRepo->create(['email' => $email, 'token' => $token]);
         }
 
+        // Send reset password email
         $subject = 'Reset your password';
         $infoArray = ['token' => $token];
         $this->sendEmail('restore_password_email', $infoArray, $email, $name, $subject);
@@ -49,25 +70,32 @@ class ForgotPasswordController extends Controller
             CHECK_EMAIL);
     }
 
+    /**
+     * Show the password reset html page
+     * @param $token
+     * @return $this|\Illuminate\Contracts\Routing\ResponseFactory|\Symfony\Component\HttpFoundation\Response
+     */
     public function showPasswordResetBlade($token)
     {
-        if(PasswordReset::where('token', '=', $token)->first() == null)
-            return response(json_encode([
-                'success' => false,
-                'message' => 'Invalid token'
-            ]), 200);
+        if($this->pwResetRepo->findBy('token', $token) == null)
+            return Response::successResponse(INVALID_TOKEN, false);
 
+        // Show the page for resetting password
         return view('restore_password_web')->with(['token' => $token]);
     }
 
+    /**
+     * Restore the user's password
+     * @param Request $request
+     * @param $token
+     * @return \Illuminate\Http\JsonResponse
+     */
     public function restorePassword(Request $request, $token)
     {
         if(!$token)
-            return response()->json([
-                'success' => false,
-                'message' => 'Invalid token'
-            ], 200);
+            return Response::successResponse(INVALID_TOKEN, false);
 
+        // Validate the request to check for password and password_confirmation
         $validator = DataValidator::validateRestorePassword($request);
         if($validator->fails()) {
             return response()->json([
@@ -76,22 +104,17 @@ class ForgotPasswordController extends Controller
             ], 200);
         }
 
-        $password_reset = PasswordReset::where('token', '=', $token)->first();
-        if($password_reset == null)
-            return response()->json([
-                'success' => false,
-                'message' => 'Invalid token'
-            ], 200);
+        // Get the password reset object that associates with this token
+        $passwordReset = $this->pwResetRepo->findBy('token', $token);
+        if($passwordReset == null)
+            return Response::successResponse(INVALID_TOKEN, false);
 
-        $user = User::where('email', '=', $password_reset->email)->first();
+        // Get the user and change password of that user
+        $user = $this->userRepo->findBy('email',$passwordReset->email);
         $user->password = Hash::make($request['password']);
         $user->update();
-        $password_reset->delete();
+        $this->pwResetRepo->delete($passwordReset);
 
-        return response()->json([
-            'success' => true,
-            'message' => RESET_PW_SUCCESS
-        ], 200);
-
+        return Response::successResponse(RESET_PW_SUCCESS);
     }
 }

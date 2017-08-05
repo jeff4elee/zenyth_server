@@ -11,7 +11,7 @@ class TagTest extends TestCase
     public function testSearchTagsName()
     {
         $api_token = factory('App\User')->create()->api_token;
-        $this->json('POST', '/api/pinpost/create', [
+        $this->json('POST', '/api/pinpost', [
             'title' => 'testpin',
             'description' => 'fake description for fake pins',
             'latitude' => 33.33,
@@ -19,7 +19,8 @@ class TagTest extends TestCase
             'tags' => 'hello,hi,howareyou,imokay,disneyland'
         ], ['Authorization' => 'bearer ' . $api_token]);
 
-        $response = $this->json('GET', '/api/tag/search?tag=howareyou');
+        $response = $this->json('GET', '/api/tag/search?tag=howareyou', [],
+            ['Authorization' => 'bearer ' . $api_token]);
         $response->assertJson([
             'success' => true,
             'data' => [
@@ -33,7 +34,7 @@ class TagTest extends TestCase
     public function testSearchTagInfo()
     {
         $api_token = factory('App\User')->create()->api_token;
-        $this->json('POST', '/api/pinpost/create', [
+        $this->json('POST', '/api/pinpost', [
             'title' => 'testpin',
             'description' => 'fake description for fake pins',
             'latitude' => 33.33,
@@ -41,7 +42,8 @@ class TagTest extends TestCase
             'tags' => 'hello,hi,howareyou,imokay,disneyland'
         ], ['Authorization' => 'bearer ' . $api_token]);
 
-        $response = $this->json('GET', '/api/tag/info?tag=howareyou');
+        $response = $this->json('GET', '/api/tag/info?tag=howareyou', [],
+            ['Authorization' => 'bearer ' . $api_token]);
         $response->assertJson([
             'success' => true,
             'data' => [

@@ -167,16 +167,18 @@ class ResponseHandler
     /**
      * Format a successful response
      * @param null $message, message to be added to the response
+     * @param @success
      * @return JsonResponse
      */
-    static public function successResponse($message = null)
+    static public function successResponse($message = null, $success = true)
     {
         if($message == null)
-            return response()->json(['success' => true], 200, array(), JSON_PRETTY_PRINT)
+            return response()->json(['success' => $success], 200, array(),
+                JSON_PRETTY_PRINT)
                 ->header('Content-Type', 'application/json; charset=UTF-8');
         else
             return response()->json([
-                'success' => true,
+                'success' => $success,
                 'message' => $message
             ], 200, array(), JSON_PRETTY_PRINT)
                 ->header('Content-Type', 'application/json; charset=UTF-8');

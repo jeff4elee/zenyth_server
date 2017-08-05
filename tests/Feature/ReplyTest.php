@@ -16,7 +16,7 @@ class ReplyTest extends TestCase
     {
         $user = factory('App\User')->create();
         $comment = factory('App\Comment')->create();
-        $response = $this->json('POST', '/api/reply/create/'
+        $response = $this->json('POST', '/api/reply/'
         . $comment->id, ['text' => 'test reply'], [
             'Authorization' => 'bearer ' . $user->api_token
         ]);
@@ -59,7 +59,7 @@ class ReplyTest extends TestCase
         $reply = factory('App\Reply')->create(['text' => 'test reply']);
         $user = User::find($reply->user_id);
 
-        $response = $this->json('POST', '/api/reply/update/'
+        $response = $this->json('PATCH', '/api/reply/'
         . $reply->id, ['text' => 'updated reply'],
             ['Authorization' => 'bearer ' . $user->api_token]);
 
@@ -77,7 +77,7 @@ class ReplyTest extends TestCase
 
         // Test to see if other users can edit the reply
         $user = factory('App\User')->create();
-        $response = $this->json('POST', '/api/reply/update/'
+        $response = $this->json('PATCH', '/api/reply/'
             . $reply->id, ['text' => 'updated reply'],
             ['Authorization' => 'bearer ' . $user->api_token]);
         $response
@@ -94,7 +94,7 @@ class ReplyTest extends TestCase
         $reply = factory('App\Reply')->create(['text' => 'HELLO']);
         $user = User::find($reply->user_id);
 
-        $this->json('DELETE', '/api/reply/delete/'
+        $this->json('DELETE', '/api/reply/'
         . $reply->id, [], ['Authorization' => 'bearer '.$user->api_token]);
 
         $this->assertDatabaseMissing('replies', [
@@ -104,7 +104,7 @@ class ReplyTest extends TestCase
         // Test to see if other users can delete the reply
         $reply = factory('App\Reply')->create(['text' => 'test reply']);
         $user = factory('App\User')->create();
-        $response = $this->json('DELETE', '/api/reply/delete/'
+        $response = $this->json('DELETE', '/api/reply/'
             . $reply->id, [], ['Authorization' => 'bearer '.$user->api_token]);
 
         $response

@@ -15,8 +15,12 @@ class ProfileTest extends TestCase
     public function testUpdateProfile()
     {
         $profile = factory('App\Profile')->create();
+        $userPrivacy = factory('App\UserPrivacy')->create(['user_id' =>
+            $profile->user_id]);
         $user = User::find($profile->user_id);
-        $response = $this->json('POST', '/api/profile/update',
+
+        // Updating first name, last name and gender
+        $response = $this->json('PATCH', '/api/profile',
             ['first_name' => 'Test', 'last_name' => 'Man',
                 'gender' => 'non-binary'],
             ['Authorization' => 'bearer ' . $user->api_token]);
@@ -37,6 +41,83 @@ class ProfileTest extends TestCase
         $this->assertDatabaseHas('profiles', [
             'first_name' => 'Test',
             'last_name' => 'Man'
+        ]);
+
+        // Updating privacy settings
+        $this->json('PATCH', '/api/profile',
+            ['email_privacy' => 'self', 'birthday_privacy' => 'friends'],
+            ['Authorization' => 'bearer ' . $user->api_token]);
+        $this->assertDatabaseHas('user_privacies', [
+            'user_id' => $userPrivacy->user_id,
+            'email_privacy' => 'self',
+            'birthday_privacy' => 'friends'
+        ]);
+    }
+
+    public function testReadProfile()
+    {
+        $profile = factory('App\Profile')->create();
+        $user = User::find($profile->user_id);
+        $userPrivacy = factory('App\UserPrivacy')->create([
+            'user_id' => $profile->user_id,
+            'email_privacy' => 'self',
+            'birthday_privacy' => 'friends'
+        ]);
+
+        // Test reading your own profile
+        $response = $this->json('GET', 'api/profile/' .
+            $profile->user_id, [],
+            ['Authorization' => 'bearer ' . $user->api_token]);
+
+        $response->assertJsonStructure([
+            'success',
+            'data' => [
+                'user' => [
+                    'email',
+                    'profile' => [
+                        'gender',
+                        'birthday'
+                    ]
+                ]
+            ]
+        ]);
+
+        // Test reading someone else's profile
+        $userTwo = factory('App\User')->create();
+        $response = $this->json('GET', 'api/profile/' .
+            $profile->user_id, [],
+            ['Authorization' => 'bearer ' . $userTwo->api_token]);
+
+        $response->assertJsonMissing([
+            'data' => [
+                'user' => [
+                    'email' => $user->email,
+                    'profile' => [
+                        'birthday' => $profile->birthday
+                    ]
+                ]
+            ]
+        ]);
+
+        // Test reading someone else's profile if you are friend with that
+        // person
+        factory('App\Relationship')->create([
+            'requester' => $profile->user_id,
+            'requestee' => $userTwo->id,
+            'status' => true
+        ]);
+        $response = $this->json('GET', 'api/profile/' .
+            $profile->user_id, [],
+            ['Authorization' => 'bearer ' . $userTwo->api_token]);
+
+        $response->assertJsonStructure([
+            'data' => [
+                'user' => [
+                    'profile' => [
+                        'birthday'
+                    ]
+                ]
+            ]
         ]);
     }
 }

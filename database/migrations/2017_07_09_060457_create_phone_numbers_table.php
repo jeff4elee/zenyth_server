@@ -17,7 +17,7 @@ class CreatePhoneNumbersTable extends Migration
             $table->increments('id');
             $table->unsignedInteger('profile_id');
             $table->foreign('profile_id')
-                ->references('id')->on('profiles')
+                ->references('user_id')->on('profiles')
                 ->onDelete('cascade');
 
             /* +CCC-AAA-XXX-XXXX */

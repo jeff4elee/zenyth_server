@@ -58,8 +58,11 @@ class PinpostController extends Controller
             'title' => $request['title'],
             'description' => $request['description'],
             'latitude' => (double)$request['latitude'],
-            'longitude' => (double)$request['longitude']
+            'longitude' => (double)$request['longitude'],
         ];
+        if($request->has('privacy'))
+            $data = array_add($data, 'privacy', strtolower($request['privacy']));
+
         $pin = $this->pinpostRepo->create($data);
 
         if($request->has('tags')) {
@@ -67,7 +70,8 @@ class PinpostController extends Controller
             // Must parse the hash tags out on client side
             $tags = strtolower($request->input('tags'));
             $tags = explode(",", $tags);
-            $request->merge(['pinpost' => $pin]);
+
+            // Loop through the tags to generate tags
             foreach($tags as $tagName) {
                 $tag = $this->tagRepo->findBy('name', $tagName);
 
@@ -79,6 +83,9 @@ class PinpostController extends Controller
                         'tag_id' => $tag->id,
                         'taggable_id' => $pin->id
                     ];
+
+                    // Create a taggable object that associates with this
+                    // pinpost
                     $this->taggableRepo->create($data);
                 }
                 // If tag does not exist, create one
@@ -87,6 +94,9 @@ class PinpostController extends Controller
                         'name' => $tagName
                     ];
                     $tag = $this->tagRepo->create($data);
+
+                    // Create a taggable object that associates with this
+                    // pinpost
                     $data = [
                         'tag_id' => $tag->id,
                         'taggable_type' => 'App\Pinpost',
@@ -107,6 +117,7 @@ class PinpostController extends Controller
      */
     public function read(Request $request, $pinpost_id)
     {
+        // Specify fields to return
         if($request->has('fields')) {
             $fields = $request->input('fields');
             $fields = explode(',', $fields);
@@ -136,8 +147,7 @@ class PinpostController extends Controller
         if (!$pin)
             Exceptions::notFoundException(NOT_FOUND);
 
-        // Check if pinpost being updated belongs to the user making the
-        // request
+        // Validator pinpost's creator
         $api_token = $pin->creator->api_token;
         $headerToken = $request->header('Authorization');
 
@@ -158,7 +168,8 @@ class PinpostController extends Controller
     public function delete(Request $request, $pinpost_id)
     {
         $pin = $this->pinpostRepo->read($pinpost_id);
-        // Validate if user deleting is the same as the user from the token
+
+        // Validate pinpost creator
         $api_token = $pin->creator->api_token;
         $headerToken = $request->header('Authorization');
         if ($api_token != $headerToken)
@@ -178,6 +189,7 @@ class PinpostController extends Controller
      */
     public function fetchComments(Request $request, $pinpost_id)
     {
+        // Specify fields of comments to return
         $pin = $this->pinpostRepo->read($pinpost_id);
         if($request->has('fields')) {
             $fields = $request->input('fields');
@@ -199,6 +211,8 @@ class PinpostController extends Controller
     public function fetchLikes(Request $request, $pinpost_id)
     {
         $pin = $this->pinpostRepo->read($pinpost_id);
+
+        // Specify fields of likes to return
         if($request->has('fields')) {
             $fields = $request->input('fields');
             $fields = explode(',', $fields);
@@ -246,9 +260,15 @@ class PinpostController extends Controller
      */
     public function fetch(Request $request)
     {
+        // Fetch based on scope
+        // Example GET request: /api/pinpost/fetch?type=radius&center=lat,long&radius=100&unit=mi|km&scope=self|friends|public
+        // Example GET request: /api/pinpost/fetch?type=frame&top_left=lat,long&bottom_right=lat,long&unit=mi|km&scope=self|friends|public
         $type = strtolower($request->input('type'));
         $user = $request->get('user');
         $scope = $request->input('scope');
+
+        if(!$request->has('unit'))
+            $request->merge(['unit' => 'mi']);
 
         if($type == 'radius')
             $this->pinpostRepo->pinpostsInRadius($request->all());
@@ -260,9 +280,10 @@ class PinpostController extends Controller
 
         // FriendsScope is either not provided or public. Return all pinposts in the
         // area
-
+        $pinposts = $this->pinpostRepo->all();
+        $pinposts = $this->pinpostRepo->filterByPrivacy($user, $pinposts);
         return Response::dataResponse(true, [
-            'pinposts' => $this->pinpostRepo->all() // get all the pinposts
+            'pinposts' => $pinposts // get all the pinposts
         ]);
     }
 

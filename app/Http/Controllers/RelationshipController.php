@@ -75,6 +75,7 @@ class RelationshipController extends Controller
         if ($relationship == null || $relationship->status == true)
             Exceptions::invalidRequestException(NO_PENDING_REQUEST);
 
+        // status from request indicating accept or ignore
         if ((bool)$request->input('status')) {
             $relationship->update(['status' => true]);
             return Response::dataResponse(true, ['relationship' => $relationship]);
@@ -95,6 +96,7 @@ class RelationshipController extends Controller
         $user = $request->get('user');
         $deleterId = $user->id;
 
+        // Cannot delete yourself
         if($deleterId == $user_id)
             Exceptions::invalidRequestException(INVALID_REQUEST_TO_SELF);
 
@@ -123,6 +125,7 @@ class RelationshipController extends Controller
         $user = $request->get('user');
         $blockerId = $user->id;
 
+        // Cannot block yourself
         if($blockerId == $user_id)
             Exceptions::invalidRequestException(INVALID_REQUEST_TO_SELF);
 
@@ -163,16 +166,15 @@ class RelationshipController extends Controller
     {
         $relationship = $this->relationshipRepo
             ->hasRelationship($user1_id, $user2_id)
-            ->hasFriendship()->all()->first();
+            ->all()->first();
 
-        if($relationship) {
+        if($relationship)
             return Response::dataResponse(true, [
                 'relationship' => $relationship,
-                'is_friend' => true
+                'is_friend' => $relationship->status
             ]);
-        } else {
+        else
             return Response::dataResponse(true, ['is_friend' => false]);
-        }
     }
 
 }

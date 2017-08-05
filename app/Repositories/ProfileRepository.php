@@ -57,21 +57,23 @@ class ProfileRepository extends Repository
         else
             Exceptions::invalidParameterException(EITHER_MODEL_OR_ID);
 
+        $data = [];
+
         if($request->has('first_name'))
-            $profile->first_name = $request['first_name'];
+            $data['first_name'] = $request['first_name'];
 
         if($request->has('last_name'))
-            $profile->last_name = $request['last_name'];
+            $data['last_name'] = $request['last_name'];
 
         if($request->has('gender'))
-            $profile->gender = $request['gender'];
+            $data['gender'] = $request['gender'];
 
         if($request->has('birthday')) {
             $birthday = \DateTime::createFromFormat('Y-m-d', $request['birthday']);
-            $profile->birthday = $birthday;
+            $data['birthday'] = $birthday;
         }
 
-        $profile->update();
+        $profile->update($data);
         return $profile;
     }
 }

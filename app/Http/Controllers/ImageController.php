@@ -56,6 +56,8 @@ class ImageController extends Controller
             $directory = 'images';
 
         $extension = $file->extension();
+        // Image is passed in in order to append the image id to the end of
+        // the image name
         $filename = self::generateImagename($extension, $image);
 
         Storage::disk($directory)->put($filename, File::get($file));
@@ -94,6 +96,8 @@ class ImageController extends Controller
             if($extension == null)
                 Exceptions::invalidImageTypeException(INVALID_IMAGE_TYPE);
 
+            // Image is passed in in order to append the image id to the end of
+            // the image name
             $filename = self::generateImageName($extension, $image);
 
             // getBody() method retrieves the raw image byte stream
@@ -122,6 +126,9 @@ class ImageController extends Controller
 
         // Check if this imageable object exists
         $imageable = $this->imageableExists($imageableType, $imageable_id);
+
+        // Validate if the imageable object belongs to the same user that is
+        // uploading this image
         if($imageable->user_id != $user->id)
             Exceptions::invalidTokenException(NOT_USERS_OBJECT);
 
@@ -152,6 +159,7 @@ class ImageController extends Controller
             Exceptions::notFoundException(NOT_FOUND);
 
         $userId = $user->id;
+        // Validate if image belongs to this user
         if($image->user_id != $userId)
             Exceptions::invalidTokenException(NOT_USERS_OBJECT);
 
@@ -193,6 +201,10 @@ class ImageController extends Controller
 
         return $filename;
     }
+
+
+    /* The functions below are to determine the imageable type for
+    polymorphism */
 
     /**
      * Get the type of imageable

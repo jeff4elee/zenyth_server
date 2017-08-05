@@ -84,8 +84,7 @@ class SearchTest extends TestCase
             'password' => 'password',
             'password_confirmation' => 'password']);
 
-        $response = $this->json('POST', '/api/user/search_user',
-            ['keyword' => 'Hoang']);
+        $response = $this->json('GET', '/api/user/search_user?keyword=Hoang');
 
         $response->assertJson([
             'success' => true,

@@ -81,7 +81,7 @@ class AuthTest extends TestCase
         $user_id = $response->decodeResponseJson()['data']['user']['id'];
 
         $this->assertDatabaseHas('profiles', ['user_id' => $user_id]);
-
+        $this->assertDatabaseHas('user_privacies', ['user_id' => $user_id]);
     }
 
     public function testLoginFailure(){

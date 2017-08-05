@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Exceptions\Exceptions;
+use App\Repositories\UserRepository;
 use App\User;
 use GuzzleHttp\Client;
 use Illuminate\Http\Request;
@@ -20,7 +21,6 @@ trait AuthenticationTrait
 
     /**
      * Generate a unique api token
-     *
      * @return string
      */
     public function generateApiToken()
@@ -69,9 +69,12 @@ trait AuthenticationTrait
         }
         $access_token = $this->stripBearerFromToken($access_token);
 
-        $client = new Client();
-
+        // Make the oauth_type case insensitive
         $oauth_type = strtolower($request['oauth_type']);
+
+        // Create a client for making a request to facebook/google api to
+        // validate the access token
+        $client = new Client();
         $res = null;
 
         if ($oauth_type == "facebook")
@@ -82,6 +85,7 @@ trait AuthenticationTrait
         if ($res == null)
             Exceptions::invalidRequestException(REQUEST_NO_RESPONSE);
 
+        // Get json response back in an array
         $json = json_decode($res->getBody()->getContents(), true);
         return $json;
 
@@ -102,6 +106,24 @@ trait AuthenticationTrait
                 $message->to($email, $name)
                     ->subject($subject);
             });
+    }
+
+    public function getUserFromRequest(Request $request)
+    {
+        $api_token = $request->header('Authorization');
+        if($api_token == null)
+            Exceptions::unauthenticatedException(REQUIRES_ACCESS_TOKEN);
+
+        $api_token = $this->stripBearerFromToken($api_token);
+
+        if($api_token == null)
+            Exceptions::invalidTokenException(INVALID_TOKEN);
+
+        $user = User::where('api_token', '=', $api_token)->first();
+        if(!$user)
+            Exceptions::invalidTokenException(INVALID_TOKEN);
+
+        return $user;
     }
 
 }
