@@ -135,7 +135,7 @@ class PinpostRepository extends Repository
                 $creator = $pinpost->creator;
                 $userId = $user->id;
                 $creatorsFriendsId = $creator->friendsId();
-                if(isset($userId, $creatorsFriendsId))
+                if(in_array($userId, $creatorsFriendsId))
                     $filteredPinposts->push($pinpost);
             }
         }
