@@ -20,7 +20,7 @@ class ProfileTest extends TestCase
         $user = User::find($profile->user_id);
 
         // Updating first name, last name and gender
-        $response = $this->json('POST', '/api/profile/update',
+        $response = $this->json('PATCH', '/api/profile',
             ['first_name' => 'Test', 'last_name' => 'Man',
                 'gender' => 'non-binary'],
             ['Authorization' => 'bearer ' . $user->api_token]);
@@ -44,7 +44,7 @@ class ProfileTest extends TestCase
         ]);
 
         // Updating privacy settings
-        $this->json('POST', '/api/profile/update',
+        $this->json('PATCH', '/api/profile',
             ['email_privacy' => 'self', 'birthday_privacy' => 'friends'],
             ['Authorization' => 'bearer ' . $user->api_token]);
         $this->assertDatabaseHas('user_privacies', [
@@ -65,7 +65,7 @@ class ProfileTest extends TestCase
         ]);
 
         // Test reading your own profile
-        $response = $this->json('GET', 'api/profile/read/' .
+        $response = $this->json('GET', 'api/profile/' .
             $profile->user_id, [],
             ['Authorization' => 'bearer ' . $user->api_token]);
 
@@ -84,7 +84,7 @@ class ProfileTest extends TestCase
 
         // Test reading someone else's profile
         $userTwo = factory('App\User')->create();
-        $response = $this->json('GET', 'api/profile/read/' .
+        $response = $this->json('GET', 'api/profile/' .
             $profile->user_id, [],
             ['Authorization' => 'bearer ' . $userTwo->api_token]);
 
@@ -106,7 +106,7 @@ class ProfileTest extends TestCase
             'requestee' => $userTwo->id,
             'status' => true
         ]);
-        $response = $this->json('GET', 'api/profile/read/' .
+        $response = $this->json('GET', 'api/profile/' .
             $profile->user_id, [],
             ['Authorization' => 'bearer ' . $userTwo->api_token]);
 

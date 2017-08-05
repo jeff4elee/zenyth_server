@@ -98,11 +98,11 @@ class LikeController extends Controller
      */
     public function getLikeableType(Request $request)
     {
-        if($request->is('api/pinpost/like/create/*'))
+        if($request->is('api/pinpost/like/*'))
             return 'App\Pinpost';
-        else if($request->is('api/comment/like/create/*'))
+        else if($request->is('api/comment/like/*'))
             return 'App\Comment';
-        else if($request->is('api/reply/like/create/*'))
+        else if($request->is('api/reply/like/*'))
             return 'App\Reply';
 
         Exceptions::invalidRequestException();

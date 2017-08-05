@@ -11,7 +11,7 @@ class TagTest extends TestCase
     public function testSearchTagsName()
     {
         $api_token = factory('App\User')->create()->api_token;
-        $this->json('POST', '/api/pinpost/create', [
+        $this->json('POST', '/api/pinpost', [
             'title' => 'testpin',
             'description' => 'fake description for fake pins',
             'latitude' => 33.33,
@@ -34,7 +34,7 @@ class TagTest extends TestCase
     public function testSearchTagInfo()
     {
         $api_token = factory('App\User')->create()->api_token;
-        $this->json('POST', '/api/pinpost/create', [
+        $this->json('POST', '/api/pinpost', [
             'title' => 'testpin',
             'description' => 'fake description for fake pins',
             'latitude' => 33.33,

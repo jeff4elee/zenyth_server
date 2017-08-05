@@ -61,7 +61,7 @@ class PinpostController extends Controller
             'longitude' => (double)$request['longitude'],
         ];
         if($request->has('privacy'))
-            $data = array_add($data, 'privacy', $request['privacy']);
+            $data = array_add($data, 'privacy', strtolower($request['privacy']));
 
         $pin = $this->pinpostRepo->create($data);
 

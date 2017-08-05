@@ -170,7 +170,7 @@ class CommentController extends Controller
      */
     public function getCommentableType(Request $request)
     {
-        if($request->is('api/pinpost/comment/create/*'))
+        if($request->is('api/pinpost/comment/*'))
             return 'App\Pinpost';
 
         Exceptions::invalidRequestException();
