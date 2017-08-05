@@ -58,8 +58,11 @@ class PinpostController extends Controller
             'title' => $request['title'],
             'description' => $request['description'],
             'latitude' => (double)$request['latitude'],
-            'longitude' => (double)$request['longitude']
+            'longitude' => (double)$request['longitude'],
         ];
+        if($request->has('privacy'))
+            $data = array_add($data, 'privacy', $request['privacy']);
+
         $pin = $this->pinpostRepo->create($data);
 
         if($request->has('tags')) {
@@ -264,6 +267,9 @@ class PinpostController extends Controller
         $user = $request->get('user');
         $scope = $request->input('scope');
 
+        if(!$request->has('unit'))
+            $request->merge(['unit' => 'mi']);
+
         if($type == 'radius')
             $this->pinpostRepo->pinpostsInRadius($request->all());
         else
@@ -274,9 +280,10 @@ class PinpostController extends Controller
 
         // FriendsScope is either not provided or public. Return all pinposts in the
         // area
-
+        $pinposts = $this->pinpostRepo->all();
+        $pinposts = $this->pinpostRepo->filterByPrivacy($user, $pinposts);
         return Response::dataResponse(true, [
-            'pinposts' => $this->pinpostRepo->all() // get all the pinposts
+            'pinposts' => $pinposts // get all the pinposts
         ]);
     }
 

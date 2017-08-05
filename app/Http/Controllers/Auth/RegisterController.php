@@ -8,6 +8,7 @@ use App\Http\Controllers\Controller;
 use App\Repositories\ImageRepository;
 use App\Repositories\OauthRepository;
 use App\Repositories\ProfileRepository;
+use App\Repositories\UserPrivacyRepository;
 use App\Repositories\UserRepository;
 use Illuminate\Foundation\Auth\RegistersUsers;
 use Illuminate\Http\JsonResponse;
@@ -22,6 +23,7 @@ class RegisterController extends Controller
     private $profileRepo;
     private $oauthRepo;
     private $imageRepo;
+    private $userPrivacyRepo;
 
     /**
      * Create a new controller instance.
@@ -32,12 +34,14 @@ class RegisterController extends Controller
      */
     public function __construct(UserRepository $userRepo, ProfileRepository
                                 $profileRepo, OauthRepository $oauthRepo,
-                                ImageRepository $imageRepo)
+                                ImageRepository $imageRepo,
+                                UserPrivacyRepository $userPrivacyRepo)
     {
         $this->userRepo = $userRepo;
         $this->profileRepo = $profileRepo;
         $this->oauthRepo = $oauthRepo;
         $this->imageRepo = $imageRepo;
+        $this->userPrivacyRepo = $userPrivacyRepo;
     }
 
     /**
@@ -65,6 +69,7 @@ class RegisterController extends Controller
             $profile->update();
         }
         $this->oauthRepo->create($request);
+        $this->userPrivacyRepo->create(['user_id' => $user->id]);
 
         if($request->is('api/register')) {
             // Send confirmation email
@@ -76,6 +81,7 @@ class RegisterController extends Controller
 
         return Response::dataResponse(true, [
             'user' => $user->makeVisible('api_token')
+                            ->makeVisible('email')
         ]);
     }
 

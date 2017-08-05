@@ -17,7 +17,7 @@ class CreateAddressesTable extends Migration
             $table->increments('id');
             $table->unsignedInteger('profile_id');
             $table->foreign('profile_id')
-                ->references('id')->on('profiles')
+                ->references('user_id')->on('profiles')
                 ->onDelete('cascade');
             $table->string('line', 60);
             $table->string('apt_number', 20)->nullable();

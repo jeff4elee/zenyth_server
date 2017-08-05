@@ -159,5 +159,148 @@ class PinpostTest extends TestCase
         $this->assertDatabaseMissing('likes', ['id' => $likeTwo->id]);
     }
 
+    public function testPinpostFetch()
+    {
+        $api_token = factory('App\User')->create()->api_token;
+        $this->json('POST', '/api/pinpost/create', [
+            'title' => 'testpin fetch',
+            'description' => 'description for pinpost',
+            'latitude' => 30,
+            'longitude' => 30
+        ], ['Authorization' => 'bearer ' . $api_token]);
+
+        // Test for fetching pinpost within radius in miles
+        $response = $this->json('GET', 'api/pinpost/fetch?type=radius&center=31,31&radius=92&scope=public', [],
+            ['Authorization' => 'bearer ' . $api_token]);
+
+        $response->assertJson([
+            'success' => true,
+            'data' => [
+                'pinposts' => [
+                    ['title' => 'testpin fetch']
+                ]
+            ]
+        ]);
+
+        // Test for fetching pinpost not within radius in miles
+        $response = $this->json('GET', 'api/pinpost/fetch?type=radius&center=31,31&radius=91&scope=public', [],
+            ['Authorization' => 'bearer ' . $api_token]);
+
+        $response->assertJsonMissing([
+            'data' => [
+                'pinposts' => ['title' => 'testpin fetch']
+            ]
+        ]);
+
+        // Test for fetching pinpost within radius in km
+        $response = $this->json('GET', 'api/pinpost/fetch?type=radius&center=31,31&radius=147&scope=public&unit=km', [],
+            ['Authorization' => 'bearer ' . $api_token]);
+
+        $response->assertJson([
+            'success' => true,
+            'data' => [
+                'pinposts' => [
+                    ['title' => 'testpin fetch']
+                ]
+            ]
+        ]);
+
+        // Test for fetching pinpost not within radius in km
+        $response = $this->json('GET', 'api/pinpost/fetch?type=radius&center=31,31&radius=146&scope=public&unit=km', [],
+            ['Authorization' => 'bearer ' . $api_token]);
+
+        $response->assertJsonMissing([
+            'data' => [
+                'pinposts' => ['title' => 'testpin fetch']
+            ]
+        ]);
+
+        // Test for fetching pinpost within frame
+        $response = $this->json('GET', 'api/pinpost/fetch?type=frame&top_left=29,32&bottom_right=31,29&scope=public', [],
+            ['Authorization' => 'bearer ' . $api_token]);
+
+        $response->assertJson([
+            'success' => true,
+            'data' => [
+                'pinposts' => [
+                    ['title' => 'testpin fetch']
+                ]
+            ]
+        ]);
+
+        // Test for fetching pinpost not within frame
+        $response = $this->json('GET', 'api/pinpost/fetch?type=frame&top_left=28,33&bottom_right=32,31&scope=public', [],
+            ['Authorization' => 'bearer ' . $api_token]);
+        $response->assertJsonMissing([
+            'data' => [
+                'pinposts' => ['title' => 'testpin fetch']
+            ]
+        ]);
+
+
+    }
+
+    public function testPinpostFilterByPrivacy()
+    {
+        // Test for filtering pinpost so that only the creator can see it
+        $userOne = factory('App\User')->create();
+        $this->json('POST', '/api/pinpost/create', [
+            'title' => 'testpin self',
+            'description' => 'description for pinpost with self privacy',
+            'latitude' => 30,
+            'longitude' => 30,
+            'tags' => 'selfscopetag',
+            'privacy' => 'self'
+        ], ['Authorization' => 'bearer ' . $userOne->api_token]);
+
+        $userTwo = factory('App\User')->create();
+        $response = $this->json('GET', 'api/pinpost/fetch?type=radius&center=31,31&radius=91&scope=public', [],
+            ['Authorization' => 'bearer ' . $userTwo->api_token]);
+
+        $response->assertJsonMissing([
+            'data' => [
+                'pinposts' => ['title' => 'testpin self']
+            ]
+        ]);
+
+        // Test for filtering pinpost so that only the creator's friends can
+        // see it
+        $this->json('POST', '/api/pinpost/create', [
+            'title' => 'testpin friends',
+            'description' => 'description for pinpost with friends privacy',
+            'latitude' => 30,
+            'longitude' => 30,
+            'tags' => 'friendsscopetag',
+            'privacy' => 'friends'
+        ], ['Authorization' => 'bearer ' . $userOne->api_token]);
+
+        // Before userTwo becomes userOne's friend, userTwo should not be
+        // able to see the pinpost
+        $response = $this->json('GET', 'api/pinpost/fetch?type=radius&center=31,31&radius=100&scope=public', [],
+            ['Authorization' => 'bearer ' . $userTwo->api_token]);
+
+        $response->assertJsonMissing([
+            'data' => [
+                'pinposts' => ['title' => 'testpin friends']
+            ]
+        ]);
+
+        // After userTwo becomes userOne's friend, userTwo can see the pinpost
+        factory('App\Relationship')->create([
+            'requester' => $userOne->id,
+            'requestee' => $userTwo->id,
+            'status' => true
+        ]);
+        $response = $this->json('GET', 'api/pinpost/fetch?type=radius&center=31,31&radius=100&scope=public', [],
+            ['Authorization' => 'bearer ' . $userTwo->api_token]);
+        $response->assertJson([
+            'success' => true,
+            'data' => [
+                'pinposts' => [
+                    ['title' => 'testpin friends']
+                ]
+            ]
+        ]);
+    }
 
 }

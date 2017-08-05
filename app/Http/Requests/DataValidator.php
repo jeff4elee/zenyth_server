@@ -31,6 +31,9 @@ class DataValidator
         else if($request->is('api/profile/profile_picture/upload*'))
             return Validator::make($request->all(), Rules::uploadImageRules());
 
+        else if($request->is('api/profile/update'))
+            return Validator::make($request->all(), Rules::updateProfileRules());
+
         else if($request->is('api/pinpost/create'))
             return Validator::make($request->all(), Rules::createPinpostRules());
 

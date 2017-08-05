@@ -43,6 +43,16 @@ class DataRules
         ];
     }
 
+    static public function updateProfileRules()
+    {
+        return [
+            'birthday' => 'date_format:Y-m-d',
+            'email_privacy' => 'in:self,friends,public',
+            'gender_privacy' => 'in:self,friends,public',
+            'birthday_privacy' => 'in:self,friends,public'
+        ];
+    }
+
     static public function sendResetPWEmailRules()
     {
         return [
@@ -71,7 +81,8 @@ class DataRules
             'title' => 'required',
             'description' => 'required',
             'latitude' => 'required',
-            'longitude' => 'required'
+            'longitude' => 'required',
+            'privacy' => 'in:self,friends,public'
         ];
     }
 
@@ -87,7 +98,8 @@ class DataRules
         return [
             'image' => 'image',
             'latitude' => 'numeric',
-            'longitude' => 'numeric'
+            'longitude' => 'numeric',
+            'privacy' => 'in:self,friends,public'
         ];
     }
 
