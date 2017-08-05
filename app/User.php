@@ -2,13 +2,13 @@
 
 namespace App;
 
-use Illuminate\Auth\Authenticatable as AuthenticableTrait;
-use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Database\Eloquent\Model;
+use App\Http\Controllers\Auth\AuthenticationTrait;
 
-class User extends Model implements Authenticatable
+class User extends Model
 {
-    use AuthenticableTrait;
+    use AuthenticationTrait;
+
     protected $table = 'users';
 
     /**
@@ -60,6 +60,11 @@ class User extends Model implements Authenticatable
     public function oauth()
     {
         return $this->hasOne('App\Oauth', 'user_id');
+    }
+
+    public function userPrivacy()
+    {
+        return $this->hasOne('App\UserPrivacy', 'user_id');
     }
 
     public function toArray()

@@ -43,6 +43,16 @@ class DataRules
         ];
     }
 
+    static public function updateProfileRules()
+    {
+        return [
+            'birthday' => 'date_format:Y-m-d',
+            'email_privacy' => 'in:self,friends,public',
+            'gender_privacy' => 'in:self,friends,public',
+            'birthday_privacy' => 'in:self,friends,public'
+        ];
+    }
+
     static public function sendResetPWEmailRules()
     {
         return [

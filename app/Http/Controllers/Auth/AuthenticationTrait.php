@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Exceptions\Exceptions;
+use App\Repositories\UserRepository;
 use App\User;
 use GuzzleHttp\Client;
 use Illuminate\Http\Request;
@@ -105,6 +106,24 @@ trait AuthenticationTrait
                 $message->to($email, $name)
                     ->subject($subject);
             });
+    }
+
+    public function getUserFromRequest(Request $request)
+    {
+        $api_token = $request->header('Authorization');
+        if($api_token == null)
+            Exceptions::unauthenticatedException(REQUIRES_ACCESS_TOKEN);
+
+        $api_token = $this->stripBearerFromToken($api_token);
+
+        if($api_token == null)
+            Exceptions::invalidTokenException(INVALID_TOKEN);
+
+        $user = User::where('api_token', '=', $api_token)->first();
+        if(!$user)
+            Exceptions::invalidTokenException(INVALID_TOKEN);
+
+        return $user;
     }
 
 }

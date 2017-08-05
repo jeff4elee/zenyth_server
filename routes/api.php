@@ -26,6 +26,7 @@ Route::group(['middleware' => 'validation'], function() {
         Route::get('user/friend_requests', 'UserController@getFriendRequests');
 
 
+        Route::get('profile/read/{user_id}', 'ProfileController@read');
         Route::post('profile/update', 'ProfileController@update');
         Route::post('profile/profile_picture/upload', 'ProfileController@updateProfilePicture');
 

@@ -49,6 +49,16 @@ $factory->define(App\Profile::class, function (Faker\Generator $faker) {
 
 });
 
+$factory->define(App\UserPrivacy::class, function (Faker\Generator $faker) {
+
+    $user_id = factory('App\User')->create()->id;
+
+    return [
+        'user_id' => $user_id,
+    ];
+
+});
+
 $factory->define(App\Pinpost::class, function (Faker\Generator $faker) {
 
     return [
