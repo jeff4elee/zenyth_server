@@ -139,6 +139,7 @@ class ImageController extends Controller
             'imageable_id' => $imageable_id,
             'imageable_type' => $imageableType
         ]);
+
         $image = $this->imageRepo->create($request);
         return Response::dataResponse(true, [
             'image' => $image

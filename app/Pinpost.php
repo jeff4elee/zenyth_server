@@ -8,7 +8,7 @@ class Pinpost extends Model
 {
     protected $fillable = ['title', 'description', 'latitude', 'longitude',
         'updated_at', 'entity_id', 'user_id', 'privacy'];
-    
+
     protected $table = 'pinposts';
 
     protected static function boot()
@@ -24,6 +24,13 @@ class Pinpost extends Model
             foreach($pinpost->likes as $like)
                 $like->delete();
         });
+    }
+
+    public function toArray()
+    {
+        $response = parent::toArray();
+        $response['images'] = $this->images;
+        return $response;
     }
 
     public function creator() {
