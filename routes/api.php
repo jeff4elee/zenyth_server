@@ -46,6 +46,7 @@ Route::group(['middleware' => 'validation'], function() {
         Route::get('pinpost/comments/count/{pinpost_id}', 'PinpostController@commentsCount');
         Route::get('pinpost/likes/count/{pinpost_id}', 'PinpostController@likesCount');
         Route::get('pinpost/fetch', 'PinpostController@fetch');
+        Route::get('pinpost/images/{pinpost_id}', 'PinpostController@readImages');
 
         Route::post('pinpost/upload_image/{imageable_id}', 'ImageController@uploadImage');
         Route::post('pinpost/like/{likeable_id}', 'LikeController@create');
@@ -58,6 +59,7 @@ Route::group(['middleware' => 'validation'], function() {
         Route::delete('comment/{comment_id}', 'CommentController@delete');
         Route::get('comment/get_likes/{comment_id}', 'CommentController@fetchLikes');
         Route::get('comment/likes/count/{comment_id}', 'CommentController@likesCount');
+        Route::get('comment/images/{comment_id}', 'CommentController@readImages');
 
 
         Route::post('reply/like/{likeable_id}', 'LikeController@create');
@@ -66,6 +68,7 @@ Route::group(['middleware' => 'validation'], function() {
         Route::patch('reply/{reply_id}', 'ReplyController@update');
         Route::delete('reply/{reply_id}', 'ReplyController@delete');
         Route::get('reply/get_likes/{reply_id}', 'ReplyController@fetchLikes');
+        Route::get('reply/images/{reply_id}', 'ReplyController@readImages');
 
 
         Route::delete('like/{like_id}', 'LikeController@delete');

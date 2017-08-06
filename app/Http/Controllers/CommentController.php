@@ -79,6 +79,24 @@ class CommentController extends Controller
     }
 
     /**
+     * Get all image objects of this comment
+     * @param Request $request
+     * @param $comment_id
+     * @return JsonResponse
+     */
+    public function readImages(Request $request, $comment_id)
+    {
+        $comment = $this->commentRepo->read($comment_id);
+        $images = $comment->images;
+
+        return Response::dataResponse(true, [
+            'comment' => [
+                'images' => $images
+            ]
+        ]);
+    }
+
+    /**
      * Edit comment
      * @param Request $request, post request
      *        rules: requires comment that is not empty

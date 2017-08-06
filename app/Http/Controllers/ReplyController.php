@@ -72,6 +72,24 @@ class ReplyController extends Controller
     }
 
     /**
+     * Get all image objects of this reply
+     * @param Request $request
+     * @param $reply_id
+     * @return JsonResponse
+     */
+    public function readImages(Request $request, $reply_id)
+    {
+        $reply = $this->replyRepo->read($reply_id);
+        $images = $reply->images;
+
+        return Response::dataResponse(true, [
+            'reply' => [
+                'images' => $images
+            ]
+        ]);
+    }
+
+    /**
      * Edit reply
      * @param Request $request, post request
      *        rules: requires reply that is not empty

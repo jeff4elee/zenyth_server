@@ -41,4 +41,11 @@ class Reply extends Model
     {
         return $this->morphMany('App\Like', 'likeable');
     }
+
+    public function toArray()
+    {
+        $response = parent::toArray();
+        $response['images'] = $this->images;
+        return $response;
+    }
 }

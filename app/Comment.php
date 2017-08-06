@@ -58,4 +58,11 @@ class Comment extends Model
     {
         return $this->likes()->count();
     }
+
+    public function toArray()
+    {
+        $response = parent::toArray();
+        $response['images'] = $this->images;
+        return $response;
+    }
 }

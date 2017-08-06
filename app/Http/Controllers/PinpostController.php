@@ -135,6 +135,24 @@ class PinpostController extends Controller
     }
 
     /**
+     * Get all image objects of this pinpost
+     * @param Request $request
+     * @param $pinpost_id
+     * @return JsonResponse
+     */
+    public function readImages(Request $request, $pinpost_id)
+    {
+        $pin = $this->pinpostRepo->read($pinpost_id);
+        $images = $pin->images;
+
+        return Response::dataResponse(true, [
+            'pinpost' => [
+                'images' => $images
+            ]
+        ]);
+    }
+
+    /**
      * Update Pinpost with information
      * @param Request $request, post request
      * @param $pinpost_id
