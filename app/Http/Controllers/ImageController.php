@@ -49,7 +49,7 @@ class ImageController extends Controller
      * @param $directory
      * @return $image
      */
-    static public function storeImageByUploadedFile(UploadedFile $file, $image,
+    static public function storeImageByUploadedFile(UploadedFile $file,
                                                     $directory = 'images')
     {
         if($directory == null)
@@ -58,7 +58,7 @@ class ImageController extends Controller
         $extension = $file->extension();
         // Image is passed in in order to append the image id to the end of
         // the image name
-        $filename = self::generateImagename($extension, $image);
+        $filename = self::generateImagename($extension);
 
         Storage::disk($directory)->put($filename, File::get($file));
         return $filename;
@@ -70,7 +70,7 @@ class ImageController extends Controller
      * @param $directory
      * @return Image|mixed|null|\Psr\Http\Message\ResponseInterface
      */
-    static public function storeImageByUrl($url, $image, $directory = 'images')
+    static public function storeImageByUrl($url, $directory = 'images')
     {
         if($url == null)
             Exceptions::invalidRequestException();
@@ -98,7 +98,7 @@ class ImageController extends Controller
 
             // Image is passed in in order to append the image id to the end of
             // the image name
-            $filename = self::generateImageName($extension, $image);
+            $filename = self::generateImageName($extension);
 
             // getBody() method retrieves the raw image byte stream
             // Storage then writes it to a file
@@ -189,12 +189,12 @@ class ImageController extends Controller
      * @param $image
      * @return string
      */
-    static public function generateImageName($extension, $image)
+    static public function generateImageName($extension)
     {
         do {
 
             // Concatenate image id to the end of the image
-            $filename = str_random(32)."_".$image->id.".".$extension;
+            $filename = str_random(32). "." .$extension;
             // Checks if filename is already taken
             $dup_filename = Image::where('filename', $filename)->first();
 
