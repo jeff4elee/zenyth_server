@@ -97,7 +97,7 @@ class PinpostRepository extends Repository
     {
         $scope = strtolower($scope);
         if($scope == 'self') {
-            $query = $this->model->where('creator_id', '=', $user->id);
+            $query = $this->model->where('user_id', '=', $user->id);
             $this->model = $query;
             return $this;
         }
@@ -110,7 +110,7 @@ class PinpostRepository extends Repository
             // Put the current user's id in the array to query
             array_push($idsToInclude, $user->id);
 
-            $query = $this->model->whereIn('creator_id', $idsToInclude);
+            $query = $this->model->whereIn('user_id', $idsToInclude);
             $this->model = $query;
             return $this;
         }
