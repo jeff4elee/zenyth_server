@@ -8,7 +8,6 @@ class Comment extends Model
 {
     protected $fillable = ['comment', 'user_id', 'commentable_id',
         'commentable_type'];
-    protected $hidden = ['commentable_type'];
     protected $table = 'comments';
     public $timestamps = false;
 
