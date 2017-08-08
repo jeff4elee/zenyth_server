@@ -21,7 +21,7 @@ class User extends Model
     ];
 
     protected $hidden = [
-        'password', 'token_expired_on', 'api_token', 'confirmation_code',
+        'password', 'token_expired_on', 'api_token', 'confirmation_code', 'email',
         'remember_token'
     ];
 
