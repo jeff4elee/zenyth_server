@@ -50,8 +50,6 @@ class ImageRepository extends Repository
                 $filename = ImageController::storeImageByUrl($url);
         }
 
-        dd($filename);
-
         $image = $this->model->create([
             'user_id' => $userId,
             'filename' => $filename,
