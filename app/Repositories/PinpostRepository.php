@@ -126,16 +126,19 @@ class PinpostRepository extends Repository
             }
 
             else if($pinpost->privacy == 'self') {
-                $creator = $pinpost->creator;
-                if($creator->id == $user->id)
+                $creatorId = $pinpost->user_id;
+                if($creatorId == $user->id)
                     $filteredPinposts->push($pinpost);
             }
 
             else if($pinpost->privacy == 'friends') {
-                $creator = $pinpost->creator;
-                $userId = $user->id;
-                $creatorsFriendsId = $creator->friendsId();
-                if(in_array($userId, $creatorsFriendsId))
+                $creatorId = $pinpost->user_id;
+                $usersFriends = $user->friendsId();
+
+                // If creatorId is in the list of friends of the user, include
+                // the pinpost
+                array_push($usersFriends, $user->id);
+                if(in_array($creatorId, $usersFriends))
                     $filteredPinposts->push($pinpost);
             }
         }

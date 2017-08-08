@@ -7,8 +7,6 @@ Route::post('password/reset/{token}',
 Route::get('email_taken/{email}', 'Auth\RegisterController@emailTaken');
 Route::get('username_taken/{username}', 'Auth\RegisterController@usernameTaken');
 
-Route::get('relationship/is_friend/{user1_id}/{user2_id}',
-    'RelationshipController@isFriend');
 Route::get('picture/{image_id}', 'ImageController@showImage');
 Route::get('/profile/profile_picture/{user_id}', 'ProfileController@showProfileImage');
 

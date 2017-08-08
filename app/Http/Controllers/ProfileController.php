@@ -6,6 +6,7 @@ use App\Exceptions\Exceptions;
 use App\Exceptions\ResponseHandler as Response;
 use App\Repositories\ImageRepository;
 use App\Repositories\ProfileRepository;
+use App\Repositories\RelationshipRepository;
 use App\Repositories\UserPrivacyRepository;
 use App\Repositories\UserRepository;
 use Illuminate\Http\JsonResponse;
@@ -21,16 +22,19 @@ class ProfileController extends Controller
     private $imageRepo;
     private $userRepo;
     private $userPrivacyRepo;
+    private $relationshipRepo;
 
     function __construct(ProfileRepository $profileRepo,
                         ImageRepository $imageRepo,
                         UserRepository $userRepo,
-                        UserPrivacyRepository $userPrivacyRepo)
+                        UserPrivacyRepository $userPrivacyRepo,
+                        RelationshipRepository $relationshipRepo)
     {
         $this->profileRepo = $profileRepo;
         $this->imageRepo = $imageRepo;
         $this->userRepo = $userRepo;
         $this->userPrivacyRepo = $userPrivacyRepo;
+        $this->relationshipRepo = $relationshipRepo;
     }
 
     /**
@@ -52,19 +56,17 @@ class ProfileController extends Controller
 
         $userBeingRead = $this->userRepo->read($user_id);
         // Create an array to be constructed based on privacy settings
-        $userInfoArray = $userBeingRead->toArray();
-
-        $userPrivacy = $userBeingRead->userPrivacy;
+        $userPrivacy = $this->userPrivacyRepo->findBy('user_id', $user_id);
 
         // Take out the attribute if the privacy is self
         if($userPrivacy->email_privacy == 'self')
-            array_pull($userInfoArray, 'email');
+            $userBeingRead->makeHidden('email');
 
         if($userPrivacy->gender_privacy == 'self')
-            array_pull($userInfoArray['profile'], 'gender');
+            $userBeingRead->makeHidden('gender');
 
         if($userPrivacy->birthday_privacy == 'self')
-            array_pull($userInfoArray['profile'], 'birthday');
+            $userBeingRead->makeHidden('birthday');
 
         // Only query for friends if any of the privacy settings has
         // friends scope. This way we save a query if none of the scopes
@@ -73,23 +75,26 @@ class ProfileController extends Controller
             $userPrivacy->gender_privacy == 'friends' ||
             $userPrivacy->birthday_privacy == 'friends') {
 
-            // Get all friends ids of this user
-            $friendsId = $userBeingRead->friendsId();
-            $isFriend = in_array($currentUser->id, $friendsId);
+            $isFriend = $this->relationshipRepo->isFriend(
+                $userBeingRead->id, $currentUser->id);
 
             // If the user making the request is not friends with this user,
             // hide the attributes where privacy is friends only
             if(!$isFriend) {
                 if ($userPrivacy->email_privacy == 'friends')
-                    array_pull($userInfoArray, 'email');
+                    $userBeingRead->makeHidden('email');
 
                 if ($userPrivacy->gender_privacy == 'friends')
-                    array_pull($userInfoArray['profile'], 'gender');
+                    $userBeingRead->makeHidden('gender');
 
                 if ($userPrivacy->birthday_privacy == 'friends')
-                    array_pull($userInfoArray['profile'], 'birthday');
+                    $userBeingRead->makeHidden('birthday');
             }
         }
+        $userInfoArray = $userBeingRead->toArray();
+        // Remove the appended keys from eager loading
+        array_pull($userInfoArray, 'requester_relationships');
+        array_pull($userInfoArray, 'requestee_relationships');
 
         return Response::dataResponse(true, [
             'user' => $userInfoArray

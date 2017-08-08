@@ -155,26 +155,4 @@ class RelationshipController extends Controller
         return Response::dataResponse(true, ['relationship' => $relationship]);
     }
 
-    /**
-     * Check if two users are friends
-     * @param Request $request
-     * @param $user1_id
-     * @param $user2_id
-     * @return JsonResponse
-     */
-    public function isFriend(Request $request, $user1_id, $user2_id)
-    {
-        $relationship = $this->relationshipRepo
-            ->hasRelationship($user1_id, $user2_id)
-            ->all()->first();
-
-        if($relationship)
-            return Response::dataResponse(true, [
-                'relationship' => $relationship,
-                'is_friend' => $relationship->status
-            ]);
-        else
-            return Response::dataResponse(true, ['is_friend' => false]);
-    }
-
 }

@@ -63,13 +63,11 @@ class AuthTest extends TestCase
                         'username',
                         'api_token',
                         'id',
-                        'profile' => [
-                            'first_name',
-                            'last_name',
-                            'gender',
-                            'birthday',
-                            'picture_id'
-                        ]
+                        'first_name',
+                        'last_name',
+                        'gender',
+                        'birthday',
+                        'picture_id'
                     ]
                 ]
             ]);

@@ -156,18 +156,13 @@ class UserController extends Controller
      */
     public function filterUserInfo($users)
     {
-        $filteredUsers = [];
         foreach($users as $user) {
             // Filter out the information we don't need
-            $userArr = $user->toArray();
-            array_pull($userArr["profile"], "id");
-            array_pull($userArr["profile"], "user_id");
-            array_pull($userArr["profile"], "gender");
-            array_pull($userArr["profile"], "birthday");
-            array_pull($userArr, "friends");
-            array_push($filteredUsers, $userArr);
+            $user->makeHidden(['gender']);
+            $user->makeHidden(['birthday']);
+            $user->makeHidden(['friends']);
         }
-        return $filteredUsers;
+        return $users;
     }
 
 }

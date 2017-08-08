@@ -21,7 +21,7 @@ class User extends Model
     ];
 
     protected $hidden = [
-        'password', 'token_expired_on', 'api_token', 'confirmation_code', 'email',
+        'password', 'token_expired_on', 'api_token', 'confirmation_code',
         'remember_token'
     ];
 
@@ -70,10 +70,21 @@ class User extends Model
     public function toArray()
     {
         $response = parent::toArray();
-        $response['profile'] = $this->profile;
+        $profile = $this->profile;
 
-        $friends = $this->friendsId();
-        $response['friends'] = count($friends);
+        if(!in_array('first_name', $this->hidden))
+            $response['first_name'] = $profile->first_name;
+        if(!in_array('last_name', $this->hidden))
+            $response['last_name'] = $profile->last_name;
+        if(!in_array('gender', $this->hidden))
+            $response['gender'] = $profile->gender;
+        if(!in_array('birthday', $this->hidden))
+            $response['birthday'] = $profile->birthday;
+
+        $response['picture_id'] = $profile->picture_id;
+
+        if(!in_array('friends', $this->hidden))
+            $response['friends'] = $this->friendsCount();
         return $response;
     }
 
@@ -106,6 +117,7 @@ class User extends Model
      */
     public function friendsId()
     {
+
         $requesterRelationships = $this->requesterRelationships;
         $requesteeRelationships = $this->requesteeRelationships;
         $idArray = array();
@@ -119,6 +131,17 @@ class User extends Model
                 array_push($idArray, $relationship->requester);
         }
         return $idArray;
+    }
+
+    public function friendsCount()
+    {
+        return Relationship::where([
+            ['requester', '=', $this->id],
+            ['status', '=', true]
+        ])->orWhere([
+            ['requestee', '=', $this->id],
+            ['status', '=', true]
+        ])->count();
     }
 
     public function blockedUsersId()

@@ -127,30 +127,6 @@ class RelationshipsTest extends TestCase
 
     }
 
-    public function testIsFriend()
-    {
-        $relationship = factory('App\Relationship')->create(['status' => true]);
 
-        $response = $this->json('GET', '/api/relationship/is_friend/'
-        . $relationship->requester . '/' . $relationship->requestee);
-
-        $response->assertJson([
-            'success' => true,
-            'data' => [
-                'is_friend' => true
-            ]
-        ]);
-
-        $user = factory('App\User')->create();
-        $response = $this->json('GET', '/api/relationship/is_friend/'
-            . $relationship->requester . '/' . $user->id);
-
-        $response->assertJson([
-            'success' => true,
-            'data' => [
-                'is_friend' => false
-            ]
-        ]);
-    }
 
 }
