@@ -141,7 +141,7 @@ class UserController extends Controller
             ->join('profiles', 'profiles.user_id', '=', 'users.id')
             ->whereIn('users.id', $resultArr)
             ->orderByRaw('FIELD(users.id,'.$resultIdString.')')->paginate(20)
-            ->all();
+            ->get();
 
         return Response::dataResponse(true, ['users' => $searchResult]);
     }
