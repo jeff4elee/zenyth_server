@@ -142,7 +142,18 @@ class UserController extends Controller
             ->orderByRaw('FIELD(users.id,'.$resultIdString.')')->paginate(20)
             ->all();
 
-        return Response::dataResponse(true, ['users' => $searchResult]);
+        $users = [];
+        foreach($searchResult as $user) {
+            $userArr = $user->toArray();
+            array_pull($userArr["profile"], "id");
+            array_pull($userArr["profile"], "user_id");
+            array_pull($userArr["profile"], "gender");
+            array_pull($userArr["profile"], "birthday");
+            array_pull($userArr, "friends");
+            array_push($users, $userArr);
+        }
+
+        return Response::dataResponse(true, ['users' => $users]);
     }
 
 }
