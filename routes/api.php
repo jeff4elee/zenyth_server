@@ -40,7 +40,6 @@ Route::group(['middleware' => 'validation'], function() {
         Route::post('pinpost', 'PinpostController@create');
         Route::patch('pinpost/{pinpost_id}', 'PinpostController@update');
         Route::delete('pinpost/{pinpost_id}', 'PinpostController@delete');
-        Route::get('pinpost/comment/create/{commentable_id}', 'CommentController@create');
         Route::get('pinpost/get_comments/{pinpost_id}', 'PinpostController@fetchComments');
         Route::get('pinpost/get_likes/{pinpost_id}', 'PinpostController@fetchLikes');
         Route::get('pinpost/comments/count/{pinpost_id}', 'PinpostController@commentsCount');
