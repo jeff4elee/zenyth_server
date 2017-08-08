@@ -90,7 +90,7 @@ class ImageController extends Controller
             $imageFile = $client->request('GET', $url);
 
             // Get image mime type
-            $contentType = strtolower($image->getHeader('Content-Type')[0]);
+            $contentType = strtolower($imageFile->getHeader('Content-Type')[0]);
             $extension = $mimeTypes[$contentType];
 
             if($extension == null)
