@@ -109,6 +109,7 @@ class ReplyController extends Controller
         if ($api_token != $headerToken)
             Exceptions::invalidTokenException(NOT_USERS_OBJECT);
 
+        $request->except(['user_id']);
         $this->replyRepo->update($request, $reply);
 
         return Response::dataResponse(true, ['reply' => $reply]);

@@ -116,6 +116,7 @@ class CommentController extends Controller
         if ($api_token != $headerToken)
             Exceptions::invalidTokenException(NOT_USERS_OBJECT);
 
+        $request->except(['user_id']);
         $this->commentRepo->update($request, $comment);
 
         return Response::dataResponse(true, ['comment' => $comment]);
