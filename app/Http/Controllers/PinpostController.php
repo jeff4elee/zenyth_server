@@ -244,35 +244,6 @@ class PinpostController extends Controller
     }
 
     /**
-     * Get the number of comments on this pinpost
-     * @param Request $request
-     * @param $pinpost_id
-     * @return JsonResponse
-     */
-    public function commentsCount(Request $request, $pinpost_id)
-    {
-        $pin = $this->pinpostRepo->read($pinpost_id);
-        return Response::dataResponse(true, [
-            'count' => $pin->commentsCount()
-        ]);
-    }
-
-    /**
-     * Get the number of likes of this pinpost
-     * @param Request $request
-     * @param $pinpost_id
-     * @return JsonResponse
-     */
-    public function likesCount(Request $request, $pinpost_id)
-    {
-        $pin = $this->pinpostRepo->read($pinpost_id);
-        return Response::dataResponse(true, [
-            'count' => $pin->likesCount()
-        ]);
-    }
-
-
-    /**
      * Fetch all pinposts of friends ordered by latest first
      * @param Request $request
      * @return JsonResponse

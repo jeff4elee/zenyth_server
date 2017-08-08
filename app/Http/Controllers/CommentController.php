@@ -165,20 +165,6 @@ class CommentController extends Controller
         ]);
     }
 
-    /**
-     * Get the number of likes of this pinpost
-     * @param Request $request
-     * @param $pinpost_id
-     * @return JsonResponse
-     */
-    public function likesCount(Request $request, $comment_id)
-    {
-        $pin = $this->commentRepo->read($comment_id);
-        return Response::dataResponse(true, [
-            'count' => $pin->likesCount()
-        ]);
-    }
-
     /* The functions below are used to determine what commentable type the
     comment is being placed on */
 

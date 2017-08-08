@@ -158,17 +158,4 @@ class ReplyController extends Controller
         ]);
     }
 
-    /**
-     * Get the number of likes of this reply
-     * @param Request $request
-     * @param $reply_id
-     * @return JsonResponse
-     */
-    public function likesCount(Request $request, $reply_id)
-    {
-        $reply = $this->replyRepo->read($reply_id);
-        return Response::dataResponse(true, [
-            'count' => $reply->likesCount()
-        ]);
-    }
 }

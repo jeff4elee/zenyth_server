@@ -26,13 +26,6 @@ class Pinpost extends Model
         });
     }
 
-    public function toArray()
-    {
-        $response = parent::toArray();
-        $response['images'] = $this->images;
-        return $response;
-    }
-
     public function creator() {
         return $this->belongsTo('App\User', 'user_id');
     }
@@ -59,5 +52,13 @@ class Pinpost extends Model
 
     public function tags() {
         return $this->morphToMany('App\Tag', 'taggable');
+    }
+
+    public function toArray()
+    {
+        $response = parent::toArray();
+        $response['comments'] = $this->commentsCount();
+        $response['likes'] = $this->likesCount();
+        return $response;
     }
 }

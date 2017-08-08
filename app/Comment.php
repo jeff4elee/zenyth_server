@@ -61,7 +61,8 @@ class Comment extends Model
     public function toArray()
     {
         $response = parent::toArray();
-        $response['images'] = $this->images;
+        $response['replies'] = $this->repliesCount();
+        $response['likes'] = $this->likesCount();
         return $response;
     }
 }

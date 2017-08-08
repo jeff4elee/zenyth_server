@@ -71,6 +71,9 @@ class User extends Model
     {
         $response = parent::toArray();
         $response['profile'] = $this->profile;
+
+        $friends = $this->friendsId();
+        $response['friends'] = count($friends);
         return $response;
     }
 

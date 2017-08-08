@@ -42,8 +42,6 @@ Route::group(['middleware' => 'validation'], function() {
         Route::delete('pinpost/{pinpost_id}', 'PinpostController@delete');
         Route::get('pinpost/get_comments/{pinpost_id}', 'PinpostController@fetchComments');
         Route::get('pinpost/get_likes/{pinpost_id}', 'PinpostController@fetchLikes');
-        Route::get('pinpost/comments/count/{pinpost_id}', 'PinpostController@commentsCount');
-        Route::get('pinpost/likes/count/{pinpost_id}', 'PinpostController@likesCount');
         Route::get('pinpost/fetch', 'PinpostController@fetch');
         Route::get('pinpost/images/{pinpost_id}', 'PinpostController@readImages');
 
@@ -57,7 +55,6 @@ Route::group(['middleware' => 'validation'], function() {
         Route::patch('comment/{comment_id}', 'CommentController@update');
         Route::delete('comment/{comment_id}', 'CommentController@delete');
         Route::get('comment/get_likes/{comment_id}', 'CommentController@fetchLikes');
-        Route::get('comment/likes/count/{comment_id}', 'CommentController@likesCount');
         Route::get('comment/images/{comment_id}', 'CommentController@readImages');
 
 
