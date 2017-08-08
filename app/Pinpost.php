@@ -59,6 +59,7 @@ class Pinpost extends Model
         $response = parent::toArray();
         $response['comments'] = $this->commentsCount();
         $response['likes'] = $this->likesCount();
+        $response['images'] = $this->images;
         return $response;
     }
 }

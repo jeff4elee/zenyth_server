@@ -51,6 +51,7 @@ class Reply extends Model
     {
         $response = parent::toArray();
         $response['likes'] = $this->likesCount();
+        $response['images'] = $this->images;
         return $response;
     }
 }
