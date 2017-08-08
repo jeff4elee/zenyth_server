@@ -40,8 +40,7 @@ class OauthController extends Controller
             $oauth = $user->oauth;
             $profile = $user->profile;
             $data = [
-                'user' => $user,
-                'api_token' => $user->api_token,
+                'user' => $user->makeVisible('api_token'),
                 'oauth_type' => $oauth_type
             ];
             return $this->processOauth($oauth_type, $profile, $json, $oauth, $data, $request);
