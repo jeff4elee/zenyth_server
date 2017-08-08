@@ -92,8 +92,10 @@ class UserController extends Controller
                 ->joinProfiles()->likeUsername($keyword)
                 ->likeFirstName($keyword, true)->likeLastName($keyword, true);
 
+            $users = $this->filterUserInfo($query->all());
+
             return Response::dataResponse(true, [
-                'users' => $query->all()
+                'users' => $users
             ]);
         }
 
@@ -142,18 +144,30 @@ class UserController extends Controller
             ->orderByRaw('FIELD(users.id,'.$resultIdString.')')->paginate(20)
             ->all();
 
-        $users = [];
-        foreach($searchResult as $user) {
+        $users = $this->filterUserInfo($searchResult);
+        
+        return Response::dataResponse(true, ['users' => $users]);
+    }
+
+    /**
+     * Filter out unneeded information
+     * @param $users
+     * @return array
+     */
+    public function filterUserInfo($users)
+    {
+        $filteredUsers = [];
+        foreach($users as $user) {
+            // Filter out the information we don't need
             $userArr = $user->toArray();
             array_pull($userArr["profile"], "id");
             array_pull($userArr["profile"], "user_id");
             array_pull($userArr["profile"], "gender");
             array_pull($userArr["profile"], "birthday");
             array_pull($userArr, "friends");
-            array_push($users, $userArr);
+            array_push($filteredUsers, $userArr);
         }
-
-        return Response::dataResponse(true, ['users' => $users]);
+        return $filteredUsers;
     }
 
 }
