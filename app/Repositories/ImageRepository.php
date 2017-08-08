@@ -44,13 +44,13 @@ class ImageRepository extends Repository
         }
         else {
             $url = $request->get('image_url');
-            dd($url);
             if($directory)
                 $filename = ImageController::storeImageByUrl($url, $directory);
             else
                 $filename = ImageController::storeImageByUrl($url);
         }
 
+        dd($filename);
 
         $image = $this->model->create([
             'user_id' => $userId,
