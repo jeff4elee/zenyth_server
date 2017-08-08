@@ -7,6 +7,8 @@ use App\Exceptions\ResponseHandler as Response;
 use App\Http\Controllers\Controller;
 use App\Http\Controllers\ImageController;
 use App\Profile;
+use App\Repositories\ImageRepository;
+use App\Repositories\ProfileRepository;
 use App\Repositories\UserRepository;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -16,10 +18,16 @@ class OauthController extends Controller
     use AuthenticationTrait;
 
     private $userRepo;
+    private $profileRepo;
+    private $imageRepo;
 
-    function __construct(UserRepository $userRepo)
+    function __construct(UserRepository $userRepo,
+                        ProfileRepository $profileRepo,
+                        ImageRepository $imageRepo)
     {
         $this->userRepo = $userRepo;
+        $this->profileRepo = $profileRepo;
+        $this->imageRepo = $imageRepo;
     }
 
     /**
@@ -40,9 +48,8 @@ class OauthController extends Controller
             $oauth = $user->oauth;
             $profile = $user->profile;
             $data = [
-                'user' => $user,
-                'api_token' => $user->api_token,
-                'oauth_type' => $oauth_type
+                'user' => $user->makeVisible('api_token')
+                                ->makeVisible('email')
             ];
             return $this->processOauth($oauth_type, $profile, $json, $oauth, $data, $request);
         }
@@ -135,19 +142,31 @@ class OauthController extends Controller
         if(isset($json[$last_name_key]) && $profile->last_name == null) {
             $profile->last_name = $json[$last_name_key];
         }
-        if(isset($json['picture']) && $profile->image_id == null) {
+        if(isset($json['picture']) && $profile->picture_id == null) {
             $url = null;
             if($oauth_type == 'facebook')
                 $url = $json['picture']['data']['url'];
             else if($oauth_type == 'google')
                 $url = $json['picture'];
 
-            $image = ImageController::storeProfileImage($url);
-            if($image != null)
-                $profile->image_id = $image->id;
+            $this->updateProfilePicture($profile, $url);
         }
 
         $profile->update();
+    }
+
+    public function updateProfilePicture($profile, $url)
+    {
+        $request = new Request();
+        $request->merge([
+            'user_id' => $profile->user_id,
+            'image_url' => $url,
+            'directory' => 'profile_pictures',
+            'imageable_id' => $profile->id,
+            'imageable_type' => 'App\Profile'
+        ]);
+        $image = $this->imageRepo->create($request);
+        $profile->picture_id = $image->id;
     }
 
 }
