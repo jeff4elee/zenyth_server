@@ -54,7 +54,8 @@ class UserRepository extends Repository
      */
     public function joinProfiles()
     {
-        $query = $this->model->join('profiles', 'profiles.user_id', '=', 'users.id');
+        $query = $this->model->select('users.id', 'users.username')
+            ->join('profiles', 'profiles.user_id', '=', 'users.id');
         $this->model = $query;
         return $this;
     }

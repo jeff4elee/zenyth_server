@@ -145,7 +145,7 @@ class UserController extends Controller
             ->all();
 
         $users = $this->filterUserInfo($searchResult);
-        
+
         return Response::dataResponse(true, ['users' => $users]);
     }
 
