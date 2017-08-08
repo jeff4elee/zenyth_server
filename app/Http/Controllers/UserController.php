@@ -136,7 +136,7 @@ class UserController extends Controller
 
         // The FIELD query returns the users in the same order of the id's
         // in the array
-        $searchResult = User::select('*')
+        $searchResult = User::select('users.username, users.id')
             ->join('profiles', 'profiles.user_id', '=', 'users.id')
             ->whereIn('users.id', $resultArr)
             ->orderByRaw('FIELD(users.id,'.$resultIdString.')')->paginate(20)
