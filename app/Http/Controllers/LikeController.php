@@ -67,6 +67,21 @@ class LikeController extends Controller
     }
 
     /**
+     * Return information of like object
+     * @param Request $request
+     * @param $like_id
+     * @return JsonResponse
+     */
+    public function read(Request $request, $like_id)
+    {
+        $like = $this->likeRepo->read($like_id);
+        if($like == null)
+            Exceptions::notFoundException(NOT_FOUND);
+
+        return Response::dataResponse(true, ['like' => $like]);
+    }
+
+    /**
      * Delete a like
      * @param Request $request , delete request
      * @param $entity_id , entity the like is on

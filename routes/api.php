@@ -89,6 +89,7 @@ Route::group(['middleware' => 'validation'], function() {
 
 });
 
+Route::get('like/read/{like_id}', 'LikeController@read');
 Route::get('comment/read/{comment_id}', 'CommentController@read');
 Route::get('pinpost/read/{pinpost_id}', 'PinpostController@read');
 Route::get('reply/read/{reply_id}', 'ReplyController@read');
