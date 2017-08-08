@@ -192,8 +192,6 @@ class ImageController extends Controller
     static public function generateImageName($extension)
     {
         do {
-
-            // Concatenate image id to the end of the image
             $filename = str_random(32). "." .$extension;
             // Checks if filename is already taken
             $dup_filename = Image::where('filename', $filename)->first();

@@ -33,8 +33,6 @@ class ImageRepository extends Repository
         $imageableType = $request->get('imageable_type');
         $userId = $request->get('user_id');
 
-
-
         if($request->has('image_file')) {
             $imageFile = $request->get('image_file');
             if($directory)
@@ -51,6 +49,7 @@ class ImageRepository extends Repository
             else
                 $filename = ImageController::storeImageByUrl($url);
         }
+        dd($filename);
 
         $image = $this->model->create([
             'user_id' => $userId,
