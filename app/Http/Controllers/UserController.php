@@ -90,8 +90,8 @@ class UserController extends Controller
 
             $query = $this->userRepo
                 ->joinProfiles()->likeUsername($keyword)
-                ->likeFirstName($keyword, true)->likeLastName($keyword, true);
-
+                ->likeFirstName($keyword, true)->likeLastName($keyword, true)
+                ->paginate(10);
             $users = $this->filterUserInfo($query->all());
 
             return Response::dataResponse(true, [
@@ -141,7 +141,7 @@ class UserController extends Controller
         $searchResult = User::select('users.id', 'users.username')
             ->join('profiles', 'profiles.user_id', '=', 'users.id')
             ->whereIn('users.id', $resultArr)
-            ->orderByRaw('FIELD(users.id,'.$resultIdString.')')->paginate(20)
+            ->orderByRaw('FIELD(users.id,'.$resultIdString.')')->paginate(10)
             ->all();
 
         $users = $this->filterUserInfo($searchResult);
