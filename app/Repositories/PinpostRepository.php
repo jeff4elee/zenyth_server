@@ -120,6 +120,7 @@ class PinpostRepository extends Repository
     {
         $filteredPinposts = new Collection();
 
+        $usersFriends = $user->friendsId();
         foreach($pinposts as $pinpost) {
             if($pinpost->privacy == 'public') {
                 $filteredPinposts->push($pinpost);
@@ -133,7 +134,6 @@ class PinpostRepository extends Repository
 
             else if($pinpost->privacy == 'friends') {
                 $creatorId = $pinpost->user_id;
-                $usersFriends = $user->friendsId();
 
                 // If creatorId is in the list of friends of the user, include
                 // the pinpost
