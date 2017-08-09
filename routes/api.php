@@ -7,7 +7,7 @@ Route::post('password/reset/{token}',
 Route::get('email_taken/{email}', 'Auth\RegisterController@emailTaken');
 Route::get('username_taken/{username}', 'Auth\RegisterController@usernameTaken');
 
-Route::get('picture/{image_id}', 'ImageController@showImage');
+Route::get('image/{image_id}', 'ImageController@showImage');
 Route::get('/profile/profile_picture/{user_id}', 'ProfileController@showProfileImage');
 
 Route::group(['middleware' => ['caching']], function() {
