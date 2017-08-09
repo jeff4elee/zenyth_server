@@ -86,7 +86,9 @@ Route::group(['middleware' => 'validation'], function() {
     Route::get('user/search_user', 'UserController@searchUser');
 
 });
-
+Route::get('pinpost/images/{pinpost_id}', 'PinpostController@readImages');
+Route::get('comment/images/{comment_id}', 'CommentController@readImages');
+Route::get('reply/images/{reply_id}', 'ReplyController@readImages');
 Route::get('like/read/{like_id}', 'LikeController@read');
 Route::get('comment/read/{comment_id}', 'CommentController@read');
 Route::get('pinpost/read/{pinpost_id}', 'PinpostController@read');
