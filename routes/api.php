@@ -67,7 +67,7 @@ Route::group(['middleware' => 'validation'], function() {
 
         Route::delete('like/{like_id}', 'LikeController@delete');
 
-        Route::delete('image/delete/{image_id}', 'ImageController@deleteImage');
+        Route::delete('image/{image_id}', 'ImageController@deleteImage');
 
         Route::get('tag/search', 'TagController@searchTags');
         Route::get('tag/info', 'TagController@getTagInfo');
