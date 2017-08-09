@@ -134,7 +134,7 @@ class ProfileController extends Controller
     public function updateProfilePicture(Request $request)
     {
         $user = $request->get('user');
-        $profile = $user->profile;
+        $profile = $this->profileRepo->findBy('user_id', $user->id);
 
         // Check for old profile picture, if there already is one, delete it
         if($oldImageId = $profile->picture_id) {
