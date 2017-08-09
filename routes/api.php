@@ -7,9 +7,7 @@ Route::post('password/reset/{token}',
 Route::get('email_taken/{email}', 'Auth\RegisterController@emailTaken');
 Route::get('username_taken/{username}', 'Auth\RegisterController@usernameTaken');
 
-Route::get('relationship/is_friend/{user1_id}/{user2_id}',
-    'RelationshipController@isFriend');
-Route::get('picture/{image_id}', 'ImageController@showImage');
+Route::get('image/{image_id}', 'ImageController@showImage');
 Route::get('/profile/profile_picture/{user_id}', 'ProfileController@showProfileImage');
 
 Route::group(['middleware' => ['caching']], function() {
@@ -29,11 +27,11 @@ Route::group(['middleware' => 'validation'], function() {
 
         Route::post('relationship/friend_request',
             'RelationshipController@friendRequest');
-        Route::post('relationship/response/{requester_id}',
+        Route::post('relationship/response',
             'RelationshipController@respondToRequest');
         Route::delete('relationship/delete/{user_id}',
             'RelationshipController@deleteFriend');
-        Route::get('relationship/block/{user_id}',
+        Route::post('relationship/block',
             'RelationshipController@blockUser');
 
 
@@ -69,7 +67,7 @@ Route::group(['middleware' => 'validation'], function() {
 
         Route::delete('like/{like_id}', 'LikeController@delete');
 
-        Route::delete('image/delete/{image_id}', 'ImageController@deleteImage');
+        Route::delete('image/{image_id}', 'ImageController@deleteImage');
 
         Route::get('tag/search', 'TagController@searchTags');
         Route::get('tag/info', 'TagController@getTagInfo');

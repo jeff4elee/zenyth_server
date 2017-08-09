@@ -62,15 +62,16 @@ class RelationshipController extends Controller
      * @param $requester_id, person who friend requested
      * @return JsonResponse
      */
-    public function respondToRequest(Request $request, $requester_id)
+    public function respondToRequest(Request $request)
     {
         $user = $request->get('user');
         $requesteeId = $user->id;
+        $requesterId = $request->input('requester_id');
 
         // Query for relationship between these two users to check if it has
         // already existed
         $relationship = $this->relationshipRepo
-            ->hasRelationship($requester_id, $requesteeId)->all()->first();
+            ->hasRelationship($requesterId, $requesteeId)->all()->first();
 
         if ($relationship == null || $relationship->status == true)
             Exceptions::invalidRequestException(NO_PENDING_REQUEST);
@@ -120,19 +121,20 @@ class RelationshipController extends Controller
      * @param $user_id, user to be blocked
      * @return JsonResponse
      */
-    public function blockUser(Request $request, $user_id)
+    public function blockUser(Request $request)
     {
         $user = $request->get('user');
+        $blockeeId = $request->input('user_id');
         $blockerId = $user->id;
 
         // Cannot block yourself
-        if($blockerId == $user_id)
+        if($blockerId == $blockeeId)
             Exceptions::invalidRequestException(INVALID_REQUEST_TO_SELF);
 
         // Query for relationship between these two users to check if it has
         // already existed
         $relationship = $this->relationshipRepo
-            ->hasRelationship($blockerId, $user_id)
+            ->hasRelationship($blockerId, $blockeeId)
             ->all()->first();
 
         if ($relationship) {
@@ -141,40 +143,18 @@ class RelationshipController extends Controller
 
             $relationship->blocked = true;
             $relationship->requester = $blockerId;
-            $relationship->requestee = $user_id;
+            $relationship->requestee = $blockeeId;
             $relationship->status = false;
             $relationship->update();
         } else {
             $request->merge([
                 'requester' => $blockerId,
-                'requestee' => $user_id,
+                'requestee' => $blockeeId,
                 'blocked' => true
             ]);
             $relationship = $this->relationshipRepo->create($request);
         }
         return Response::dataResponse(true, ['relationship' => $relationship]);
-    }
-
-    /**
-     * Check if two users are friends
-     * @param Request $request
-     * @param $user1_id
-     * @param $user2_id
-     * @return JsonResponse
-     */
-    public function isFriend(Request $request, $user1_id, $user2_id)
-    {
-        $relationship = $this->relationshipRepo
-            ->hasRelationship($user1_id, $user2_id)
-            ->all()->first();
-
-        if($relationship)
-            return Response::dataResponse(true, [
-                'relationship' => $relationship,
-                'is_friend' => $relationship->status
-            ]);
-        else
-            return Response::dataResponse(true, ['is_friend' => false]);
     }
 
 }

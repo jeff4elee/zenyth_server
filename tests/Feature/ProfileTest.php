@@ -29,11 +29,9 @@ class ProfileTest extends TestCase
             'success' => true,
             'data' => [
                 'user' => [
-                    'profile' => [
-                        'first_name' => 'Test',
-                        'last_name' => 'Man',
-                        'gender' => 'non-binary'
-                    ]
+                    'first_name' => 'Test',
+                    'last_name' => 'Man',
+                    'gender' => 'non-binary'
                 ]
             ]
         ]);
@@ -74,10 +72,8 @@ class ProfileTest extends TestCase
             'data' => [
                 'user' => [
                     'email',
-                    'profile' => [
-                        'gender',
-                        'birthday'
-                    ]
+                    'gender',
+                    'birthday'
                 ]
             ]
         ]);
@@ -92,9 +88,7 @@ class ProfileTest extends TestCase
             'data' => [
                 'user' => [
                     'email' => $user->email,
-                    'profile' => [
-                        'birthday' => $profile->birthday
-                    ]
+                    'birthday' => $profile->birthday
                 ]
             ]
         ]);
@@ -113,9 +107,7 @@ class ProfileTest extends TestCase
         $response->assertJsonStructure([
             'data' => [
                 'user' => [
-                    'profile' => [
-                        'birthday'
-                    ]
+                    'birthday'
                 ]
             ]
         ]);

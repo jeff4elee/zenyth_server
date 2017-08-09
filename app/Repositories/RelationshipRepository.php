@@ -106,4 +106,15 @@ class RelationshipRepository extends Repository
         return $this;
     }
 
+    public function isFriend($userOneId, $userTwoId)
+    {
+        $relationship = $this->hasRelationship($userOneId, $userTwoId)
+            ->hasFriendship()->all()->first();
+
+        if($relationship)
+            return true;
+        else
+            return false;
+    }
+
 }

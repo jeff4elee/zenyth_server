@@ -90,10 +90,12 @@ class UserController extends Controller
 
             $query = $this->userRepo
                 ->joinProfiles()->likeUsername($keyword)
-                ->likeFirstName($keyword, true)->likeLastName($keyword, true);
+                ->likeFirstName($keyword, true)->likeLastName($keyword, true)
+                ->paginate(10);
+            $users = $this->filterUserInfo($query->all());
 
             return Response::dataResponse(true, [
-                'users' => $query->all()
+                'users' => $users
             ]);
         }
 
@@ -136,14 +138,31 @@ class UserController extends Controller
 
         // The FIELD query returns the users in the same order of the id's
         // in the array
-        $searchResult = User::select('users.id', 'users.username',
-                        'profiles.first_name', 'profiles.last_name')
+        $searchResult = User::select('users.id', 'users.username')
             ->join('profiles', 'profiles.user_id', '=', 'users.id')
             ->whereIn('users.id', $resultArr)
-            ->orderByRaw('FIELD(users.id,'.$resultIdString.')')->paginate(20)
+            ->orderByRaw('FIELD(users.id,'.$resultIdString.')')->paginate(10)
             ->all();
 
-        return Response::dataResponse(true, ['users' => $searchResult]);
+        $users = $this->filterUserInfo($searchResult);
+
+        return Response::dataResponse(true, ['users' => $users]);
+    }
+
+    /**
+     * Filter out unneeded information
+     * @param $users
+     * @return array
+     */
+    public function filterUserInfo($users)
+    {
+        foreach($users as $user) {
+            // Filter out the information we don't need
+            $user->makeHidden(['gender']);
+            $user->makeHidden(['birthday']);
+            $user->makeHidden(['friends']);
+        }
+        return $users;
     }
 
 }

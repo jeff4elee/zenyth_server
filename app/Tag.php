@@ -8,7 +8,7 @@ class Tag extends Model
 {
     protected $fillable = ['name'];
     protected $table = 'tags';
-    protected $hidden = ['pivot', 'id'];
+    protected $hidden = ['pivot'];
     public $timestamps = false;
 
     public function pinposts() {

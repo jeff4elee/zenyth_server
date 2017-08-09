@@ -237,8 +237,6 @@ class PinpostTest extends TestCase
                 'pinposts' => ['title' => 'testpin fetch']
             ]
         ]);
-
-
     }
 
     public function testPinpostFilterByPrivacy()
@@ -292,6 +290,7 @@ class PinpostTest extends TestCase
             'requestee' => $userTwo->id,
             'status' => true
         ]);
+
         $response = $this->json('GET', '/api/pinpost/fetch?type=radius&center=31,31&radius=100&scope=public', [],
             ['Authorization' => 'bearer ' . $userTwo->api_token]);
         $response->assertJson([
