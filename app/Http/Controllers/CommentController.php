@@ -15,7 +15,13 @@ use Illuminate\Http\Request;
  */
 class CommentController extends Controller
 {
+    /**
+     * @var PinpostRepository
+     */
     private $pinpostRepo;
+    /**
+     * @var CommentRepository
+     */
     private $commentRepo;
 
     function __construct(PinpostRepository $pinpostRepo,
@@ -145,9 +151,9 @@ class CommentController extends Controller
     }
 
     /**
-     * Fetch all likes of this pinpost
+     * Fetch all likes of this comment
      * @param Request $request
-     * @param $pinpost_id
+     * @param $comment_id
      * @return JsonResponse
      */
     public function fetchLikes(Request $request, $comment_id)
@@ -161,6 +167,26 @@ class CommentController extends Controller
 
         return Response::dataResponse(true, [
             'likes' => $pin->likes()->get($fields)
+        ]);
+    }
+
+    /**
+     * Fetch all replies of this comment
+     * @param Request $request
+     * @param $comment_id
+     * @return JsonResponse
+     */
+    public function fetchReplies(Request $request, $comment_id)
+    {
+        $pin = $this->commentRepo->read($comment_id);
+        if($request->has('fields')) {
+            $fields = $request->input('fields');
+            $fields = explode(',', $fields);
+        } else
+            $fields = ['*'];
+
+        return Response::dataResponse(true, [
+            'replies' => $pin->replies()->get($fields)
         ]);
     }
 

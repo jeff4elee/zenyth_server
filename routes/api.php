@@ -52,6 +52,7 @@ Route::group(['middleware' => 'validation'], function() {
         Route::patch('comment/{comment_id}', 'CommentController@update');
         Route::delete('comment/{comment_id}', 'CommentController@delete');
         Route::get('comment/get_likes/{comment_id}', 'CommentController@fetchLikes');
+        Route::get('comment/get_replies/{comment_id}', 'CommentController@fetchReplies');
 
 
         Route::post('reply/like/{likeable_id}', 'LikeController@create');
