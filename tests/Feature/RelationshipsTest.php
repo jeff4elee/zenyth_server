@@ -46,8 +46,8 @@ class RelationshipsTest extends TestCase
                                                          'status' => false,
                                                          'blocked' => false]);
 
-        $response = $this->json('POST', '/api/relationship/response/' .
-            $relationship->requester, ['status'=>true],
+        $response = $this->json('POST', '/api/relationship/response',
+            ['requester_id' => $relationship->requester, 'status' => true],
             ['Authorization' => 'bearer ' .
                 User::find($relationship->requestee)->api_token]);
 
@@ -69,8 +69,8 @@ class RelationshipsTest extends TestCase
             'requestee' => $relationship->requestee,
             'status' => false, 'blocked' => false]);
 
-        $response = $this->json('POST', '/api/relationship/response/' .
-            $relationship->requester, ['status'=>false],
+        $response = $this->json('POST', '/api/relationship/response',
+            ['requester_id' => $relationship->requester, 'status'=>false],
             ['Authorization' => 'bearer ' .
                 User::find($relationship->requestee)->api_token]);
 
@@ -119,7 +119,8 @@ class RelationshipsTest extends TestCase
             'requestee' => $relationship->requestee,
             'status' => true]);
 
-        $this->json('GET', '/api/relationship/block/' . $relationship->requestee, [],
+        $this->json('POST', '/api/relationship/block',
+            ['user_id' => $relationship->requestee],
             ['Authorization' => 'bearer ' . User::find($relationship->requester)->api_token]);
 
         $this->assertDatabaseHas('relationships', ['requester' => $relationship->requester,

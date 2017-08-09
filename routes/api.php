@@ -27,11 +27,11 @@ Route::group(['middleware' => 'validation'], function() {
 
         Route::post('relationship/friend_request',
             'RelationshipController@friendRequest');
-        Route::post('relationship/response/{requester_id}',
+        Route::post('relationship/response',
             'RelationshipController@respondToRequest');
         Route::delete('relationship/delete/{user_id}',
             'RelationshipController@deleteFriend');
-        Route::get('relationship/block/{user_id}',
+        Route::post('relationship/block',
             'RelationshipController@blockUser');
 
 
