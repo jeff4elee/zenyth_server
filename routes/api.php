@@ -47,13 +47,11 @@ Route::group(['middleware' => 'validation'], function() {
         Route::post('pinpost/like/{likeable_id}', 'LikeController@create');
         Route::post('pinpost/comment/{commentable_id}', 'CommentController@create');
 
-
         Route::post('comment/like/{likeable_id}', 'LikeController@create');
         Route::post('comment/upload_image/{imageable_id}', 'ImageController@uploadImage');
         Route::patch('comment/{comment_id}', 'CommentController@update');
         Route::delete('comment/{comment_id}', 'CommentController@delete');
         Route::get('comment/get_likes/{comment_id}', 'CommentController@fetchLikes');
-
 
 
         Route::post('reply/like/{likeable_id}', 'LikeController@create');
@@ -62,8 +60,6 @@ Route::group(['middleware' => 'validation'], function() {
         Route::patch('reply/{reply_id}', 'ReplyController@update');
         Route::delete('reply/{reply_id}', 'ReplyController@delete');
         Route::get('reply/get_likes/{reply_id}', 'ReplyController@fetchLikes');
-
-
 
         Route::delete('like/{like_id}', 'LikeController@delete');
 
