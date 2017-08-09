@@ -110,10 +110,9 @@ class CommentController extends Controller
             Exceptions::notFoundException(NOT_FOUND);
 
         // Validate comment owner
-        $api_token = $comment->creator->api_token;
-        $headerToken = $request->header('Authorization');
-
-        if ($api_token != $headerToken)
+        $commentOwnerId = $comment->user_id;
+        $userId = $request->get('user')->id;
+        if ($userId != $commentOwnerId)
             Exceptions::invalidTokenException(NOT_USERS_OBJECT);
 
         $request->except(['user_id']);
@@ -135,9 +134,9 @@ class CommentController extends Controller
             Exceptions::notFoundException(NOT_FOUND);
 
         // Validate comment owner
-        $api_token = $comment->creator->api_token;
-        $headerToken = $request->header('Authorization');
-        if ($api_token != $headerToken)
+        $commentOwnerId = $comment->user_id;
+        $userId = $request->get('user')->id;
+        if ($userId != $commentOwnerId)
             Exceptions::invalidTokenException(NOT_USERS_OBJECT);
 
         $this->commentRepo->delete($comment);

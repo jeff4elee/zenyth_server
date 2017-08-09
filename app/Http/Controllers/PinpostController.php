@@ -166,10 +166,9 @@ class PinpostController extends Controller
             Exceptions::notFoundException(NOT_FOUND);
 
         // Validator pinpost's creator
-        $api_token = $pin->creator->api_token;
-        $headerToken = $request->header('Authorization');
-
-        if ($api_token != $headerToken)
+        $pinpostOwnerId = $pin->user_id;
+        $userId = $request->get('user')->id;
+        if ($userId != $pinpostOwnerId)
             Exceptions::invalidTokenException(NOT_USERS_OBJECT);
 
         $request->except(['user_id']);
@@ -189,9 +188,9 @@ class PinpostController extends Controller
         $pin = $this->pinpostRepo->read($pinpost_id);
 
         // Validate pinpost creator
-        $api_token = $pin->creator->api_token;
-        $headerToken = $request->header('Authorization');
-        if ($api_token != $headerToken)
+        $pinpostOwnerId = $pin->user_id;
+        $userId = $request->get('user')->id;
+        if ($userId != $pinpostOwnerId)
             Exceptions::invalidTokenException(NOT_USERS_OBJECT);
 
         $this->pinpostRepo->delete($pin);

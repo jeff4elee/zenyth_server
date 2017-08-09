@@ -94,9 +94,9 @@ class LikeController extends Controller
             Exceptions::notFoundException(NOT_FOUND);
 
         // Validate if like belongs to this user
-        $api_token = $like->user->api_token;
-        $headerToken = $request->header('Authorization');
-        if ($api_token != $headerToken)
+        $likeOwnerId = $like->user_id;
+        $userId = $request->get('user')->id;
+        if ($userId != $likeOwnerId)
             Exceptions::invalidTokenException(NOT_USERS_OBJECT);
 
         $this->likeRepo->delete($like);

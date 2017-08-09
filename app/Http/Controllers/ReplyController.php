@@ -104,9 +104,9 @@ class ReplyController extends Controller
             Exceptions::notFoundException(NOT_FOUND);
 
         // Validate if reply belongs to user
-        $api_token = $reply->creator->api_token;
-        $headerToken = $request->header('Authorization');
-        if ($api_token != $headerToken)
+        $replyOwnerId = $reply->user_id;
+        $userId = $request->get('user')->id;
+        if ($userId != $replyOwnerId)
             Exceptions::invalidTokenException(NOT_USERS_OBJECT);
 
         $request->except(['user_id']);
@@ -128,9 +128,9 @@ class ReplyController extends Controller
             Exceptions::notFoundException(NOT_FOUND);
 
         // Validate if reply belongs to user
-        $api_token = $reply->creator->api_token;
-        $headerToken = $request->header('Authorization');
-        if ($api_token != $headerToken)
+        $replyOwnerId = $reply->user_id;
+        $userId = $request->get('user')->id;
+        if ($userId != $replyOwnerId)
             Exceptions::invalidTokenException(NOT_USERS_OBJECT);
 
         $this->replyRepo->delete($reply);
