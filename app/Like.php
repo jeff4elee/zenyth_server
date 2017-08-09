@@ -20,4 +20,12 @@ class Like extends Model
         return $this->belongsTo('App\User', 'user_id');
     }
 
+    public function toArray()
+    {
+        $response = parent::toArray();
+        $likeableType = substr($this->likeable_type, 4);
+        $response['likeable_type'] = $likeableType;
+        return $response;
+    }
+
 }

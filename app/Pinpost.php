@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 class Pinpost extends Model
 {
     protected $fillable = ['title', 'description', 'latitude', 'longitude',
-        'updated_at', 'entity_id', 'user_id', 'privacy'];
+        'updated_at', 'user_id', 'privacy'];
 
     protected $table = 'pinposts';
 

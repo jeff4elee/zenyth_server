@@ -61,6 +61,8 @@ class Comment extends Model
     public function toArray()
     {
         $response = parent::toArray();
+        $commentableType = substr($this->commentable_type, 4);
+        $response['commentable_type'] = $commentableType;
         $response['replies'] = $this->repliesCount();
         $response['likes'] = $this->likesCount();
         $response['images'] = $this->images;
