@@ -9,7 +9,6 @@ class Comment extends Model
     protected $fillable = ['text', 'user_id', 'commentable_id',
         'commentable_type'];
     protected $table = 'comments';
-    public $timestamps = false;
 
     protected static function boot()
     {
