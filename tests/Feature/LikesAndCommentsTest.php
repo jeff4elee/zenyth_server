@@ -58,7 +58,7 @@ class LikesAndCommentsTest extends TestCase
         $this->assertEquals(0, $pinpost->commentsCount());
 
         $response = $this->json('POST', '/api/pinpost/comment/' .
-            $pinpost->id, ['comment' => 'test comment'],
+            $pinpost->id, ['text' => 'test comment'],
             ['Authorization' => 'bearer ' . $user->api_token]);
 
         $response->assertStatus(200);
@@ -68,7 +68,7 @@ class LikesAndCommentsTest extends TestCase
 
     public function testCommentRead()
     {
-        $comment = factory('App\Comment')->create(['comment' => 'test comment']);
+        $comment = factory('App\Comment')->create(['text' => 'test comment']);
 
         $response = $this->json('GET', '/api/comment/read/' . $comment->id);
 
@@ -79,7 +79,7 @@ class LikesAndCommentsTest extends TestCase
             'success' => true,
             'data' => [
                 'comment' => [
-                    'comment' => 'test comment',
+                    'text' => 'test comment',
                     'id' => $comment->id,
                     'user_id' => $comment->user_id
                 ]
@@ -94,16 +94,16 @@ class LikesAndCommentsTest extends TestCase
 
         $text = $comment->comment;
 
-        $response = $this->json('PATCH', '/api/comment/' . $comment->id, ['comment' => 'NewText!!'],
+        $response = $this->json('PATCH', '/api/comment/' . $comment->id, ['text' => 'NewText!!'],
             ['Authorization' => 'bearer ' . User::find($comment->user_id)
                     ->api_token]);
 
         $response->assertStatus(200);
 
         $comment_array = $response->json();
-        $this->assertNotEquals($text, $comment_array['data']['comment']['comment']);
-        $this->assertEquals('NewText!!', $comment_array['data']['comment']['comment']);
-        $this->assertDatabaseHas('comments', ['comment' => 'NewText!!']);
+        $this->assertNotEquals($text, $comment_array['data']['comment']['text']);
+        $this->assertEquals('NewText!!', $comment_array['data']['comment']['text']);
+        $this->assertDatabaseHas('comments', ['text' => 'NewText!!']);
 
     }
 

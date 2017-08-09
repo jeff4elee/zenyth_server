@@ -131,7 +131,7 @@ class DataRules
     static public function commentRules()
     {
         return [
-            'comment' => 'required|min:1'
+            'text' => 'required|min:1'
         ];
     }
 

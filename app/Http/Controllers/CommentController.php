@@ -35,7 +35,7 @@ class CommentController extends Controller
     {
         $user = $request->get('user');
         $userId = $user->id;
-        $comment = $request->get('comment');
+        $text = $request->get('text');
         $commentableType = $this->getCommentableType($request);
 
         // Check if the commentable object exists
@@ -45,7 +45,7 @@ class CommentController extends Controller
         $data = [
             'user_id' => $userId,
             'commentable_type' => $commentableType,
-            'comment' => $comment,
+            'text' => $text,
             'commentable_id' => $commentable_id
         ];
 
