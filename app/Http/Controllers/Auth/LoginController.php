@@ -45,6 +45,7 @@ class LoginController extends Controller
 
             return Response::dataResponse(true, [
                 'user' => $user->makeVisible('api_token')
+                                ->makeVisible('email')
             ]);
         }
 

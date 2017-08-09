@@ -72,6 +72,24 @@ class ReplyController extends Controller
     }
 
     /**
+     * Get all image objects of this reply
+     * @param Request $request
+     * @param $reply_id
+     * @return JsonResponse
+     */
+    public function readImages(Request $request, $reply_id)
+    {
+        $reply = $this->replyRepo->read($reply_id);
+        $images = $reply->images;
+
+        return Response::dataResponse(true, [
+            'reply' => [
+                'images' => $images
+            ]
+        ]);
+    }
+
+    /**
      * Edit reply
      * @param Request $request, post request
      *        rules: requires reply that is not empty
@@ -91,6 +109,7 @@ class ReplyController extends Controller
         if ($api_token != $headerToken)
             Exceptions::invalidTokenException(NOT_USERS_OBJECT);
 
+        $request->except(['user_id']);
         $this->replyRepo->update($request, $reply);
 
         return Response::dataResponse(true, ['reply' => $reply]);
@@ -139,17 +158,4 @@ class ReplyController extends Controller
         ]);
     }
 
-    /**
-     * Get the number of likes of this reply
-     * @param Request $request
-     * @param $reply_id
-     * @return JsonResponse
-     */
-    public function likesCount(Request $request, $reply_id)
-    {
-        $reply = $this->replyRepo->read($reply_id);
-        return Response::dataResponse(true, [
-            'count' => $reply->likesCount()
-        ]);
-    }
 }

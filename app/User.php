@@ -21,7 +21,7 @@ class User extends Model
     ];
 
     protected $hidden = [
-        'password', 'token_expired_on', 'api_token', 'confirmation_code',
+        'password', 'token_expired_on', 'api_token', 'confirmation_code', 'email',
         'remember_token'
     ];
 
@@ -71,6 +71,9 @@ class User extends Model
     {
         $response = parent::toArray();
         $response['profile'] = $this->profile;
+
+        $friends = $this->friendsId();
+        $response['friends'] = count($friends);
         return $response;
     }
 

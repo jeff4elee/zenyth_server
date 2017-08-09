@@ -79,6 +79,24 @@ class CommentController extends Controller
     }
 
     /**
+     * Get all image objects of this comment
+     * @param Request $request
+     * @param $comment_id
+     * @return JsonResponse
+     */
+    public function readImages(Request $request, $comment_id)
+    {
+        $comment = $this->commentRepo->read($comment_id);
+        $images = $comment->images;
+
+        return Response::dataResponse(true, [
+            'comment' => [
+                'images' => $images
+            ]
+        ]);
+    }
+
+    /**
      * Edit comment
      * @param Request $request, post request
      *        rules: requires comment that is not empty
@@ -98,6 +116,7 @@ class CommentController extends Controller
         if ($api_token != $headerToken)
             Exceptions::invalidTokenException(NOT_USERS_OBJECT);
 
+        $request->except(['user_id']);
         $this->commentRepo->update($request, $comment);
 
         return Response::dataResponse(true, ['comment' => $comment]);
@@ -143,20 +162,6 @@ class CommentController extends Controller
 
         return Response::dataResponse(true, [
             'likes' => $pin->likes()->get($fields)
-        ]);
-    }
-
-    /**
-     * Get the number of likes of this pinpost
-     * @param Request $request
-     * @param $pinpost_id
-     * @return JsonResponse
-     */
-    public function likesCount(Request $request, $comment_id)
-    {
-        $pin = $this->commentRepo->read($comment_id);
-        return Response::dataResponse(true, [
-            'count' => $pin->likesCount()
         ]);
     }
 

@@ -135,6 +135,24 @@ class PinpostController extends Controller
     }
 
     /**
+     * Get all image objects of this pinpost
+     * @param Request $request
+     * @param $pinpost_id
+     * @return JsonResponse
+     */
+    public function readImages(Request $request, $pinpost_id)
+    {
+        $pin = $this->pinpostRepo->read($pinpost_id);
+        $images = $pin->images;
+
+        return Response::dataResponse(true, [
+            'pinpost' => [
+                'images' => $images
+            ]
+        ]);
+    }
+
+    /**
      * Update Pinpost with information
      * @param Request $request, post request
      * @param $pinpost_id
@@ -154,6 +172,7 @@ class PinpostController extends Controller
         if ($api_token != $headerToken)
             Exceptions::invalidTokenException(NOT_USERS_OBJECT);
 
+        $request->except(['user_id']);
         $this->pinpostRepo->update($request, $pin);
 
         return Response::dataResponse(true, ['pinpost' => $pin]);
@@ -223,35 +242,6 @@ class PinpostController extends Controller
             'comments' => $pin->likes()->get($fields)
         ]);
     }
-
-    /**
-     * Get the number of comments on this pinpost
-     * @param Request $request
-     * @param $pinpost_id
-     * @return JsonResponse
-     */
-    public function commentsCount(Request $request, $pinpost_id)
-    {
-        $pin = $this->pinpostRepo->read($pinpost_id);
-        return Response::dataResponse(true, [
-            'count' => $pin->commentsCount()
-        ]);
-    }
-
-    /**
-     * Get the number of likes of this pinpost
-     * @param Request $request
-     * @param $pinpost_id
-     * @return JsonResponse
-     */
-    public function likesCount(Request $request, $pinpost_id)
-    {
-        $pin = $this->pinpostRepo->read($pinpost_id);
-        return Response::dataResponse(true, [
-            'count' => $pin->likesCount()
-        ]);
-    }
-
 
     /**
      * Fetch all pinposts of friends ordered by latest first

@@ -9,7 +9,6 @@ class Pinpost extends Model
     protected $fillable = ['title', 'description', 'latitude', 'longitude',
         'updated_at', 'entity_id', 'user_id', 'privacy'];
 
-    protected $hidden = ['creator_id'];
     protected $table = 'pinposts';
 
     protected static function boot()
@@ -53,5 +52,13 @@ class Pinpost extends Model
 
     public function tags() {
         return $this->morphToMany('App\Tag', 'taggable');
+    }
+
+    public function toArray()
+    {
+        $response = parent::toArray();
+        $response['comments'] = $this->commentsCount();
+        $response['likes'] = $this->likesCount();
+        return $response;
     }
 }
