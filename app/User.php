@@ -81,7 +81,8 @@ class User extends Model
         if(!in_array('birthday', $this->hidden))
             $response['birthday'] = $profile->birthday;
 
-        $response['picture_id'] = $profile->picture_id;
+        $picture = $profile->profilePicture;
+        $response['picture'] = $picture;
 
         if(!in_array('friends', $this->hidden))
             $response['friends'] = $this->friendsCount();
