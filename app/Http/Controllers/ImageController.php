@@ -216,7 +216,7 @@ class ImageController extends Controller
             return 'App\Pinpost';
         else if($request->is('api/comment/upload_image/*'))
             return 'App\Comment';
-        else if($request->is('api/reply/like/create/*'))
+        else if($request->is('api/reply/upload_image/*'))
             return 'App\Reply';
 
         Exceptions::invalidRequestException();
