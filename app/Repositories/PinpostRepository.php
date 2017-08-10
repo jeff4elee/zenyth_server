@@ -99,7 +99,6 @@ class PinpostRepository extends Repository
         if($scope == 'self') {
             $query = $this->model->where('user_id', '=', $user->id);
             $this->model = $query;
-            return $this;
         }
         else if($scope == 'friends') {
             $friendsId = $user->friendsId();
@@ -112,8 +111,8 @@ class PinpostRepository extends Repository
 
             $query = $this->model->whereIn('user_id', $idsToInclude);
             $this->model = $query;
-            return $this;
         }
+        return $this;
     }
 
     public function filterByPrivacy($user, $pinposts)

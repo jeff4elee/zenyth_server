@@ -41,6 +41,7 @@ Route::group(['middleware' => 'validation'], function() {
         Route::get('pinpost/get_comments/{pinpost_id}', 'PinpostController@fetchComments');
         Route::get('pinpost/get_likes/{pinpost_id}', 'PinpostController@fetchLikes');
         Route::get('pinpost/fetch', 'PinpostController@fetch');
+        Route::get('pinpost/feed', 'PinpostController@fetchFeed');
         Route::get('pinpost/images/{pinpost_id}', 'PinpostController@readImages');
 
         Route::post('pinpost/upload_image/{imageable_id}', 'ImageController@uploadImage');
