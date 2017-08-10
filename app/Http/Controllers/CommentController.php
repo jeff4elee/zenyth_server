@@ -52,7 +52,7 @@ class CommentController extends Controller
             'user_id' => $userId,
             'commentable_type' => $commentableType,
             'text' => $text,
-            'commentable_id' => $commentable_id
+            'commentable_id' => (int)$commentable_id
         ];
 
         $comment = $this->commentRepo->create($data);

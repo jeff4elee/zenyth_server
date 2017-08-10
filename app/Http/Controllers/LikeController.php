@@ -58,7 +58,7 @@ class LikeController extends Controller
         // Like data to be created
         $data = [
             'likeable_type' => $likeableType,
-            'likeable_id' => $likeable_id,
+            'likeable_id' => (int)$likeable_id,
             'user_id' => $user->id
         ];
         $like = $this->likeRepo->create($data);
