@@ -19,6 +19,7 @@ Route::group(['middleware' => 'validation'], function() {
         Route::get('user/get_friends/{user_id}', 'UserController@getFriends');
         Route::get('user/blocked_users', 'UserController@blockedUsers');
         Route::get('user/friend_requests', 'UserController@getFriendRequests');
+        Route::delete('user/{username}', 'UserController@delete');
 
 
         Route::get('profile/{user_id}', 'ProfileController@read');

@@ -31,6 +31,23 @@ class UserController extends Controller
     }
 
     /**
+     * Delete a user
+     * @param Request $request
+     * @param $username
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function delete(Request $request, $username)
+    {
+        $user = $request->get('user');
+        if ($username == $user->username) {
+            $user->delete();
+            return Response::successResponse(DELETE_SUCCESS);
+        }
+
+        Exceptions::unauthenticatedException(INVALID_TOKEN);
+    }
+
+    /**
      * Get user's friends
      * @param $user_id , id of user to be looked up
      * @return mixed Users who are friends of input user

@@ -27,6 +27,16 @@ class User extends Model
 
     public $timestamps = false;
 
+    protected static function boot()
+    {
+        parent::boot();
+        User::deleting(function($user) {
+            foreach($user->images as $image) {
+                $image->delete();
+            }
+        });
+    }
+
     public function passwordReset()
     {
         return $this->hasMany('App\PasswordReset', 'email');
@@ -45,6 +55,11 @@ class User extends Model
     public function comments()
     {
         return $this->hasMany('App\Comment', 'user_id');
+    }
+
+    public function images()
+    {
+        return $this->hasMany('App\Image', 'user_id');
     }
 
     public function replies()
