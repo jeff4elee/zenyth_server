@@ -136,7 +136,7 @@ class ImageController extends Controller
             'user_id' => $user->id,
             'image_file' => $image,
             'directory' => $this->getDirectory($request),
-            'imageable_id' => $imageable_id,
+            'imageable_id' => (int)$imageable_id,
             'imageable_type' => $imageableType
         ]);
 

@@ -48,7 +48,7 @@ class RelationshipController extends Controller
             'requester' => $userId,
             'requestee' => $requesteeId
         ]);
-
+        $request->except(['status', 'blocked']);
         $relationship = $this->relationshipRepo->create($request);
 
         return Response::dataResponse(true, ['relationship' => $relationship]);
