@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Exceptions\Exceptions;
 use App\Exceptions\ResponseHandler as Response;
 use App\Repositories\PinpostRepository;
 use App\Repositories\TagRepository;
@@ -49,6 +50,8 @@ class TagController extends Controller
         $user = $request->get('user');
 
         $tag = $this->tagRepo->findBy('name', $tagName);
+        if ($tag == null)
+            Exceptions::notFoundException(sprintf(OBJECT_NOT_FOUND, TAG));
 
         // Get latest pinposts of this tag using eloquent polymorphic
         // relationship

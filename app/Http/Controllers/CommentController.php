@@ -79,7 +79,7 @@ class CommentController extends Controller
             $comment = $this->commentRepo->read($comment_id);
 
         if ($comment == null)
-            Exceptions::notFoundException(NOT_FOUND);
+            Exceptions::notFoundException(sprintf(OBJECT_NOT_FOUND, COMMENT));
 
         return Response::dataResponse(true, ['comment' => $comment]);
     }
@@ -93,6 +93,9 @@ class CommentController extends Controller
     public function readImages(Request $request, $comment_id)
     {
         $comment = $this->commentRepo->read($comment_id);
+        if ($comment == null)
+            Exceptions::notFoundException(sprintf(OBJECT_NOT_FOUND, COMMENT));
+
         $images = $comment->images;
 
         return Response::dataResponse(true, [
@@ -113,13 +116,14 @@ class CommentController extends Controller
     {
         $comment = $this->commentRepo->read($comment_id);
         if ($comment == null)
-            Exceptions::notFoundException(NOT_FOUND);
+            Exceptions::notFoundException(sprintf(OBJECT_NOT_FOUND, COMMENT));
 
         // Validate comment owner
         $commentOwnerId = $comment->user_id;
         $userId = $request->get('user')->id;
         if ($userId != $commentOwnerId)
-            Exceptions::invalidTokenException(NOT_USERS_OBJECT);
+            Exceptions::invalidTokenException(sprintf(NOT_USERS_OBJECT,
+                COMMENT));
 
         $request->except(['user_id']);
         $this->commentRepo->update($request, $comment);
@@ -137,17 +141,18 @@ class CommentController extends Controller
     {
         $comment = $this->commentRepo->read($comment_id);
         if ($comment == null)
-            Exceptions::notFoundException(NOT_FOUND);
+            Exceptions::notFoundException(sprintf(OBJECT_NOT_FOUND, COMMENT));
 
         // Validate comment owner
         $commentOwnerId = $comment->user_id;
         $userId = $request->get('user')->id;
         if ($userId != $commentOwnerId)
-            Exceptions::invalidTokenException(NOT_USERS_OBJECT);
+            Exceptions::invalidTokenException(sprintf(NOT_USERS_OBJECT,
+                COMMENT));
 
         $this->commentRepo->delete($comment);
 
-        return Response::successResponse(DELETE_SUCCESS);
+        return Response::successResponse(sprintf(DELETE_SUCCESS, COMMENT));
     }
 
     /**
@@ -158,7 +163,10 @@ class CommentController extends Controller
      */
     public function fetchLikes(Request $request, $comment_id)
     {
-        $pin = $this->commentRepo->read($comment_id);
+        $comment = $this->commentRepo->read($comment_id);
+        if ($comment == null)
+            Exceptions::notFoundException(sprintf(OBJECT_NOT_FOUND, COMMENT));
+
         if($request->has('fields')) {
             $fields = $request->input('fields');
             $fields = explode(',', $fields);
@@ -166,7 +174,7 @@ class CommentController extends Controller
             $fields = ['*'];
 
         return Response::dataResponse(true, [
-            'likes' => $pin->likes()->get($fields)
+            'likes' => $comment->likes()->get($fields)
         ]);
     }
 
@@ -178,7 +186,10 @@ class CommentController extends Controller
      */
     public function fetchReplies(Request $request, $comment_id)
     {
-        $pin = $this->commentRepo->read($comment_id);
+        $comment = $this->commentRepo->read($comment_id);
+        if ($comment == null)
+            Exceptions::notFoundException(sprintf(OBJECT_NOT_FOUND, COMMENT));
+
         if($request->has('fields')) {
             $fields = $request->input('fields');
             $fields = explode(',', $fields);
@@ -186,7 +197,7 @@ class CommentController extends Controller
             $fields = ['*'];
 
         return Response::dataResponse(true, [
-            'replies' => $pin->replies()->get($fields)
+            'replies' => $comment->replies()->get($fields)
         ]);
     }
 
@@ -218,7 +229,8 @@ class CommentController extends Controller
             if($this->pinpostRepo->read($commentableId))
                 return true;
 
-        Exceptions::notFoundException(NOT_FOUND);
+        $type = substr($commentableType, 4);
+        Exceptions::notFoundException(sprintf(OBJECT_NOT_FOUND, $type));
     }
 
 }

@@ -127,7 +127,7 @@ class PinpostController extends Controller
             $pin = $this->pinpostRepo->read($pinpost_id);
 
         if ($pin == null)
-            Exceptions::notFoundException(NOT_FOUND);
+            Exceptions::notFoundException(sprintf(OBJECT_NOT_FOUND, PINPOST));
 
         return Response::dataResponse(true, [
             'pinpost' => $pin
@@ -143,6 +143,9 @@ class PinpostController extends Controller
     public function readImages(Request $request, $pinpost_id)
     {
         $pin = $this->pinpostRepo->read($pinpost_id);
+        if ($pin == null)
+            Exceptions::notFoundException(sprintf(OBJECT_NOT_FOUND, PINPOST));
+
         $images = $pin->images;
 
         return Response::dataResponse(true, [
@@ -161,15 +164,15 @@ class PinpostController extends Controller
     public function update(Request $request, $pinpost_id)
     {
         $pin = $this->pinpostRepo->read($pinpost_id);
-
-        if (!$pin)
-            Exceptions::notFoundException(NOT_FOUND);
+        if ($pin == null)
+            Exceptions::notFoundException(sprintf(OBJECT_NOT_FOUND, PINPOST));
 
         // Validator pinpost's creator
         $pinpostOwnerId = $pin->user_id;
         $userId = $request->get('user')->id;
         if ($userId != $pinpostOwnerId)
-            Exceptions::invalidTokenException(NOT_USERS_OBJECT);
+            Exceptions::invalidTokenException(sprintf(NOT_USERS_OBJECT,
+                PINPOST));
 
         $request->except(['user_id']);
         $this->pinpostRepo->update($request, $pin);
@@ -186,16 +189,19 @@ class PinpostController extends Controller
     public function delete(Request $request, $pinpost_id)
     {
         $pin = $this->pinpostRepo->read($pinpost_id);
+        if ($pin == null)
+            Exceptions::notFoundException(sprintf(OBJECT_NOT_FOUND, PINPOST));
 
         // Validate pinpost creator
         $pinpostOwnerId = $pin->user_id;
         $userId = $request->get('user')->id;
         if ($userId != $pinpostOwnerId)
-            Exceptions::invalidTokenException(NOT_USERS_OBJECT);
+            Exceptions::invalidTokenException(sprintf(NOT_USERS_OBJECT,
+                PINPOST));
 
         $this->pinpostRepo->delete($pin);
 
-        return Response::successResponse(DELETE_SUCCESS);
+        return Response::successResponse(sprintf(DELETE_SUCCESS, PINPOST));
     }
 
 
@@ -209,6 +215,9 @@ class PinpostController extends Controller
     {
         // Specify fields of comments to return
         $pin = $this->pinpostRepo->read($pinpost_id);
+        if ($pin == null)
+            Exceptions::notFoundException(sprintf(OBJECT_NOT_FOUND, PINPOST));
+
         if($request->has('fields')) {
             $fields = $request->input('fields');
             $fields = explode(',', $fields);
@@ -229,6 +238,8 @@ class PinpostController extends Controller
     public function fetchLikes(Request $request, $pinpost_id)
     {
         $pin = $this->pinpostRepo->read($pinpost_id);
+        if ($pin == null)
+            Exceptions::notFoundException(sprintf(OBJECT_NOT_FOUND, PINPOST));
 
         // Specify fields of likes to return
         if($request->has('fields')) {

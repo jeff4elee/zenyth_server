@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Exceptions\Exceptions;
 use App\Exceptions\ResponseHandler as Response;
 use App\Repositories\RelationshipRepository;
+use App\Repositories\UserRepository;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
@@ -15,10 +16,13 @@ use Illuminate\Http\Request;
 class RelationshipController extends Controller
 {
     private $relationshipRepo;
+    private $userRepo;
 
-    function __construct(RelationshipRepository $relationshipRepo)
+    function __construct(RelationshipRepository $relationshipRepo,
+                        UserRepository $userRepo)
     {
         $this->relationshipRepo = $relationshipRepo;
+        $this->userRepo = $userRepo;
     }
 
     /**
@@ -97,6 +101,9 @@ class RelationshipController extends Controller
         $user = $request->get('user');
         $deleterId = $user->id;
 
+        if ($this->userRepo->read($user_id) == null)
+            Exceptions::notFoundException(USER_DELETING_NOT_EXIST);
+
         // Cannot delete yourself
         if($deleterId == $user_id)
             Exceptions::invalidRequestException(INVALID_REQUEST_TO_SELF);
@@ -108,11 +115,13 @@ class RelationshipController extends Controller
             ->hasFriendship()->all()->first();
 
         if ($relationship == null)
-            Exceptions::notFoundException(NOT_FOUND);
+            Exceptions::notFoundException(sprintf(OBJECT_NOT_FOUND,
+                RELATIONSHIP));
 
         $relationship->delete();
 
-        return Response::successResponse(DELETE_SUCCESS);
+        return Response::successResponse(sprintf(DELETE_SUCCESS,
+            RELATIONSHIP));
     }
 
     /**
@@ -124,7 +133,7 @@ class RelationshipController extends Controller
     public function blockUser(Request $request)
     {
         $user = $request->get('user');
-        $blockeeId = $request->input('user_id');
+        $blockeeId = $request['user_id'];
         $blockerId = $user->id;
 
         // Cannot block yourself

@@ -1,17 +1,11 @@
 <?php
 
-/* Constants go here */
-define("MERGE_GOOGLE", 'A Google account with the same email has already been created. Do you want to merge?');
+/* General Constants */
 
-define("MERGE_FACEBOOK", "A Facebook account with the same email has already been created. Do you want to merge?");
-
-define("MERGE_ACCOUNT", "An account with the same email has already been created. Do you want to merge?");
 
 define("DELETE_FAIL", "Delete Failed");
 
 define("NOT_FOUND", "Not found");
-
-define("LOGIN_INVALID_CONFIDENTIAL", "The login credential you provide is invalid");
 
 define("REQUIRES_ACCESS_TOKEN", "This action requires an access token");
 
@@ -35,26 +29,57 @@ define("UPLOAD_SUCCESS", "Successfully uploaded file");
 
 define("OBJECT_FAIL_TO_CREATE", "Could not create object");
 
-define("NOT_USERS_OBJECT", "This object does not belong to this user");
+define("NOT_USERS_OBJECT", "This %s object does not belong to the user with this access token");
 
+define("OBJECT_NOT_FOUND", "This %s object does not exist");
+
+define("DELETE_SUCCESS", "This %s object was successfully deleted");
+
+define("CHECK_EMAIL", "Check your email");
+
+define("INVALID_USER_ID", "Invalid user id");
+
+/* LoginController */
+define("LOGIN_INVALID_CREDENTIAL", "The login credential you provide is invalid");
+
+/* OauthController */
+define("MERGE_GOOGLE", 'A Google account with the same email has already been created. Do you want to merge?');
+
+define("MERGE_FACEBOOK", "A Facebook account with the same email has already been created. Do you want to merge?");
+
+define("MERGE_ACCOUNT", "An account with the same email has already been created. Do you want to merge?");
+
+/* RegisterController */
+define("ACCOUNT_VERIFIED", "Your account has been verified");
+
+/* RelationshipController */
 define("NO_PENDING_REQUEST", "No pending request");
 
 define("IGNORED_FRIEND_REQUEST", "Friend request ignored");
 
 define("INVALID_REQUEST_TO_SELF", "Cannot send this request to yourself");
 
-define("DELETE_SUCCESS", "Successfully deleted");
-
 define("EXISTED_RELATIONSHIP", "This relationship already exists");
 
-define("INVALID_USER_ID", "Invalid user id");
+define("USER_BLOCKING_NOT_EXIST", "The user being blocked does not exist");
 
+define("USER_DELETING_NOT_EXIST", "The user being deleted does not exist");
+
+/* LikeController */
 define("ALREADY_LIKED_ENTITY", "Entity has already been liked by this user");
 
+/* ForgotPasswordController */
 define("RESET_PW_SUCCESS", "Successfully reset password");
 
-define("CHECK_EMAIL", "Check your email");
-
-define("ACCOUNT_VERIFIED", "Your account has been verified");
-
+/* Repository */
 define("EITHER_MODEL_OR_ID", "Must provide either Eloquent model or ID of the object");
+
+/* Objects' Name */
+define("LIKE", "Like");
+define("PINPOST", "Pinpost");
+define("COMMENT", "Comment");
+define("REPLY", "Reply");
+define("IMAGE", "Image");
+define("RELATIONSHIP", "Relationship");
+define("USER", "User");
+define("TAG", "Tag");

@@ -149,10 +149,18 @@ class DataRules
         ];
     }
 
+    static public function blockUserRules()
+    {
+        return [
+            'user_id' => 'required|exists:users,id|numeric'
+        ];
+    }
+
     static public function responseToFriendRequestRules()
     {
         return [
-            'status' => 'required|boolean'
+            'status' => 'required|boolean',
+            'requester_id' => 'required|exists:users,id|numeric'
         ];
     }
 
