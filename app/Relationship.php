@@ -23,4 +23,12 @@ class Relationship extends Model
         return $this->belongsTo('App\User', 'requestee');
     }
 
+    public function toArray()
+    {
+        $response = parent::toArray();
+        $response['requester'] = $this->getRequester;
+        $response['requestee'] = $this->getRequestee;
+        return $response;
+    }
+
 }

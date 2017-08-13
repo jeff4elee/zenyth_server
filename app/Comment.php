@@ -59,6 +59,7 @@ class Comment extends Model
 
     public function toArray()
     {
+        $this->creator;
         $response = parent::toArray();
         $commentableType = substr($this->commentable_type, 4);
         $response['commentable_type'] = $commentableType;

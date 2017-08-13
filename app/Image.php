@@ -26,11 +26,17 @@ class Image extends Model
         return $this->morphTo();
     }
 
+    public function user()
+    {
+        return $this->belongsTo('App\User', 'user_id');
+    }
+
     public function toArray()
     {
         $response = parent::toArray();
         $imageableType = substr($this->imageable_type, 4);
         $response['imageable_type'] = $imageableType;
+
         return $response;
     }
 
