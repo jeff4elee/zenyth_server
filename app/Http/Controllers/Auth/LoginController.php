@@ -38,7 +38,7 @@ class LoginController extends Controller
             $user = null;
 
         if ($user == null)
-            Exceptions::invalidCredentialException(LOGIN_INVALID_CONFIDENTIAL);
+            Exceptions::invalidCredentialException(LOGIN_INVALID_CREDENTIAL);
 
         if (Hash::check($password, $user->password)) {
             // checks password against hashed pw
@@ -49,7 +49,7 @@ class LoginController extends Controller
             ]);
         }
 
-        Exceptions::invalidCredentialException(LOGIN_INVALID_CONFIDENTIAL);
+        Exceptions::invalidCredentialException(LOGIN_INVALID_CREDENTIAL);
     }
 
 }

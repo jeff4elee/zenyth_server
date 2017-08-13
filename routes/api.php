@@ -19,6 +19,7 @@ Route::group(['middleware' => 'validation'], function() {
         Route::get('user/get_friends/{user_id}', 'UserController@getFriends');
         Route::get('user/blocked_users', 'UserController@blockedUsers');
         Route::get('user/friend_requests', 'UserController@getFriendRequests');
+        Route::delete('user/{username}', 'UserController@delete');
 
 
         Route::get('profile/{user_id}', 'ProfileController@read');
@@ -54,7 +55,7 @@ Route::group(['middleware' => 'validation'], function() {
         Route::patch('comment/{comment_id}', 'CommentController@update');
         Route::delete('comment/{comment_id}', 'CommentController@delete');
         Route::get('comment/get_likes/{comment_id}', 'CommentController@fetchLikes');
-        Route::get('comment/images/{comment_id}', 'CommentController@readImages');
+        Route::get('comment/get_replies/{comment_id}', 'CommentController@fetchReplies');
 
 
         Route::post('reply/like/{likeable_id}', 'LikeController@create');
@@ -63,7 +64,6 @@ Route::group(['middleware' => 'validation'], function() {
         Route::patch('reply/{reply_id}', 'ReplyController@update');
         Route::delete('reply/{reply_id}', 'ReplyController@delete');
         Route::get('reply/get_likes/{reply_id}', 'ReplyController@fetchLikes');
-        Route::get('reply/images/{reply_id}', 'ReplyController@readImages');
 
 
         Route::delete('like/{like_id}', 'LikeController@delete');
@@ -87,7 +87,9 @@ Route::group(['middleware' => 'validation'], function() {
     Route::get('user/search_user', 'UserController@searchUser');
 
 });
-
+Route::get('pinpost/images/{pinpost_id}', 'PinpostController@readImages');
+Route::get('comment/images/{comment_id}', 'CommentController@readImages');
+Route::get('reply/images/{reply_id}', 'ReplyController@readImages');
 Route::get('like/read/{like_id}', 'LikeController@read');
 Route::get('comment/read/{comment_id}', 'CommentController@read');
 Route::get('pinpost/read/{pinpost_id}', 'PinpostController@read');

@@ -36,13 +36,13 @@ class ReplyController extends Controller
 
         // Check if the comment exists
         if(!$this->commentRepo->findBy('id', $comment_id))
-            Exceptions::notFoundException(NOT_FOUND);
+            Exceptions::notFoundException(sprintf(OBJECT_NOT_FOUND, COMMENT));
 
         // Data of reply
         $data = [
             'text' => $text,
             'user_id' => $user->id,
-            'comment_id' => $comment_id
+            'comment_id' => (int)$comment_id
         ];
         $reply = $this->replyRepo->create($data);
         return Response::dataResponse(true, ['reply' => $reply]);
@@ -66,7 +66,7 @@ class ReplyController extends Controller
             $reply = $this->replyRepo->read($reply_id);
 
         if ($reply == null)
-            Exceptions::notFoundException(NOT_FOUND);
+            Exceptions::notFoundException(sprintf(OBJECT_NOT_FOUND, REPLY));
 
         return Response::dataResponse(true, ['reply' => $reply]);
     }
@@ -80,6 +80,8 @@ class ReplyController extends Controller
     public function readImages(Request $request, $reply_id)
     {
         $reply = $this->replyRepo->read($reply_id);
+        if ($reply == null)
+            Exceptions::notFoundException(sprintf(OBJECT_NOT_FOUND,  REPLY));
         $images = $reply->images;
 
         return Response::dataResponse(true, [
@@ -99,15 +101,15 @@ class ReplyController extends Controller
     public function update(Request $request, $reply_id)
     {
         $reply = $this->replyRepo->read($reply_id);
-
         if ($reply == null)
-            Exceptions::notFoundException(NOT_FOUND);
+            Exceptions::notFoundException(sprintf(OBJECT_NOT_FOUND,  REPLY));
 
         // Validate if reply belongs to user
-        $api_token = $reply->creator->api_token;
-        $headerToken = $request->header('Authorization');
-        if ($api_token != $headerToken)
-            Exceptions::invalidTokenException(NOT_USERS_OBJECT);
+        $replyOwnerId = $reply->user_id;
+        $userId = $request->get('user')->id;
+        if ($userId != $replyOwnerId)
+            Exceptions::invalidTokenException(sprintf(NOT_USERS_OBJECT,
+                REPLY));
 
         $request->except(['user_id']);
         $this->replyRepo->update($request, $reply);
@@ -125,17 +127,18 @@ class ReplyController extends Controller
     {
         $reply = $this->replyRepo->read($reply_id);
         if ($reply == null)
-            Exceptions::notFoundException(NOT_FOUND);
+            Exceptions::notFoundException(sprintf(OBJECT_NOT_FOUND,  REPLY));
 
         // Validate if reply belongs to user
-        $api_token = $reply->creator->api_token;
-        $headerToken = $request->header('Authorization');
-        if ($api_token != $headerToken)
-            Exceptions::invalidTokenException(NOT_USERS_OBJECT);
+        $replyOwnerId = $reply->user_id;
+        $userId = $request->get('user')->id;
+        if ($userId != $replyOwnerId)
+            Exceptions::invalidTokenException(sprintf(NOT_USERS_OBJECT,
+                REPLY));
 
         $this->replyRepo->delete($reply);
 
-        return Response::successResponse(DELETE_SUCCESS);
+        return Response::successResponse(sprintf(DELETE_SUCCESS, REPLY));
     }
 
     /**
@@ -147,6 +150,8 @@ class ReplyController extends Controller
     public function fetchLikes(Request $request, $reply_id)
     {
         $reply = $this->replyRepo->read($reply_id);
+        if ($reply == null)
+            Exceptions::notFoundException(sprintf(OBJECT_NOT_FOUND,  REPLY));
         if($request->has('fields')) {
             $fields = $request->input('fields');
             $fields = explode(',', $fields);

@@ -6,7 +6,6 @@ use Illuminate\Database\Eloquent\Model;
 
 class Reply extends Model
 {
-    public $timestamps = false;
     protected $table = 'replies';
     protected $fillable = ['text', 'user_id', 'comment_id'];
 

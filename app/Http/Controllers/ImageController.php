@@ -73,7 +73,7 @@ class ImageController extends Controller
     static public function storeImageByUrl($url, $directory = 'images')
     {
         if($url == null)
-            Exceptions::invalidRequestException();
+            Exceptions::invalidRequestException(NULL_URL);
         if($directory == null)
             $directory = 'images';
 
@@ -129,14 +129,16 @@ class ImageController extends Controller
 
         // Validate if the imageable object belongs to the same user that is
         // uploading this image
+        $type = substr($imageableType, 4);
         if($imageable->user_id != $user->id)
-            Exceptions::invalidTokenException(NOT_USERS_OBJECT);
+            Exceptions::invalidTokenException(sprintf(NOT_USERS_OBJECT,
+                $type));
 
         $request->merge([
             'user_id' => $user->id,
             'image_file' => $image,
             'directory' => $this->getDirectory($request),
-            'imageable_id' => $imageable_id,
+            'imageable_id' => (int)$imageable_id,
             'imageable_type' => $imageableType
         ]);
 
@@ -157,15 +159,16 @@ class ImageController extends Controller
         $user = $request->get('user');
         $image = $this->imageRepo->read($image_id);
         if(!$image)
-            Exceptions::notFoundException(NOT_FOUND);
+            Exceptions::notFoundException(sprintf(OBJECT_NOT_FOUND, IMAGE));
 
         $userId = $user->id;
         // Validate if image belongs to this user
         if($image->user_id != $userId)
-            Exceptions::invalidTokenException(NOT_USERS_OBJECT);
+            Exceptions::invalidTokenException(sprintf(NOT_USERS_OBJECT,
+                IMAGE));
 
         $this->imageRepo->delete($image);
-        return Response::successResponse(DELETE_SUCCESS);
+        return Response::successResponse(sprintf(DELETE_SUCCESS, IMAGE));
     }
 
     /**
@@ -177,7 +180,7 @@ class ImageController extends Controller
     {
         $image = $this->imageRepo->read($image_id);
         if($image == null)
-            Exceptions::notFoundException(NOT_FOUND);
+            Exceptions::notFoundException(sprintf(OBJECT_NOT_FOUND, IMAGE));
 
         $path = 'app/images/' . $image->filename;
         return Response::rawImageResponse($path);
@@ -216,7 +219,7 @@ class ImageController extends Controller
             return 'App\Pinpost';
         else if($request->is('api/comment/upload_image/*'))
             return 'App\Comment';
-        else if($request->is('api/reply/like/create/*'))
+        else if($request->is('api/reply/upload_image/*'))
             return 'App\Reply';
 
         Exceptions::invalidRequestException();
@@ -259,7 +262,8 @@ class ImageController extends Controller
             if($imageable = $this->replyRepo->read($imageableId))
                 return $imageable;
 
-        Exceptions::notFoundException(NOT_FOUND);
+        $type = substr($imageableType, 4);
+        Exceptions::notFoundException(sprintf(OBJECT_NOT_FOUND, $type));
     }
 
 }

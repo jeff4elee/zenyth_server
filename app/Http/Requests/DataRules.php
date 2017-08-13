@@ -8,8 +8,8 @@ class DataRules
     static public function registerRules()
     {
         return [
-            'username' => 'required|min:3|max:20|alpha_dash',
-            'email' => 'required|email|max:255',
+            'username' => 'required|min:3|max:20|alpha_dash|unique:users',
+            'email' => 'required|email|max:255|unique:users',
             'password' => 'required|alpha_num|min:8|max:16|confirmed',
             'birthday' => 'date_format:Y-m-d'
         ];
@@ -18,8 +18,8 @@ class DataRules
     static public function oauthRegisterRules()
     {
         return [
-            'username' => 'required|min:3|max:20',
-            'email' => 'required|email|max:255',
+            'username' => 'required|min:3|max:20|unique:users',
+            'email' => 'required|email|max:255|unique:email',
             'oauth_type' => 'required|in:facebook,google',
             'picture_url' => 'url',
             'birthday' => 'date_format:Y-m-d'
@@ -131,7 +131,7 @@ class DataRules
     static public function commentRules()
     {
         return [
-            'comment' => 'required|min:1'
+            'text' => 'required|min:1'
         ];
     }
 
@@ -149,10 +149,18 @@ class DataRules
         ];
     }
 
+    static public function blockUserRules()
+    {
+        return [
+            'user_id' => 'required|exists:users,id|numeric'
+        ];
+    }
+
     static public function responseToFriendRequestRules()
     {
         return [
-            'status' => 'required|boolean'
+            'status' => 'required|boolean',
+            'requester_id' => 'required|exists:users,id|numeric'
         ];
     }
 

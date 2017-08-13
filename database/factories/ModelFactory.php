@@ -103,7 +103,7 @@ $factory->define(App\Comment::class, function (Faker\Generator $faker) {
         'commentable_id' => factory('App\Pinpost')->create()->id,
         'commentable_type' => 'App\Pinpost',
         'user_id' => factory('App\Profile')->create()->user_id,
-        'comment' => $faker->text(100)
+        'text' => $faker->text(100)
     ];
 
 });

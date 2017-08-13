@@ -7,10 +7,9 @@ use Illuminate\Support\Facades\Storage;
 
 class Image extends Model
 {
-
     protected $fillable = ['filename', 'imageable_id', 'imageable_type',
         'directory', 'user_id'];
-    protected $hidden = ['directory', 'imageable_type', 'imageable_id'];
+
     protected $table = 'images';
     public $timestamps = false;
 
@@ -25,6 +24,14 @@ class Image extends Model
     public function imageable()
     {
         return $this->morphTo();
+    }
+
+    public function toArray()
+    {
+        $response = parent::toArray();
+        $imageableType = substr($this->imageable_type, 4);
+        $response['imageable_type'] = $imageableType;
+        return $response;
     }
 
 }

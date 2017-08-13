@@ -15,7 +15,7 @@ class CreateCommentsTable extends Migration
     {
         Schema::create('comments', function (Blueprint $table) {
             $table->increments('id');
-            $table->text('comment');
+            $table->text('text');
 
             $table->unsignedInteger('commentable_id');
             $table->string('commentable_type');
@@ -24,8 +24,7 @@ class CreateCommentsTable extends Migration
             $table->foreign('user_id')
                 ->references('id')->on('users')
                 ->onDelete('cascade');
-            $table->timestamp('updated_at')
-                ->default(DB::raw('CURRENT_TIMESTAMP'));
+            $table->timestamps();
         });
     }
 

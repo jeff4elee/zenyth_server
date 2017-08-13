@@ -58,7 +58,7 @@ class LikeController extends Controller
         // Like data to be created
         $data = [
             'likeable_type' => $likeableType,
-            'likeable_id' => $likeable_id,
+            'likeable_id' => (int)$likeable_id,
             'user_id' => $user->id
         ];
         $like = $this->likeRepo->create($data);
@@ -76,7 +76,7 @@ class LikeController extends Controller
     {
         $like = $this->likeRepo->read($like_id);
         if($like == null)
-            Exceptions::notFoundException(NOT_FOUND);
+            Exceptions::notFoundException(sprintf(OBJECT_NOT_FOUND, LIKE));
 
         return Response::dataResponse(true, ['like' => $like]);
     }
@@ -91,16 +91,18 @@ class LikeController extends Controller
     {
         $like = $this->likeRepo->read($like_id);
         if (!$like)
-            Exceptions::notFoundException(NOT_FOUND);
+            Exceptions::notFoundException(sprintf(OBJECT_NOT_FOUND, LIKE));
 
         // Validate if like belongs to this user
-        $api_token = $like->user->api_token;
-        $headerToken = $request->header('Authorization');
-        if ($api_token != $headerToken)
-            Exceptions::invalidTokenException(NOT_USERS_OBJECT);
+        $likeOwnerId = $like->user_id;
+        $userId = $request->get('user')->id;
+
+        if ($userId != $likeOwnerId)
+            Exceptions::invalidTokenException(sprintf(NOT_USERS_OBJECT,
+                $type));
 
         $this->likeRepo->delete($like);
-        return Response::successResponse(DELETE_SUCCESS);
+        return Response::successResponse(sprintf(DELETE_SUCCESS, LIKE));
     }
 
     /* The functions below are to determine the likeable type for
@@ -143,7 +145,8 @@ class LikeController extends Controller
             if($this->replyRepo->read($likeableId))
                 return true;
 
-        Exceptions::notFoundException(NOT_FOUND);
+        $type = substr($likeableType, 4);
+        Exceptions::notFoundException(sprintf(OBJECT_NOT_FOUND, $type));
     }
 
 }

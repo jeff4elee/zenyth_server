@@ -33,7 +33,7 @@ class AuthenticatedMiddleware
             return $next($request);
         }
 
-        Exceptions::unauthenticatedException();
+        Exceptions::unauthenticatedException(INVALID_TOKEN);
 
     }
 }

@@ -6,10 +6,9 @@ use Illuminate\Database\Eloquent\Model;
 
 class Comment extends Model
 {
-    protected $fillable = ['comment', 'user_id', 'commentable_id',
+    protected $fillable = ['text', 'user_id', 'commentable_id',
         'commentable_type'];
     protected $table = 'comments';
-    public $timestamps = false;
 
     protected static function boot()
     {
@@ -61,6 +60,8 @@ class Comment extends Model
     public function toArray()
     {
         $response = parent::toArray();
+        $commentableType = substr($this->commentable_type, 4);
+        $response['commentable_type'] = $commentableType;
         $response['replies'] = $this->repliesCount();
         $response['likes'] = $this->likesCount();
         $response['images'] = $this->images;

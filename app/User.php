@@ -27,6 +27,16 @@ class User extends Model
 
     public $timestamps = false;
 
+    protected static function boot()
+    {
+        parent::boot();
+        User::deleting(function($user) {
+            foreach($user->images as $image) {
+                $image->delete();
+            }
+        });
+    }
+
     public function passwordReset()
     {
         return $this->hasMany('App\PasswordReset', 'email');
@@ -45,6 +55,11 @@ class User extends Model
     public function comments()
     {
         return $this->hasMany('App\Comment', 'user_id');
+    }
+
+    public function images()
+    {
+        return $this->hasMany('App\Image', 'user_id');
     }
 
     public function replies()
@@ -81,7 +96,8 @@ class User extends Model
         if(!in_array('birthday', $this->hidden))
             $response['birthday'] = $profile->birthday;
 
-        $response['picture_id'] = $profile->picture_id;
+        $picture = $profile->profilePicture;
+        $response['picture'] = $picture;
 
         if(!in_array('friends', $this->hidden))
             $response['friends'] = $this->friendsCount();
