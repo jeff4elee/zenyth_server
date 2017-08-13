@@ -287,4 +287,31 @@ class PinpostController extends Controller
         ]);
     }
 
+    public function fetchFeed(Request $request){
+
+        $user = $request->get('user');
+
+        if($request->has('scope')){
+            $scope = $request->get('scope');
+        } else {
+            $scope = 'friends';
+        }
+
+        $this->pinpostRepo->pinpostsWithScope($scope, $user);
+
+        if($request->has('paginate')){
+            $count = $request->get('paginate');
+            $this->pinpostRepo->paginate($count);
+        }
+
+        $this->pinpostRepo->latest();
+        $pinposts = $this->pinpostRepo->all();
+        $pinposts = $this->pinpostRepo->filterByPrivacy($user, $pinposts);
+
+        return Response::dataResponse(true, [
+            'pinposts' => $pinposts // get all the pinposts
+        ]);
+
+    }
+
 }
