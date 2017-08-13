@@ -289,23 +289,18 @@ class PinpostController extends Controller
 
     public function fetchFeed(Request $request){
 
+        // Example GET request: /api/pinpost/feed?paginate=count&scope=self|friends|public
         $user = $request->get('user');
 
         if($request->has('scope')){
-            $scope = $request->get('scope');
+            $scope = $request->input('scope');
         } else {
             $scope = 'friends';
         }
 
         $this->pinpostRepo->pinpostsWithScope($scope, $user);
-
-        if($request->has('paginate')){
-            $count = $request->get('paginate');
-            $this->pinpostRepo->paginate($count);
-        }
-
         $this->pinpostRepo->latest();
-        $pinposts = $this->pinpostRepo->all();
+        $pinposts = $this->pinpostRepo->paginate(10);
         $pinposts = $this->pinpostRepo->filterByPrivacy($user, $pinposts);
 
         return Response::dataResponse(true, [
