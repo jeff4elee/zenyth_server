@@ -142,7 +142,7 @@ abstract class Repository implements RepositoryInterface
     {
         $query = $this->model->paginate($count);
         $this->model = $query;
-        return $query;
+        return $this;
     }
 
     /**

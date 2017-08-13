@@ -283,14 +283,14 @@ class PinpostController extends Controller
         $user = $request->get('user');
 
         if($request->has('scope')){
-            $scope = $request->get('scope');
+            $scope = $request->input('scope');
         } else {
             $scope = 'friends';
         }
 
         $this->pinpostRepo->pinpostsWithScope($scope, $user);
-        $this->pinpostRepo->paginate(10);
         $this->pinpostRepo->latest();
+        $this->pinpostRepo->paginate(10);
         $pinposts = $this->pinpostRepo->all();
         $pinposts = $this->pinpostRepo->filterByPrivacy($user, $pinposts);
 
