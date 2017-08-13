@@ -48,6 +48,7 @@ class Reply extends Model
 
     public function toArray()
     {
+        $this->creator;
         $response = parent::toArray();
         $response['likes'] = $this->likesCount();
         $response['images'] = $this->images;
