@@ -32,11 +32,20 @@ class TagController extends Controller
         $tags = $this->tagRepo
             ->tagsWithSimilarNames($tagName)
             ->joinTaggables()->groupByTagsName()->orderByCount()
-            ->paginate(10);
+            ->paginate(10)->toArray();
 
-        return Response::dataResponse(true, [
-            'tags' => $tags->all()
-        ]);
+        $tags['tags'] = $tags['data'];
+        unset($tags['data']);
+        $nextPageUrl = $tags['next_page_url'];
+        $prevPageUrl = $tags['prev_page_url'];
+
+        // Add back the search query keyword to the url
+        if ($nextPageUrl)
+            $tags['next_page_url'] = $nextPageUrl . '&tag=' . $tagName;
+        if ($prevPageUrl)
+            $tags['prev_page_url'] = $prevPageUrl . '&tag=' . $tagName;
+
+        return Response::dataResponse(true, $tags);
     }
 
     /**

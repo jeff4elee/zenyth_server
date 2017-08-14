@@ -161,12 +161,23 @@ class UserController extends Controller
         $searchResult = User::select('users.id', 'users.username')
             ->join('profiles', 'profiles.user_id', '=', 'users.id')
             ->whereIn('users.id', $resultArr)
-            ->orderByRaw('FIELD(users.id,'.$resultIdString.')')->paginate(10)
-            ->all();
+            ->orderByRaw('FIELD(users.id,'.$resultIdString.')')->paginate(10);
 
-        $users = $this->filterUserInfo($searchResult);
+        $this->filterUserInfo($searchResult);
+        $users = $searchResult->toArray();
+        $users['users'] = $users['data'];
+        unset($users['data']);
 
-        return Response::dataResponse(true, ['users' => $users]);
+        $nextPageUrl = $users['next_page_url'];
+        $prevPageUrl = $users['prev_page_url'];
+
+        // Adding back the keyword as path query
+        if ($nextPageUrl)
+            $users['next_page_url'] = $nextPageUrl . '&keyword=' . $keyword;
+        if ($prevPageUrl)
+            $users['prev_page_url'] = $prevPageUrl . '&keyword=' . $keyword;
+
+        return Response::dataResponse(true, $users);
     }
 
     /**

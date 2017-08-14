@@ -141,7 +141,6 @@ abstract class Repository implements RepositoryInterface
     public function paginate($count)
     {
         $query = $this->model->paginate($count);
-        $this->model = $query;
         return $query;
     }
 
