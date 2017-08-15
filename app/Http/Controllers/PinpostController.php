@@ -287,6 +287,11 @@ class PinpostController extends Controller
         ]);
     }
 
+    /**
+     * Fetch feed
+     * @param Request $request
+     * @return JsonResponse
+     */
     public function fetchFeed(Request $request){
 
         // Example GET request: /api/pinpost/feed?paginate=count&scope=self|friends|public
@@ -298,15 +303,36 @@ class PinpostController extends Controller
             $scope = 'friends';
         }
 
-        $this->pinpostRepo->pinpostsWithScope($scope, $user);
+        if($request->has('count')) {
+            $count = $request->input('count');
+        } else {
+            $count = 10;
+        }
+
+        $this->pinpostRepo->pinpostsWithScope($scope, $user, false);
         $this->pinpostRepo->latest();
-        $pinposts = $this->pinpostRepo->paginate(10);
-        $pinposts = $this->pinpostRepo->filterByPrivacy($user, $pinposts);
+        $pinposts = $this->pinpostRepo->simplePaginate($count);
 
-        return Response::dataResponse(true, [
-            'pinposts' => $pinposts // get all the pinposts
-        ]);
+        // Filtering the pinposts by their privacy
+        $filteredPinposts = $this->pinpostRepo->filterByPrivacy($user,
+            $pinposts);
 
+        // Convert to array in order to rename the key from data to pinposts
+        // in order to match our response format
+        $pinposts = $pinposts->toArray();
+        $pinposts['pinposts'] =  $filteredPinposts;
+        unset($pinposts['data']);
+
+        $nextPageUrl = $pinposts['next_page_url'];
+        $prevPageUrl = $pinposts['prev_page_url'];
+
+        // Add back the scope to the url
+        if ($nextPageUrl)
+            $pinposts['next_page_url'] = $nextPageUrl . '&scope=' . $scope;
+        if ($prevPageUrl)
+            $pinposts['prev_page_url'] = $prevPageUrl . '&scope=' . $scope;
+
+        return Response::dataResponse(true, $pinposts); // get all the pinposts
     }
 
 }

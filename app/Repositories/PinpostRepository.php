@@ -93,7 +93,7 @@ class PinpostRepository extends Repository
      * @param $user
      * @return mixed
      */
-    public function pinpostsWithScope($scope, $user)
+    public function pinpostsWithScope($scope, $user, $includeSelf = true)
     {
         $scope = strtolower($scope);
         if($scope == 'self') {
@@ -106,8 +106,10 @@ class PinpostRepository extends Repository
             // All id's of friends
             $idsToInclude = array_values($friendsId);
 
-            // Put the current user's id in the array to query
-            array_push($idsToInclude, $user->id);
+            if($includeSelf == true) {
+                // Put the current user's id in the array to query
+                array_push($idsToInclude, $user->id);
+            }
 
             $query = $this->model->whereIn('user_id', $idsToInclude);
             $this->model = $query;
@@ -120,6 +122,7 @@ class PinpostRepository extends Repository
         $filteredPinposts = new Collection();
 
         $usersFriends = $user->friendsId();
+
         foreach($pinposts as $pinpost) {
             if($pinpost->privacy == 'public') {
                 $filteredPinposts->push($pinpost);
