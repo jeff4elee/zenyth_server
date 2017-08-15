@@ -39,6 +39,10 @@ define("CHECK_EMAIL", "Check your email");
 
 define("INVALID_USER_ID", "Invalid user id");
 
+define("CLIENT_ID_REQUIRED", "A client ID is required to access API");
+
+define("INVALID_CLIENT_ID", "The client ID provided is invalid");
+
 /* LoginController */
 define("LOGIN_INVALID_CREDENTIAL", "The login credential you provide is invalid");
 

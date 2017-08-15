@@ -55,6 +55,10 @@ class Kernel extends HttpKernel
         'caching' => [
             'caching' => \App\Http\Middleware\CachingMiddleware::class
         ],
+        'client_authorization' => [
+            'client_authorization' =>
+                \App\Http\Middleware\ClientMiddleware::class
+        ],
     ];
 
     /**
@@ -74,6 +78,7 @@ class Kernel extends HttpKernel
         'authenticated' => \App\Http\Middleware\AuthenticatedMiddleware::class,
         'oauth' => \App\Http\Middleware\OauthMiddleware::class,
         'validation' => \App\Http\Middleware\ValidationMiddleware::class,
-        'caching' => \App\Http\Middleware\CachingMiddleware::class
+        'caching' => \App\Http\Middleware\CachingMiddleware::class,
+        'client_authorization' => \App\Http\Middleware\ClientMiddleware::class
     ];
 }

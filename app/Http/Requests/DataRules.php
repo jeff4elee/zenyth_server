@@ -164,4 +164,12 @@ class DataRules
         ];
     }
 
+    static public function generateClientIdRules()
+    {
+        return [
+            'platform' => 'required|in:android,ios,web',
+            'product_name' => 'required'
+        ];
+    }
+
 }
