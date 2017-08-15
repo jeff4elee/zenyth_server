@@ -84,6 +84,9 @@ class DataValidator
         else if($request->is('api/relationship/block_user'))
             return Validator::make($request->all(), Rules::blockUserRules());
 
+        else if($request->is('api/client_id'))
+            return Validator::make($request->all(), Rules::generateClientIdRules());
+
         else
             return null;
     }
