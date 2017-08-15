@@ -32,7 +32,7 @@ class TagController extends Controller
         $tags = $this->tagRepo
             ->tagsWithSimilarNames($tagName)
             ->joinTaggables()->groupByTagsName()->orderByCount()
-            ->paginate(10)->toArray();
+            ->simplePaginate(10)->toArray();
 
         $tags['tags'] = $tags['data'];
         unset($tags['data']);

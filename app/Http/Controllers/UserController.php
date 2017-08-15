@@ -161,7 +161,8 @@ class UserController extends Controller
         $searchResult = User::select('users.id', 'users.username')
             ->join('profiles', 'profiles.user_id', '=', 'users.id')
             ->whereIn('users.id', $resultArr)
-            ->orderByRaw('FIELD(users.id,'.$resultIdString.')')->paginate(10);
+            ->orderByRaw('FIELD(users.id,'.$resultIdString.')')->simplePaginate
+            (10);
 
         $this->filterUserInfo($searchResult);
         $users = $searchResult->toArray();

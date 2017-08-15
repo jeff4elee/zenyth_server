@@ -144,6 +144,12 @@ abstract class Repository implements RepositoryInterface
         return $query;
     }
 
+    public function simplePaginate($count)
+    {
+        $query = $this->model->simplePaginate($count);
+        return $query;
+    }
+
     /**
      * Get the latest objects
      * @return mixed

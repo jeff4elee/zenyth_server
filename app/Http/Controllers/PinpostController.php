@@ -311,7 +311,7 @@ class PinpostController extends Controller
 
         $this->pinpostRepo->pinpostsWithScope($scope, $user, false);
         $this->pinpostRepo->latest();
-        $pinposts = $this->pinpostRepo->paginate($count);
+        $pinposts = $this->pinpostRepo->simplePaginate($count);
 
         // Filtering the pinposts by their privacy
         $filteredPinposts = $this->pinpostRepo->filterByPrivacy($user,
