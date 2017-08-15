@@ -30,13 +30,20 @@ class ClientController extends Controller
         $clientId = str_random(60);
         $hashedClientId = Hash::make($clientId);
 
-        $data = ['client_id' => $hashedClientId];
-        $this->clientRepo->create($data);
+        $data = [
+            'client_id' => $hashedClientId,
+            'product_name' => $productName,
+            'platform' => $platform
+        ];
+        $client = $this->clientRepo->create($data);
+
+        // Change the client id of the response to the non-hashed version
+        $data = $client->toArray();
+        $data['client_id'] = $clientId;
+        array_pull($data, 'id');
 
         return Response::dataResponse(true, [
-            'client_id' => $clientId,
-            'platform' => $platform,
-            'product_name' => $productName
+            'client' => $data
         ]);
     }
 }

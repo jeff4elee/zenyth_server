@@ -1,6 +1,8 @@
 <?php
 
-Route::post('client_id', 'ClientController@generate');
+Route::group(['middleware' => 'validation'], function() {
+    Route::post('client_id', 'ClientController@generate');
+});
 
 Route::post('password/reset/{token}',
     'Auth\ForgotPasswordController@restorePassword')->name('api_pw_reset');
