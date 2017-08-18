@@ -21,7 +21,7 @@ class ClientMiddleware
     public function handle(Request $request, Closure $next)
     {
         $clientId = $request->header('Client-ID');
-        $next($request);
+        
         if($clientId) {
             $clients = $this->clientRepo->all();
             foreach($clients as $client) {
