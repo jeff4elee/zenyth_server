@@ -11,7 +11,7 @@ Route::group(['middleware' => 'client_authorization'], function() {
     Route::get('email_taken/{email}', 'Auth\RegisterController@emailTaken');
     Route::get('username_taken/{username}', 'Auth\RegisterController@usernameTaken');
 
-    Route::get('image/{image_id}', 'ImageController@showImage');
+    Route::get('image/{filename}', 'ImageController@showImage');
     Route::get('/profile/profile_picture/{user_id}', 'ProfileController@showProfileImage');
 
     Route::group(['middleware' => ['caching']], function () {

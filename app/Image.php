@@ -36,7 +36,7 @@ class Image extends Model
         $response = parent::toArray();
         $imageableType = substr($this->imageable_type, 4);
         $response['imageable_type'] = $imageableType;
-
+        $response['url'] = request()->root() . '/api/image/' . $this->filename;
         return $response;
     }
 
