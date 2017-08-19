@@ -72,6 +72,9 @@ class ProfileRepository extends Repository
             $birthday = \DateTime::createFromFormat('Y-m-d', $request['birthday']);
             $data['birthday'] = $birthday;
         }
+        if($request->has('biography')) {
+            $data['biography'] = $request['biography'];
+        }
 
         $profile->update($data);
         return $profile;
