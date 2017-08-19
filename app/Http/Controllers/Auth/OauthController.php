@@ -45,12 +45,12 @@ class OauthController extends Controller
         $user = $this->userRepo->findBy('email', $email);
 
         if($user) {
-            $oauth = $user->oauth;
-            $profile = $user->profile;
             $data = [
                 'user' => $user->makeVisible('api_token')
-                                ->makeVisible('email')
+                    ->makeVisible('email')
             ];
+            $oauth = $user->oauth;
+            $profile = $user->profile;
             return $this->processOauth($oauth_type, $profile, $json, $oauth, $data, $request);
         }
         else
@@ -173,6 +173,7 @@ class OauthController extends Controller
         ]);
         $image = $imageRepo->create($request);
         $profile->picture_id = $image->id;
+        $profile->update();
     }
 
 }
