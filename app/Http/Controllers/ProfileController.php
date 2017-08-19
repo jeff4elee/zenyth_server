@@ -49,8 +49,17 @@ class ProfileController extends Controller
 
         // If the user being read is the same as the current user
         if($currentUser->id == $user_id) {
+            $pinposts = $currentUser->pinposts;
+            $userInfoArray = $currentUser->toArray();
+            $userInfoArray['pinposts'] = $pinposts;
+            $userInfoArray['number_of_pinposts'] = $pinposts->count();
+            $likes = 0;
+            foreach($pinposts as $pinpost) {
+                $likes += $pinpost->likesCount();
+            }
+            $userInfoArray['likes'] = $likes;
             return Response::dataResponse(true, [
-                'user' => $currentUser
+                'user' => $userInfoArray
             ]);
         }
 
