@@ -19,7 +19,7 @@ class DataRules
     {
         return [
             'username' => 'required|min:3|max:20|unique:users',
-            'email' => 'required|email|max:255|unique:email',
+            'email' => 'required|email|max:255|unique:users',
             'oauth_type' => 'required|in:facebook,google',
             'picture_url' => 'url',
             'birthday' => 'date_format:Y-m-d'
