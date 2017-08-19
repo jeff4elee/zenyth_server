@@ -51,6 +51,9 @@ class ProfileController extends Controller
         if($currentUser->id == $user_id) {
             $pinposts = $currentUser->pinposts;
             $userInfoArray = $currentUser->toArray();
+
+            // Remove creator data from pinpost
+            $this->filterPinpostData($pinposts);
             $userInfoArray['pinposts'] = $pinposts;
             $userInfoArray['number_of_pinposts'] = $pinposts->count();
             $likes = 0;
@@ -107,6 +110,8 @@ class ProfileController extends Controller
 
         $pinposts = $userBeingRead->pinposts;
 
+        // Remove creator data from pinpost
+        $this->filterPinpostData($pinposts);
         $userInfoArray['pinposts'] = $pinposts;
         $userInfoArray['number_of_pinposts'] = $pinposts->count();
         $likes = 0;
@@ -202,6 +207,13 @@ class ProfileController extends Controller
         }
 
         Exceptions::notFoundException(INVALID_USER_ID);
+    }
+
+    public function filterPinpostData($pinposts) {
+        foreach($pinposts as $pinpost) {
+            $pinpost->makeHidden('creator');
+            $pinpost->makeHidden('user_id');
+        }
     }
 
 }

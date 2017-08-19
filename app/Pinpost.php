@@ -57,11 +57,19 @@ class Pinpost extends Model
     public function toArray()
     {
         // Eager loads to show the creator's full credential
-        $this->creator;
+        if(!in_array('creator', $this->hidden))
+            $this->creator;
+
         $response = parent::toArray();
-        $response['comments'] = $this->commentsCount();
-        $response['likes'] = $this->likesCount();
-        $response['images'] = $this->images;
+
+        if(!in_array('comments', $this->hidden))
+            $response['comments'] = $this->commentsCount();
+
+        if(!in_array('likes', $this->hidden))
+            $response['likes'] = $this->likesCount();
+
+        if(!in_array('images', $this->hidden))
+            $response['images'] = $this->images;
 
         return $response;
     }
