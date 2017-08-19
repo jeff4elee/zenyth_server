@@ -98,7 +98,8 @@ class ProfileController extends Controller
 
         $pinposts = $userBeingRead->pinposts;
 
-        $userInfoArray['pinposts'] = $pinposts->count();
+        $userInfoArray['pinposts'] = $pinposts;
+        $userInfoArray['number_of_pinposts'] = $pinposts->count();
         $likes = 0;
         foreach($pinposts as $pinpost) {
             $likes += $pinpost->likesCount();
