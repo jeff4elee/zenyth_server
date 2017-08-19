@@ -96,6 +96,15 @@ class ProfileController extends Controller
         array_pull($userInfoArray, 'requester_relationships');
         array_pull($userInfoArray, 'requestee_relationships');
 
+        $pinposts = $userBeingRead->pinposts;
+
+        $userInfoArray['pinposts'] = $pinposts->count();
+        $likes = 0;
+        foreach($pinposts as $pinpost) {
+            $likes += $pinpost->likesCount();
+        }
+        $userInfoArray['likes'] = $likes;
+
         return Response::dataResponse(true, [
             'user' => $userInfoArray
         ]);
