@@ -78,6 +78,13 @@ class RegisterController extends Controller
             $subject = 'Verify your email address';
 //          $this->sendEmail('confirmation', $infoArray, $user->email, $name, $subject);
         }
+        if($request->is('api/oauth/register')) {
+            $json = $request->get('json');
+            $oauthType = $request->input('oauth_type');
+            $url = OauthController::getUrlFromOauthJSON($json, $oauthType);
+            OauthController::updateProfilePicture($this->imageRepo, $profile,
+                $url);
+        }
 
         return Response::dataResponse(true, [
             'user' => $user->makeVisible('api_token')
