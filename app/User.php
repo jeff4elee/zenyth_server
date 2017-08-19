@@ -101,6 +101,18 @@ class User extends Model
 
         if(!in_array('friends', $this->hidden))
             $response['friends'] = $this->friendsCount();
+
+        $pinposts = $this->pinposts;
+        if(!in_array('pinposts', $this->hidden))
+            $response['pinposts'] = $pinposts->count();
+
+        if(!in_array('likes', $this->hidden)) {
+            $points = 0;
+            foreach($pinposts as $pinpost) {
+                $points += $pinpost->likesCount();
+            }
+            $response['likes'] = $points;
+        }
         return $response;
     }
 

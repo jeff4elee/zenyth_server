@@ -34,6 +34,8 @@ class CreateProfilesTable extends Migration
             $table->foreign('picture_id')
                 ->references('id')->on('images')
                 ->onDelete('set null');
+
+            $table->text('biography')->nullable();
         });
     }
 
