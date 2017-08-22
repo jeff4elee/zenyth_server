@@ -16,6 +16,7 @@ use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
+use Intervention\Image\Facades\Image as InterventionImage;
 
 /**
  * Class ImageController
@@ -176,14 +177,35 @@ class ImageController extends Controller
      * @param $filename
      * @return mixed, an image response
      */
-    public function showImage($filename)
+    public function showImage(Request $request, $filename)
     {
         $image = $this->imageRepo->findBy('filename', $filename);
-        if($image == null)
+        if ($image == null)
             Exceptions::notFoundException(sprintf(OBJECT_NOT_FOUND, IMAGE));
 
         $path = 'app/' . $image->directory . '/' . $image->filename;
-        return Response::rawImageResponse($path);
+        $image = InterventionImage::make(storage_path($path));
+
+        $size = strtolower($request->input('size'));
+        if ($size == 'small') {
+            $image->resize(50, 50, function ($constraint) {
+                $constraint->aspectRatio();
+            });
+            return $image->response();
+        } else if ($size == 'medium') {
+            $image->resize(100, 100, function ($constraint) {
+                $constraint->aspectRatio();
+            });
+            return $image->response();
+        } else if ($size == 'large') {
+            $image->resize(200, 200, function ($constraint) {
+                $constraint->aspectRatio();
+            });
+            return $image->response();
+        } else {
+            return $image->response();
+        }
+
     }
 
     /**

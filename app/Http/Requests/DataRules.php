@@ -172,4 +172,11 @@ class DataRules
         ];
     }
 
+    static public function showImageRules()
+    {
+        return [
+            'size' => 'in:small,medium,large'
+        ];
+    }
+
 }
