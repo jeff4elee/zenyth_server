@@ -188,20 +188,20 @@ class ImageController extends Controller
 
         $size = strtolower($request->input('size'));
         if ($size == 'small') {
-            $image->resize(50, 50, function ($constraint) {
-                $constraint->aspectRatio();
-            });
-            return $image->response(100);
-        } else if ($size == 'medium') {
             $image->resize(100, 100, function ($constraint) {
                 $constraint->aspectRatio();
             });
-            return $image->response(100);
-        } else if ($size == 'large') {
+            return $image->response('png');
+        } else if ($size == 'medium') {
             $image->resize(200, 200, function ($constraint) {
                 $constraint->aspectRatio();
             });
-            return $image->response(100);
+            return $image->response('png');
+        } else if ($size == 'large') {
+            $image->resize(400, 400, function ($constraint) {
+                $constraint->aspectRatio();
+            });
+            return $image->response('png');
         } else {
             return $image->response();
         }
