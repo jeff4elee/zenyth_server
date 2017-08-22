@@ -200,7 +200,7 @@ class ImageController extends Controller
             $image->encode('jpg', 100);
             return $image->response();
         } else if ($size == 'large') {
-            $image->resize(500, 500, function ($constraint) {
+            $image->resize(400, 400, function ($constraint) {
                 $constraint->aspectRatio();
             });
             $image->encode('jpg', 100);
