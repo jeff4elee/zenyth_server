@@ -188,26 +188,20 @@ class ImageController extends Controller
 
         $size = strtolower($request->input('size'));
         if ($size == 'small') {
-            $canvas = InterventionImage::canvas(100, 100);
             $image->resize(100, 100, function ($constraint) {
                 $constraint->aspectRatio();
             });
-            $canvas->insert($image, 'center');
-            return $canvas->response('png');
+            return $image->response('png');
         } else if ($size == 'medium') {
-            $canvas = InterventionImage::canvas(200, 200);
             $image->resize(200, 200, function ($constraint) {
                 $constraint->aspectRatio();
             });
-            $canvas->insert($image, 'center');
-            return $canvas->response('png');
+            return $image->response('png');
         } else if ($size == 'large') {
-            $canvas = InterventionImage::canvas(500, 500);
             $image->resize(500, 500, function ($constraint) {
                 $constraint->aspectRatio();
             });
-            $canvas->insert($image, 'center');
-            return $canvas->response('png');
+            return $image->response('png');
         } else {
             return $image->response();
         }
