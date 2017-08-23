@@ -106,13 +106,19 @@ class PinpostRepository extends Repository
             // All id's of friends
             $idsToInclude = array_values($friendsId);
 
-            if($includeSelf == true) {
+            if($includeSelf) {
                 // Put the current user's id in the array to query
                 array_push($idsToInclude, $user->id);
             }
 
             $query = $this->model->whereIn('user_id', $idsToInclude);
             $this->model = $query;
+        }
+        else {
+            if(!$includeSelf) {
+                $query = $this->model->where('user_id', '!=', $user->id);
+                $this->model = $query;
+            }
         }
         return $this;
     }
