@@ -326,11 +326,11 @@ class PinpostController extends Controller
         $nextPageUrl = $pinposts['next_page_url'];
         $prevPageUrl = $pinposts['prev_page_url'];
 
-        // Add back the scope to the url
+        // Add back the scope and paginate to the url
         if ($nextPageUrl)
-            $pinposts['next_page_url'] = $nextPageUrl . '&scope=' . $scope;
+            $pinposts['next_page_url'] = $nextPageUrl . '&scope=' . $scope . '&paginate=' . $paginate;
         if ($prevPageUrl)
-            $pinposts['prev_page_url'] = $prevPageUrl . '&scope=' . $scope;
+            $pinposts['prev_page_url'] = $prevPageUrl . '&scope=' . $scope . '&paginate=' . $paginate;;
 
         return Response::dataResponse(true, $pinposts); // get all the pinposts
     }
