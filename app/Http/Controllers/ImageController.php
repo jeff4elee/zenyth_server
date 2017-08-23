@@ -122,9 +122,8 @@ class ImageController extends Controller
     public function uploadImage(Request $request, $imageable_id)
     {
         $user = $request->get('user');
-        $image = $request->file('image');
-        $imageableType = $this->getImageableType($request);
 
+        $imageableType = $this->getImageableType($request);
         // Check if this imageable object exists
         $imageable = $this->imageableExists($imageableType, $imageable_id);
 
@@ -135,18 +134,40 @@ class ImageController extends Controller
             Exceptions::invalidTokenException(sprintf(NOT_USERS_OBJECT,
                 $type));
 
-        $request->merge([
-            'user_id' => $user->id,
-            'image_file' => $image,
-            'directory' => $this->getDirectory($request),
-            'imageable_id' => (int)$imageable_id,
-            'imageable_type' => $imageableType
-        ]);
+        if($image = $request->file('image')) {
+            $request->merge([
+                'user_id' => $user->id,
+                'image_file' => $image,
+                'directory' => $this->getDirectory($request),
+                'imageable_id' => (int)$imageable_id,
+                'imageable_type' => $imageableType
+            ]);
 
-        $image = $this->imageRepo->create($request);
-        return Response::dataResponse(true, [
-            'image' => $image
-        ]);
+            $image = $this->imageRepo->create($request);
+            return Response::dataResponse(true, [
+                'image' => $image
+            ]);
+        }
+        else if($request->hasFile('images')) {
+            $images = $request->file('images');
+            $imgs = [];
+            foreach($images as $image) {
+                $req = new Request();
+                $req->merge([
+                    'user_id' => $user->id,
+                    'image_file' => $image,
+                    'directory' => $this->getDirectory($request),
+                    'imageable_id' => (int)$imageable_id,
+                    'imageable_type' => $imageableType
+                ]);
+
+                $img = $this->imageRepo->create($req);
+                array_push($imgs, $img);
+            }
+            return Response::dataResponse(true, [
+                'images' => $imgs
+            ]);
+        }
     }
 
     /**
