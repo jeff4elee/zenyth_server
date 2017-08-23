@@ -134,6 +134,7 @@ class ImageController extends Controller
             Exceptions::invalidTokenException(sprintf(NOT_USERS_OBJECT,
                 $type));
 
+        // The client sends one file
         if($image = $request->file('image')) {
             $request->merge([
                 'user_id' => $user->id,
@@ -148,6 +149,7 @@ class ImageController extends Controller
                 'image' => $image
             ]);
         }
+        // The client sends many image files
         else if($request->hasFile('images')) {
             $images = $request->file('images');
             $imgs = [];
