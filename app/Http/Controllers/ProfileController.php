@@ -213,6 +213,8 @@ class ProfileController extends Controller
         foreach($pinposts as $pinpost) {
             $pinpost->makeHidden('creator');
             $pinpost->makeHidden('user_id');
+            $pinpost->makeHidden('likes');
+            $pinpost->makeHidden('comments');
         }
     }
 
