@@ -173,16 +173,16 @@ class ImageController extends Controller
 
     /**
      * Show the Image
-     * @param $image_id
+     * @param $filename
      * @return mixed, an image response
      */
-    public function showImage($image_id)
+    public function showImage($filename)
     {
-        $image = $this->imageRepo->read($image_id);
+        $image = $this->imageRepo->findBy('filename', $filename);
         if($image == null)
             Exceptions::notFoundException(sprintf(OBJECT_NOT_FOUND, IMAGE));
 
-        $path = 'app/images/' . $image->filename;
+        $path = 'app/' . $image->directory . '/' . $image->filename;
         return Response::rawImageResponse($path);
     }
 
