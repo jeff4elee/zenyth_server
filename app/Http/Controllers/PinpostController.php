@@ -303,15 +303,15 @@ class PinpostController extends Controller
             $scope = 'friends';
         }
 
-        if($request->has('count')) {
-            $count = $request->input('count');
+        if($request->has('paginate')) {
+            $paginate = $request->input('paginate');
         } else {
-            $count = 10;
+            $paginate = 10;
         }
 
         $this->pinpostRepo->pinpostsWithScope($scope, $user, false);
         $this->pinpostRepo->latest();
-        $pinposts = $this->pinpostRepo->simplePaginate($count);
+        $pinposts = $this->pinpostRepo->simplePaginate($paginate);
 
         // Filtering the pinposts by their privacy
         $filteredPinposts = $this->pinpostRepo->filterByPrivacy($user,
