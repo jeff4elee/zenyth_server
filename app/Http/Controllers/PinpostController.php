@@ -129,8 +129,11 @@ class PinpostController extends Controller
         if ($pin == null)
             Exceptions::notFoundException(sprintf(OBJECT_NOT_FOUND, PINPOST));
 
+        $pin_response = $pin->toArray();
+        $pin_response['comments'] = $pin->comments;
+        
         return Response::dataResponse(true, [
-            'pinpost' => $pin
+            'pinpost' => $pin_response
         ]);
     }
 
