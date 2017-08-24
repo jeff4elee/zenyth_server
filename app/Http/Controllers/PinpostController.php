@@ -131,7 +131,7 @@ class PinpostController extends Controller
 
         $pin_response = $pin->toArray();
         $pin_response['comments'] = $pin->comments;
-        
+
         return Response::dataResponse(true, [
             'pinpost' => $pin_response
         ]);

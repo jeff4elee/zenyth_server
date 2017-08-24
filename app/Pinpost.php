@@ -63,7 +63,7 @@ class Pinpost extends Model
         $response = parent::toArray();
 
         if(!in_array('comments', $this->hidden))
-            $response['comments'] = $this->commentsCount();
+            $response['commentCount'] = $this->commentsCount();
 
         if(!in_array('likes', $this->hidden))
             $response['likes'] = $this->likesCount();
