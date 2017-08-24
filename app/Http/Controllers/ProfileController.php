@@ -49,8 +49,20 @@ class ProfileController extends Controller
 
         // If the user being read is the same as the current user
         if($currentUser->id == $user_id) {
+            $pinposts = $currentUser->pinposts;
+            $userInfoArray = $currentUser->toArray();
+
+            // Remove creator data from pinpost
+            $this->filterPinpostData($pinposts);
+            $userInfoArray['pinposts'] = $pinposts;
+            $userInfoArray['number_of_pinposts'] = $pinposts->count();
+            $likes = 0;
+            foreach($pinposts as $pinpost) {
+                $likes += $pinpost->likesCount();
+            }
+            $userInfoArray['likes'] = $likes;
             return Response::dataResponse(true, [
-                'user' => $currentUser
+                'user' => $userInfoArray
             ]);
         }
 
@@ -95,6 +107,18 @@ class ProfileController extends Controller
         // Remove the appended keys from eager loading
         array_pull($userInfoArray, 'requester_relationships');
         array_pull($userInfoArray, 'requestee_relationships');
+
+        $pinposts = $userBeingRead->pinposts;
+
+        // Remove creator data from pinpost
+        $this->filterPinpostData($pinposts);
+        $userInfoArray['pinposts'] = $pinposts;
+        $userInfoArray['number_of_pinposts'] = $pinposts->count();
+        $likes = 0;
+        foreach($pinposts as $pinpost) {
+            $likes += $pinpost->likesCount();
+        }
+        $userInfoArray['likes'] = $likes;
 
         return Response::dataResponse(true, [
             'user' => $userInfoArray
@@ -183,6 +207,13 @@ class ProfileController extends Controller
         }
 
         Exceptions::notFoundException(INVALID_USER_ID);
+    }
+
+    public function filterPinpostData($pinposts) {
+        foreach($pinposts as $pinpost) {
+            $pinpost->makeHidden('creator');
+            $pinpost->makeHidden('user_id');
+        }
     }
 
 }

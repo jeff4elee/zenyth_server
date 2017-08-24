@@ -45,12 +45,12 @@ class OauthController extends Controller
         $user = $this->userRepo->findBy('email', $email);
 
         if($user) {
-            $oauth = $user->oauth;
-            $profile = $user->profile;
             $data = [
                 'user' => $user->makeVisible('api_token')
-                                ->makeVisible('email')
+                    ->makeVisible('email')
             ];
+            $oauth = $user->oauth;
+            $profile = $user->profile;
             return $this->processOauth($oauth_type, $profile, $json, $oauth, $data, $request);
         }
         else
@@ -143,19 +143,25 @@ class OauthController extends Controller
             $profile->last_name = $json[$last_name_key];
         }
         if(isset($json['picture']) && $profile->picture_id == null) {
-            $url = null;
-            if($oauth_type == 'facebook')
-                $url = $json['picture']['data']['url'];
-            else if($oauth_type == 'google')
-                $url = $json['picture'];
+            $url = self::getUrlFromOauthJSON($json, $oauth_type);
 
-            $this->updateProfilePicture($profile, $url);
+            self::updateProfilePicture($this->imageRepo, $profile, $url);
         }
 
         $profile->update();
     }
 
-    public function updateProfilePicture($profile, $url)
+    static public function getUrlFromOauthJSON($json, $oauthType) {
+        $url = null;
+        if($oauthType == 'facebook')
+            $url = $json['picture']['data']['url'];
+        else if($oauthType == 'google')
+            $url = $json['picture'];
+
+        return $url;
+    }
+
+    static public function updateProfilePicture($imageRepo, $profile, $url)
     {
         $request = new Request();
         $request->merge([
@@ -165,8 +171,9 @@ class OauthController extends Controller
             'imageable_id' => $profile->id,
             'imageable_type' => 'App\Profile'
         ]);
-        $image = $this->imageRepo->create($request);
+        $image = $imageRepo->create($request);
         $profile->picture_id = $image->id;
+        $profile->update();
     }
 
 }

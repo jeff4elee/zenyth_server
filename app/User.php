@@ -95,12 +95,15 @@ class User extends Model
             $response['gender'] = $profile->gender;
         if(!in_array('birthday', $this->hidden))
             $response['birthday'] = $profile->birthday;
+        if(!in_array('biography', $this->hidden))
+            $response['biography'] = $profile->biography;
 
         $picture = $profile->profilePicture;
         $response['picture'] = $picture;
 
         if(!in_array('friends', $this->hidden))
             $response['friends'] = $this->friendsCount();
+
         return $response;
     }
 

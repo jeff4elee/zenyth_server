@@ -58,7 +58,7 @@ class ImageController extends Controller
         $extension = $file->extension();
         // Image is passed in in order to append the image id to the end of
         // the image name
-        $filename = self::generateImagename($extension);
+        $filename = self::generateImageName($extension);
 
         Storage::disk($directory)->put($filename, File::get($file));
         return $filename;
