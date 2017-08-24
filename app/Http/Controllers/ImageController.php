@@ -144,16 +144,34 @@ class ImageController extends Controller
                 'imageable_type' => $imageableType
             ]);
 
-            $image = $this->imageRepo->create($request);
+            // Eloquent object
+            $img = $this->imageRepo->create($request);
+
+            if($thumbnail = $request->file('thumbnail')) {
+                $filename = $img->filename;
+                $thumbnailFilename = 'thumbnail_' . $filename;
+                Storage::disk($img->directory)->put($thumbnailFilename,
+                    File::get($thumbnail));
+
+                // Save different sizes of the thumbnail
+                $this->saveDifferentSizes($img->directory,
+                    $thumbnailFilename);
+            }
+
             return Response::dataResponse(true, [
-                'image' => $image
+                'image' => $img
             ]);
         }
         // The client sends many image files
         else if($request->hasFile('images')) {
+            // THIS REQUIRES THAT THE ARRAY OF IMAGES SENT IN AND THE ARRAY
+            // OF THUMBNAILS SENT IN MUST MATCH INDEX BY INDEX
             $images = $request->file('images');
+            $thumbnails = $request->file('thumbnails');
             $imgs = [];
-            foreach($images as $image) {
+            for($i=0; $i < count($images); $i++) {
+                // Uploaded file object
+                $image = $images[$i];
                 $req = new Request();
                 $req->merge([
                     'user_id' => $user->id,
@@ -163,13 +181,66 @@ class ImageController extends Controller
                     'imageable_type' => $imageableType
                 ]);
 
+                // Eloquent object
                 $img = $this->imageRepo->create($req);
                 array_push($imgs, $img);
+
+                if($thumbnail = $thumbnails[$i]) {
+                    $filename = $img->filename;
+                    $thumbnailFilename = 'thumbnail_' . $filename;
+                    Storage::disk($img->directory)->put($thumbnailFilename,
+                        File::get($thumbnail));
+
+                    // Save different sizes of the thumbnail
+                    $this->saveDifferentSizes($img->directory,
+                        $thumbnailFilename);
+                }
             }
+
             return Response::dataResponse(true, [
                 'images' => $imgs
             ]);
         }
+    }
+
+    /**
+     * Save different sizes of the image picture
+     * @param $directory
+     * @param $filename
+     */
+    public function saveDifferentSizes($directory, $filename)
+    {
+        $path = 'app/' . $directory . '/' . $filename;
+        $directoryPath = storage_path('app/' . $directory);
+
+        // Different sizes: 200x200, 500x500, 840x840
+        $largeImage = InterventionImage::make(storage_path($path));
+        if($largeImage) {
+            $largeImage->resize(840, 840, function ($constraint) {
+                $constraint->aspectRatio();
+            });
+            $newFileName = '840x840_' . $filename;
+            $largeImage->save($directoryPath . '/' . $newFileName, 100);
+        }
+
+        $mediumImage = InterventionImage::make(storage_path($path));
+        if($mediumImage) {
+            $mediumImage->resize(500, 500, function ($constraint) {
+                $constraint->aspectRatio();
+            });
+            $newFileName = '500x500_' . $filename;
+            $mediumImage->save($directoryPath . '/' . $newFileName, 100);
+        }
+
+        $smallImage = InterventionImage::make(storage_path($path));
+        if($smallImage) {
+            $smallImage->resize(200, 200, function ($constraint) {
+                $constraint->aspectRatio();
+            });
+            $newFileName = '200x200_' . $filename;
+            $smallImage->save($directoryPath . '/' . $newFileName, 100);
+        }
+
     }
 
     /**
@@ -192,7 +263,24 @@ class ImageController extends Controller
                 IMAGE));
 
         $this->imageRepo->delete($image);
+        $this->deleteAllThumbnails($image);
         return Response::successResponse(sprintf(DELETE_SUCCESS, IMAGE));
+    }
+
+    /**
+     * @param $image
+     */
+    public function deleteAllThumbnails($image)
+    {
+        $thumbnailName = 'thumbnail_' . $image->filename;
+        $smallImageName = '200x200_thumbnail_' . $image->filename;
+        $mediumImageName = '500x500_thumbnail_' . $image->filename;
+        $largeImageName = '840x840_thumbnail_' . $image->filename;
+
+        Storage::disk($image->directory)->delete($thumbnailName);
+        Storage::disk($image->directory)->delete($smallImageName);
+        Storage::disk($image->directory)->delete($mediumImageName);
+        Storage::disk($image->directory)->delete($largeImageName);
     }
 
     /**
@@ -207,31 +295,89 @@ class ImageController extends Controller
             Exceptions::notFoundException(sprintf(OBJECT_NOT_FOUND, IMAGE));
 
         $path = 'app/' . $image->directory . '/' . $image->filename;
-        $image = InterventionImage::make(storage_path($path));
 
-        $size = strtolower($request->input('size'));
-        if ($size == 'small') {
-            $image->resize(100, 100, function ($constraint) {
-                $constraint->aspectRatio();
-            });
-            $image->encode('jpg', 100);
-            return $image->response();
-        } else if ($size == 'medium') {
-            $image->resize(200, 200, function ($constraint) {
-                $constraint->aspectRatio();
-            });
-            $image->encode('jpg', 100);
-            return $image->response();
-        } else if ($size == 'large') {
-            $image->resize(400, 400, function ($constraint) {
-                $constraint->aspectRatio();
-            });
-            $image->encode('jpg', 100);
-            return $image->response();
-        } else {
+        // If the request contains a size query, look for the image thumbnail,
+        // else just return the original image
+        if($request->has('size')) {
+            $size = strtolower($request->input('size'));
+
+            if ($size == 'small') {
+                $prefix = '200x200_';
+            } else if ($size == 'medium') {
+                $prefix = '500x500_';
+            } else {
+                $prefix = '840x840_';
+            }
+
+            // Look if the resized image is in storage
+            $filename = $prefix . 'thumbnail_' . $image->filename;
+            $pathToImage = 'app/' . $image->directory . '/' . $filename;
+            $absolutePath = storage_path($pathToImage);
+            if(file_exists($absolutePath))
+                $imageFile = InterventionImage::make($absolutePath);
+
+            // If the resized image is not there, resize the image
+            // thumbnail and save in storage
+            else {
+                $imageFile = $this->resizeThumbnail($image, $size);
+            }
+
+            return $imageFile->response();
+        }
+        else {
+            $image = InterventionImage::make(storage_path($path));
             return $image->response();
         }
+    }
 
+    /**
+     * Resize a thumbnail image
+     * @param $image
+     * @param $size
+     * @return mixed
+     */
+    public function resizeThumbnail($image, $size)
+    {
+        $thumbnailFilename = 'thumbnail_' . $image->filename;
+        $pathToThumbnail = 'app/' . $image->directory . '/' . $thumbnailFilename;
+        $absolutePath = storage_path($pathToThumbnail);
+
+        // There isn't a thumbnail
+        if (!file_exists($absolutePath)) {
+            Exceptions::notFoundException(THUMBNAIL_NOT_FOUND);
+        }
+
+        $imageFile = InterventionImage::make($absolutePath);
+
+        if ($size == 'small') {
+            $imageFile->resize(200, 200, function ($constraint) {
+                $constraint->aspectRatio();
+            });
+            $imageFile->encode('jpg', 100);
+            $newFilename = '200x200_' . $thumbnailFilename;
+            $directoryPath = storage_path('app/' . $image->driectory);
+            $imageFile->save($directoryPath . '/' . $newFilename, 100);
+        }
+        else if ($size == 'medium') {
+            $imageFile->resize(500, 500, function ($constraint) {
+                $constraint->aspectRatio();
+            });
+            $imageFile->encode('jpg', 100);
+            $newFilename = '500x500_' . $thumbnailFilename;
+            $directoryPath = storage_path('app/' . $image->driectory);
+            $imageFile->save($directoryPath . '/' . $newFilename, 100);
+        }
+        else if ($size == 'large') {
+            $imageFile->resize(840, 840, function ($constraint) {
+                $constraint->aspectRatio();
+            });
+            $imageFile->encode('jpg', 100);
+            $newFilename = '840x840_' . $thumbnailFilename;
+            $directoryPath = storage_path('app/' . $image->driectory);
+            $imageFile->save($directoryPath . '/' . $newFilename, 100);
+        }
+
+        return $imageFile;
     }
 
     /**
