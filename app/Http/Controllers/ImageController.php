@@ -342,42 +342,44 @@ class ImageController extends Controller
         $pathToThumbnail = 'app/' . $image->directory . '/' . $thumbnailFilename;
         $absolutePath = storage_path($pathToThumbnail);
 
-        // There isn't a thumbnail
+        // There isn't a thumbnail, return the resized original image
         if (!file_exists($absolutePath)) {
-            Exceptions::notFoundException(THUMBNAIL_NOT_FOUND);
+            $pathToImage = 'app/' . $image->directory . '/' . $image->filename;
+            $imageFile = InterventionImage::make(storage_path($pathToImage));
+            $imageFile->resize($size, $size, function ($constraint) {
+                $constraint->aspectRatio();
+            });
+            $imageFile->encode('jpg', 100);
+            return $imageFile;
         }
 
         $imageFile = InterventionImage::make($absolutePath);
+        $dimensionInfo = $this->getDimensions($size);
+        $prefix = $dimensionInfo[0];
+        $size = $dimensionInfo[1];
 
-        if ($size == 'small') {
-            $imageFile->resize(200, 200, function ($constraint) {
-                $constraint->aspectRatio();
-            });
-            $imageFile->encode('jpg', 100);
-            $newFilename = '200x200_' . $thumbnailFilename;
-            $directoryPath = storage_path('app/' . $image->driectory);
-            $imageFile->save($directoryPath . '/' . $newFilename, 100);
-        }
-        else if ($size == 'medium') {
-            $imageFile->resize(500, 500, function ($constraint) {
-                $constraint->aspectRatio();
-            });
-            $imageFile->encode('jpg', 100);
-            $newFilename = '500x500_' . $thumbnailFilename;
-            $directoryPath = storage_path('app/' . $image->driectory);
-            $imageFile->save($directoryPath . '/' . $newFilename, 100);
-        }
-        else if ($size == 'large') {
-            $imageFile->resize(840, 840, function ($constraint) {
-                $constraint->aspectRatio();
-            });
-            $imageFile->encode('jpg', 100);
-            $newFilename = '840x840_' . $thumbnailFilename;
-            $directoryPath = storage_path('app/' . $image->driectory);
-            $imageFile->save($directoryPath . '/' . $newFilename, 100);
-        }
+        $imageFile->resize($size, $size, function ($constraint) {
+            $constraint->aspectRatio();
+        });
+        $imageFile->encode('jpg', 100);
+        $newFilename = $prefix . '_' . $thumbnailFilename;
+        $directoryPath = storage_path('app/' . $image->directory);
+        $imageFile->save($directoryPath . '/' . $newFilename, 100);
 
         return $imageFile;
+    }
+
+    public function getDimensions($size)
+    {
+        if ($size == 'small') {
+            return ['200x200', 200];
+        }
+        else if ($size == 'medium') {
+            return ['500x500', 500];
+        }
+        else if ($size == 'large') {
+            return ['840x840', 840];
+        }
     }
 
     /**
