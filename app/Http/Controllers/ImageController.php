@@ -341,11 +341,15 @@ class ImageController extends Controller
         $thumbnailFilename = 'thumbnail_' . $image->filename;
         $pathToThumbnail = 'app/' . $image->directory . '/' . $thumbnailFilename;
         $absolutePath = storage_path($pathToThumbnail);
+        $dimensionInfo = $this->getDimensions($size);
+        $prefix = $dimensionInfo[0];
+        $size = $dimensionInfo[1];
 
         // There isn't a thumbnail, return the resized original image
         if (!file_exists($absolutePath)) {
             $pathToImage = 'app/' . $image->directory . '/' . $image->filename;
             $imageFile = InterventionImage::make(storage_path($pathToImage));
+
             $imageFile->resize($size, $size, function ($constraint) {
                 $constraint->aspectRatio();
             });
@@ -354,10 +358,6 @@ class ImageController extends Controller
         }
 
         $imageFile = InterventionImage::make($absolutePath);
-        $dimensionInfo = $this->getDimensions($size);
-        $prefix = $dimensionInfo[0];
-        $size = $dimensionInfo[1];
-
         $imageFile->resize($size, $size, function ($constraint) {
             $constraint->aspectRatio();
         });
