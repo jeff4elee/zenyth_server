@@ -67,6 +67,9 @@ class ProfileController extends Controller
         }
 
         $userBeingRead = $this->userRepo->read($user_id);
+        if (!$userBeingRead)
+            Exceptions::invalidParameterException(sprintf(NOT_FOUND, USER));
+
         // Create an array to be constructed based on privacy settings
         $userPrivacy = $this->userPrivacyRepo->findBy('user_id', $user_id);
 
