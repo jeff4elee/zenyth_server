@@ -88,7 +88,7 @@ class PinpostRepository extends Repository
     }
 
     /**
-     * Get pinposts with scopes [self, friends, public]
+     * Get pinposts with scopes [self, following, public]
      * @param $scope
      * @param $user
      * @return mixed
@@ -100,11 +100,11 @@ class PinpostRepository extends Repository
             $query = $this->model->where('user_id', '=', $user->id);
             $this->model = $query;
         }
-        else if($scope == 'friends') {
-            $friendsId = $user->friendsId();
+        else if($scope == 'following') {
+            $followingIds = $user->followingIds();
 
             // All id's of friends
-            $idsToInclude = array_values($friendsId);
+            $idsToInclude = array_values($followingIds);
 
             if($includeSelf == true) {
                 // Put the current user's id in the array to query
@@ -121,9 +121,10 @@ class PinpostRepository extends Repository
     {
         $filteredPinposts = new Collection();
 
-        $usersFriends = $user->friendsId();
+        $userFollowingIds = $user->followingIds();
 
         foreach($pinposts as $pinpost) {
+
             if($pinpost->privacy == 'public') {
                 $filteredPinposts->push($pinpost);
             }
@@ -134,15 +135,15 @@ class PinpostRepository extends Repository
                     $filteredPinposts->push($pinpost);
             }
 
-            else if($pinpost->privacy == 'friends') {
+            else if($pinpost->privacy == 'followers') {
                 $creatorId = $pinpost->user_id;
 
-                // If creatorId is in the list of friends of the user, include
+                // If user is in the list of followers of the creatorId, include
                 // the pinpost
-                array_push($usersFriends, $user->id);
-                if(in_array($creatorId, $usersFriends))
+                if(in_array($creatorId, $userFollowingIds))
                     $filteredPinposts->push($pinpost);
             }
+
         }
 
         return $filteredPinposts;

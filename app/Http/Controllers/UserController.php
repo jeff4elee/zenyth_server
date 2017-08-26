@@ -48,21 +48,22 @@ class UserController extends Controller
     }
 
     /**
-     * Get user's friends
+     * Get user's followers
      * @param $user_id , id of user to be looked up
-     * @return mixed Users who are friends of input user
+     * @return mixed Users who are followers of input user
      */
-    public function getFriends($user_id)
+    public function getFollowers($user_id)
     {
         $user = $this->userRepo->read($user_id);
+
         if ($user == null)
             Exceptions::notFoundException(INVALID_USER_ID);
 
-        $friendsIds = $user->friendsId();
-        $friends = $this->userRepo
-            ->allUsersInIdArray($friendsIds)->all();
+        $followerIds = $user->followersId();
+        $followers = $this->userRepo
+            ->allUsersInIdArray($followerIds)->all();
 
-        return Response::dataResponse(true, ['users' => $friends]);
+        return Response::dataResponse(true, ['users' => $followers]);
     }
 
     /**
@@ -81,28 +82,23 @@ class UserController extends Controller
     }
 
     /**
-     * Get friend requests of logged in user
+     * Get follow requests of logged in user
      * @param Request $request , get request
-     * @return mixed Users who friend requested the logged in user
+     * @return mixed Users who follow requested the logged in user
      */
-    public function getFriendRequests(Request $request)
+    public function getFollowerRequests(Request $request)
     {
         $user = $request->get('user');
 
-        $friendRequestsIds = $user->friendRequestsUsersId();
-        $friendRequests = $this->userRepo->allUsersInIdArray($friendRequestsIds);
+        $followerRequestsIds = $user->followerRequestsUsersId();
+        $followerRequests = $this->userRepo->allUsersInIdArray($followerRequestsIds);
 
-        return Response::dataResponse(true, ['users' => $friendRequests]);
+        return Response::dataResponse(true, ['users' => $followerRequests]);
     }
 
-    /**
-     * Get friend requests of logged in user
-     * @param Request $request , get request
-     * @return mixed Users who friend requested the logged in user
-     */
-    public function checkFriendStatus($user_one_id, $user_two_id)
+    public function checkFollowerStatus($user_one_id, $user_two_id)
     {
-        $relationship = $this->relationshipRepo->hasRelationship($user_one_id, $user_two_id)->all();
+        $relationship = $this->relationshipRepo->getFollowRelationship($user_one_id, $user_two_id)->all()->first();
         return Response::dataResponse(true, ['relationship' => $relationship]);
     }
 
@@ -149,16 +145,15 @@ class UserController extends Controller
         // to the keyword
         $allResultsId = $this->getRelevantResults($keyword, $user->id);
 
-        // All users' id's where they are friends of this user
-        $friendsId = $this->getAllFriendsId($user);
+        // All users' id's where they are followers of this user
+        $followerIds = $this->getAllFollowerIds($user);
 
-        // All users' id's where they are mutual friends of this user
-        $mutualFriendsId = $this->getAllMutualFriendsId($friendsId);
+        $followingIds = $this->getAllFollowingIds($user);
 
         // Get the final result array containing the users' id in the order
         // that we want
-        $resultArr = $this->inclusionExclusion($allResultsId, $friendsId,
-                                                $mutualFriendsId);
+        $resultArr = $this->inclusionExclusion($allResultsId, $followingIds,
+                                                $followerIds);
         if (count($resultArr) == 0)
             return Response::dataResponse(true, [
                 'users' => array()
@@ -203,7 +198,7 @@ class UserController extends Controller
             // Filter out the information we don't need
             $user->makeHidden(['gender']);
             $user->makeHidden(['birthday']);
-            $user->makeHidden(['friends']);
+            $user->makeHidden(['followers']);
         }
         return $users;
     }

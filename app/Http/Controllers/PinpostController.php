@@ -257,15 +257,15 @@ class PinpostController extends Controller
     }
 
     /**
-     * Fetch all pinposts of friends ordered by latest first
+     * Fetch all pinposts of followings ordered by latest first
      * @param Request $request
      * @return JsonResponse
      */
     public function fetch(Request $request)
     {
         // Fetch based on scope
-        // Example GET request: /api/pinpost/fetch?type=radius&center=lat,long&radius=100&unit=mi|km&scope=self|friends|public
-        // Example GET request: /api/pinpost/fetch?type=frame&top_left=lat,long&bottom_right=lat,long&unit=mi|km&scope=self|friends|public
+        // Example GET request: /api/pinpost/fetch?type=radius&center=lat,long&radius=100&unit=mi|km&scope=self|following|public
+        // Example GET request: /api/pinpost/fetch?type=frame&top_left=lat,long&bottom_right=lat,long&unit=mi|km&scope=self|following|public
         $type = strtolower($request->input('type'));
         $user = $request->get('user');
         $scope = $request->input('scope');
@@ -281,7 +281,7 @@ class PinpostController extends Controller
         $this->pinpostRepo->pinpostsWithScope($scope, $user);
         $this->pinpostRepo->latest();
 
-        // FriendsScope is either not provided or public. Return all pinposts in the
+        // Followers Scope is either not provided or public. Return all pinposts in the
         // area
         $pinposts = $this->pinpostRepo->all();
         $pinposts = $this->pinpostRepo->filterByPrivacy($user, $pinposts);
@@ -297,13 +297,13 @@ class PinpostController extends Controller
      */
     public function fetchFeed(Request $request){
 
-        // Example GET request: /api/pinpost/feed?paginate=count&scope=self|friends|public
+        // Example GET request: /api/pinpost/feed?paginate=count&scope=self|following|public
         $user = $request->get('user');
 
         if($request->has('scope')){
             $scope = $request->input('scope');
         } else {
-            $scope = 'friends';
+            $scope = 'following';
         }
 
         if($request->has('count')) {

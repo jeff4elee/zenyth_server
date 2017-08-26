@@ -21,20 +21,14 @@ interface RelationshipRepositoryInterface
      * @param $userId
      * @return mixed
      */
-    public function getAllFriends($userId);
+    public function getAllFollowers($userId);
 
     /**
      * Get all friend requests to this user
      * @param $userId
      * @return mixed
      */
-    public function getAllFriendRequests($userId);
-
-    /**
-     * All relationships that are friends
-     * @return mixed
-     */
-    public function hasFriendship();
+    public function getAllFollowerRequests($userId);
 
     /**
      * All relationships that are blocked
@@ -48,6 +42,6 @@ interface RelationshipRepositoryInterface
      * @param $userTwoId
      * @return mixed
      */
-    public function hasRelationship($userOneId, $userTwoId);
+    public function getFollowRelationship($requesterId, $requesteeId);
 
 }

@@ -21,10 +21,10 @@ Route::group(['middleware' => 'client_authorization'], function() {
 
     Route::group(['middleware' => 'validation'], function () {
         Route::group(['middleware' => 'authenticated'], function () {
-            Route::get('user/get_friends/{user_id}', 'UserController@getFriends');
+            Route::get('user/get_followers/{user_id}', 'UserController@getFollowers');
             Route::get('user/blocked_users', 'UserController@blockedUsers');
-            Route::get('user/friend_requests', 'UserController@getFriendRequests');
-            Route::get('user/{user_one_id}/{user_two_id}', 'UserController@checkFriendStatus');
+            Route::get('user/follower_requests', 'UserController@getFollowerRequests');
+            Route::get('user/{user_one_id}/{user_two_id}', 'UserController@checkFollowStatus');
             Route::delete('user/{username}', 'UserController@delete');
 
 
@@ -32,12 +32,12 @@ Route::group(['middleware' => 'client_authorization'], function() {
             Route::patch('profile', 'ProfileController@update');
             Route::post('profile/profile_picture/upload', 'ProfileController@updateProfilePicture');
 
-            Route::post('relationship/friend_request',
-                'RelationshipController@friendRequest');
+            Route::post('relationship/follow_request',
+                'RelationshipController@followRequest');
             Route::post('relationship/response',
                 'RelationshipController@respondToRequest');
             Route::delete('relationship/delete/{user_id}',
-                'RelationshipController@deleteFriend');
+                'RelationshipController@deleteFollower');
             Route::post('relationship/block',
                 'RelationshipController@blockUser');
 

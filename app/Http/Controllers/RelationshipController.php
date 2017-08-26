@@ -31,7 +31,7 @@ class RelationshipController extends Controller
      *        rules: requires requestee_id
      * @return JsonResponse
      */
-    public function friendRequest(Request $request)
+    public function followRequest(Request $request)
     {
         $user = $request->get('user');
         $userId = $user->id;
@@ -40,10 +40,9 @@ class RelationshipController extends Controller
         if($userId == $requesteeId)
             Exceptions::invalidRequestException(INVALID_REQUEST_TO_SELF);
 
-        // Query for relationship between these two users to check if it has
-        // already existed
+        // Query for relationship to check if user already made a follow request
         $relationship = $this->relationshipRepo
-            ->hasRelationship($userId, $requesteeId)->all()->first();
+            ->getFollowRelationship($userId, $requesteeId)->all()->first();
 
         if ($relationship)
             Exceptions::invalidRequestException(EXISTED_RELATIONSHIP);
@@ -52,6 +51,7 @@ class RelationshipController extends Controller
             'requester' => $userId,
             'requestee' => $requesteeId
         ]);
+
         $request->except(['status', 'blocked']);
         $relationship = $this->relationshipRepo->create($request);
 
@@ -75,7 +75,7 @@ class RelationshipController extends Controller
         // Query for relationship between these two users to check if it has
         // already existed
         $relationship = $this->relationshipRepo
-            ->hasRelationship($requesterId, $requesteeId)->all()->first();
+            ->getFollowRelationship($requesterId, $requesteeId)->all()->first();
 
         if ($relationship == null || $relationship->status == true)
             Exceptions::invalidRequestException(NO_PENDING_REQUEST);
@@ -86,7 +86,7 @@ class RelationshipController extends Controller
             return Response::dataResponse(true, ['relationship' => $relationship]);
         } else {
             $relationship->delete();
-            return Response::successResponse(IGNORED_FRIEND_REQUEST);
+            return Response::successResponse(IGNORED_FOLLOWER_REQUEST);
         }
     }
 
@@ -96,7 +96,7 @@ class RelationshipController extends Controller
      * @param $user_id, user to be deleted
      * @return JsonResponse
      */
-    public function deleteFriend(Request $request, $user_id)
+    public function deleteFollower(Request $request, $user_id)
     {
         $user = $request->get('user');
         $deleterId = $user->id;
@@ -111,8 +111,9 @@ class RelationshipController extends Controller
         // Query for relationship between these two users to check if it has
         // already existed
         $relationship = $this->relationshipRepo
-            ->hasRelationship($deleterId, $user_id)
-            ->hasFriendship()->all()->first();
+            ->getFollowRelationship($deleterId, $user_id)
+            ->all()
+            ->first();
 
         if ($relationship == null)
             Exceptions::notFoundException(sprintf(OBJECT_NOT_FOUND,
@@ -143,7 +144,7 @@ class RelationshipController extends Controller
         // Query for relationship between these two users to check if it has
         // already existed
         $relationship = $this->relationshipRepo
-            ->hasRelationship($blockerId, $blockeeId)
+            ->getFollowRelationship($blockerId, $blockeeId)
             ->all()->first();
 
         if ($relationship) {

@@ -31,7 +31,7 @@ class RelationshipRepository extends Repository
      * @param $userId
      * @return mixed
      */
-    public function getAllFriends($userId)
+    public function getAllFollowers($userId)
     {
         $queryOne = $this->model->select('users.*')
             ->join('users', 'users.id', '=', 'requester')
@@ -53,24 +53,13 @@ class RelationshipRepository extends Repository
      * @param $userId
      * @return mixed
      */
-    public function getAllFriendRequests($userId)
+    public function getAllFollowerRequests($userId)
     {
         $query = $this->model->select('users.*')
             ->join('users', 'users.id', '=', 'requester')
             ->where('requestee', '=', $userId)
             ->where('status', '=', false);
 
-        $this->model = $query;
-        return $this;
-    }
-
-    /**
-     * All relationships that are friends
-     * @return mixed
-     */
-    public function hasFriendship()
-    {
-        $query = $this->model->where('status', '=', true);
         $this->model = $query;
         return $this;
     }
@@ -92,29 +81,15 @@ class RelationshipRepository extends Repository
      * @param $userTwoId
      * @return mixed
      */
-    public function hasRelationship($userOneId, $userTwoId)
+    public function getFollowRelationship($requesterId, $requesteeId)
     {
         $query = $this->model->where([
-            ['requester', '=', $userOneId],
-            ['requestee', '=', $userTwoId]
-        ])->orWhere([
-            ['requestee', '=', $userOneId],
-            ['requester', '=', $userTwoId]
+            ['requester', '=', $requesterId],
+            ['requestee', '=', $requesteeId]
         ]);
 
         $this->model = $query;
         return $this;
-    }
-
-    public function isFriend($userOneId, $userTwoId)
-    {
-        $relationship = $this->hasRelationship($userOneId, $userTwoId)
-            ->hasFriendship()->all()->first();
-
-        if($relationship)
-            return true;
-        else
-            return false;
     }
 
 }
