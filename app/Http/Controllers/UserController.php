@@ -96,6 +96,17 @@ class UserController extends Controller
     }
 
     /**
+     * Get friend requests of logged in user
+     * @param Request $request , get request
+     * @return mixed Users who friend requested the logged in user
+     */
+    public function checkFriendStatus($user_one_id, $user_two_id)
+    {
+        $relationship = $this->relationshipRepo->hasRelationship($user_one_id, $user_two_id)->all();
+        return Response::dataResponse(true, ['relationship' => $relationship]);
+    }
+
+    /**
      * Search users
      * @param Request $request , get request
      * @return mixed users with similar results

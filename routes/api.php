@@ -24,6 +24,7 @@ Route::group(['middleware' => 'client_authorization'], function() {
             Route::get('user/get_friends/{user_id}', 'UserController@getFriends');
             Route::get('user/blocked_users', 'UserController@blockedUsers');
             Route::get('user/friend_requests', 'UserController@getFriendRequests');
+            Route::get('user/{user_one_id}/{user_two_id}', 'UserController@checkFriendStatus');
             Route::delete('user/{username}', 'UserController@delete');
 
 
