@@ -40,7 +40,7 @@ class DataValidator
         else if($request->is('api/pinpost/update/*'))
             return Validator::make($request->all(), Rules::updatePinpostRules());
 
-        else if($request->is('api/pinpost/upload_image'))
+        else if($request->is('api/pinpost/upload_image/*'))
             return Validator::make($request->all(), Rules::uploadImageRules());
 
         else if($request->is('api/pinpost/comment/create/*'))
