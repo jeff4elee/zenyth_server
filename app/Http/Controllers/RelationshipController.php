@@ -199,8 +199,6 @@ class RelationshipController extends Controller
                 Exceptions::invalidRequestException(EXISTED_RELATIONSHIP);
 
             $relationship->blocked = true;
-            $relationship->requester = $blockerId;
-            $relationship->requestee = $blockeeId;
             $relationship->status = false;
             $relationship->update();
         } else {
