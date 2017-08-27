@@ -106,7 +106,7 @@ class UserController extends Controller
      */
     public function checkFollowerStatus($user_one_id, $user_two_id)
     {
-        $relationship = $this->relationshipRepo->getFollowRelationship($user_one_id, $user_two_id)->all()->first();
+        $relationship = $this->relationshipRepo->getRelationship($user_one_id, $user_two_id)->all()->first();
         return Response::dataResponse(true, ['relationship' => $relationship]);
     }
 

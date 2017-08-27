@@ -111,4 +111,18 @@ class RelationshipRepository extends Repository
         return $this;
     }
 
+    public function getRelationship($userOneId, $userTwoId)
+    {
+        $query = $this->model->where([
+            ['requester', '=', $userOneId],
+            ['requestee', '=', $userTwoId]
+        ])->orWhere([
+            ['requester', '=', $userTwoId],
+            ['requestee', '=', $userOneId]
+        ]);
+
+        $this->model = $query;
+        return $this;
+    }
+
 }
