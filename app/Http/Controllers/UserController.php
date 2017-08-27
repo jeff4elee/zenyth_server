@@ -100,13 +100,15 @@ class UserController extends Controller
 
     /**
      * Get relationship between two users
-     * @param $user_one_id
-     * @param $user_two_id
+     * @param $requestee_id
      * @return \Illuminate\Http\JsonResponse
      */
-    public function checkFollowerStatus($user_one_id, $user_two_id)
+    public function checkFollowerStatus(Request $request, $requestee_id)
     {
-        $relationship = $this->relationshipRepo->getRelationship($user_one_id, $user_two_id)->all()->first();
+        $user = $request->get('user');
+        $requesterId = $user->id;
+        $relationship = $this->relationshipRepo->getRelationship($requesterId,
+            $requestee_id)->all()->first();
         return Response::dataResponse(true, ['relationship' => $relationship]);
     }
 
