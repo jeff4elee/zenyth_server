@@ -191,7 +191,7 @@ class RelationshipController extends Controller
         // Query for relationship between these two users to check if it has
         // already existed
         $relationship = $this->relationshipRepo
-            ->getFollowRelationship($blockerId, $blockeeId)
+            ->getRelationship($blockerId, $blockeeId)
             ->all()->first();
 
         if ($relationship) {
