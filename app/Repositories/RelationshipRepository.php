@@ -85,7 +85,26 @@ class RelationshipRepository extends Repository
     {
         $query = $this->model->where([
             ['requester', '=', $requesterId],
-            ['requestee', '=', $requesteeId]
+            ['requestee', '=', $requesteeId],
+            ['status', '=', true]
+        ]);
+
+        $this->model = $query;
+        return $this;
+    }
+
+    /**
+     * Relationship between two users
+     * @param $userOneId
+     * @param $userTwoId
+     * @return mixed
+     */
+    public function getFollowRequest($requesterId, $requesteeId)
+    {
+        $query = $this->model->where([
+            ['requester', '=', $requesterId],
+            ['requestee', '=', $requesteeId],
+            ['status', '=', false]
         ]);
 
         $this->model = $query;

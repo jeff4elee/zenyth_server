@@ -36,8 +36,10 @@ Route::group(['middleware' => 'client_authorization'], function() {
                 'RelationshipController@followRequest');
             Route::post('relationship/response',
                 'RelationshipController@respondToRequest');
-            Route::delete('relationship/delete/{user_id}',
+            Route::delete('relationship/delete_follower/{follower_id}',
                 'RelationshipController@deleteFollower');
+            Route::delete('relationship/unfollow/{followee_id}',
+                'RelationshipController@unfollow');
             Route::post('relationship/block',
                 'RelationshipController@blockUser');
 

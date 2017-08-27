@@ -285,9 +285,24 @@ class PinpostController extends Controller
         // area
         $pinposts = $this->pinpostRepo->all();
         $pinposts = $this->pinpostRepo->filterByPrivacy($user, $pinposts);
+        $this->hideInformation(['comments', 'likes', 'creator'], $pinposts);
         return Response::dataResponse(true, [
             'pinposts' => $pinposts // get all the pinposts
         ]);
+    }
+
+    /**
+     * Hide unnecessary information so we don't eager load everything
+     * @param array $fields
+     * @param $pinposts
+     */
+    public function hideInformation(array $fields, $pinposts)
+    {
+        foreach($pinposts as $pinpost) {
+            foreach($fields as $field) {
+                $pinpost->makeHidden($field);
+            }
+        }
     }
 
     /**

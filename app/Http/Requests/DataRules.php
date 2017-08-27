@@ -47,9 +47,9 @@ class DataRules
     {
         return [
             'birthday' => 'date_format:Y-m-d',
-            'email_privacy' => 'in:self,friends,public',
-            'gender_privacy' => 'in:self,friends,public',
-            'birthday_privacy' => 'in:self,friends,public'
+            'email_privacy' => 'in:self,followers,public',
+            'gender_privacy' => 'in:self,followers,public',
+            'birthday_privacy' => 'in:self,followers,public'
         ];
     }
 
@@ -82,7 +82,7 @@ class DataRules
             'description' => 'required',
             'latitude' => 'required',
             'longitude' => 'required',
-            'privacy' => 'in:self,friends,public'
+            'privacy' => 'in:self,followers,public'
         ];
     }
 
@@ -99,7 +99,7 @@ class DataRules
             'image' => 'image',
             'latitude' => 'numeric',
             'longitude' => 'numeric',
-            'privacy' => 'in:self,friends,public'
+            'privacy' => 'in:self,followers,public'
         ];
     }
 
@@ -112,7 +112,7 @@ class DataRules
             'top_left' => 'required_if:type,frame|valid_coord',
             'bottom_right' => 'required_if:type,frame|valid_coord',
             'unit' => 'in:km,mi',
-            'scope' => 'in:self,friends,public'
+            'scope' => 'in:self,following,public'
         ];
     }
 
