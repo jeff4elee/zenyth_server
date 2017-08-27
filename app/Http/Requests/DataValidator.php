@@ -72,6 +72,10 @@ class DataValidator
             return Validator::make($request->all(), Rules::fetchPinpostRules(),
                 $messages);
         }
+
+        else if($request->is('api/pinpost/feed'))
+            return Validator::make($request->all(), Rules::fetchFeedRules());
+
         else if($request->is('api/tag/search') || $request->is('api/tag/info'))
             return Validator::make($request->all(), Rules::searchTagRules());
 

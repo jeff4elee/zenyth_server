@@ -116,6 +116,14 @@ class DataRules
         ];
     }
 
+    static public function fetchFeedRules()
+    {
+        return [
+            'scope' => 'in:self,following,public',
+            'paginate' => 'integer'
+        ];
+    }
+
     static public function searchTagRules()
     {
         return [
