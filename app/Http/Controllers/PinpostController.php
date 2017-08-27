@@ -321,15 +321,15 @@ class PinpostController extends Controller
             $scope = 'following';
         }
 
-        if($request->has('count')) {
-            $count = $request->input('count');
+        if($request->has('paginate')) {
+            $paginate = $request->input('paginate');
         } else {
-            $count = 10;
+            $paginate = 10;
         }
 
         $this->pinpostRepo->pinpostsWithScope($scope, $user, false);
         $this->pinpostRepo->latest();
-        $pinposts = $this->pinpostRepo->simplePaginate($count);
+        $pinposts = $this->pinpostRepo->simplePaginate($paginate);
 
         // Filtering the pinposts by their privacy
         $filteredPinposts = $this->pinpostRepo->filterByPrivacy($user,
@@ -346,9 +346,9 @@ class PinpostController extends Controller
 
         // Add back the scope to the url
         if ($nextPageUrl)
-            $pinposts['next_page_url'] = $nextPageUrl . '&scope=' . $scope;
+            $pinposts['next_page_url'] = $nextPageUrl . '&scope=' . $scope . '&paginate=' . $paginate;
         if ($prevPageUrl)
-            $pinposts['prev_page_url'] = $prevPageUrl . '&scope=' . $scope;
+            $pinposts['prev_page_url'] = $prevPageUrl . '&scope=' . $scope . '&paginate=' . $paginate;
 
         return Response::dataResponse(true, $pinposts); // get all the pinposts
     }
