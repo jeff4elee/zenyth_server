@@ -211,6 +211,14 @@ class RelationshipController extends Controller
             ]);
             $relationship = $this->relationshipRepo->create($request);
         }
+
+        // Delete relationship blockeeId to blockerId
+        $reverseRelationship = $this->relationshipRepo
+            ->getRelationship($blockeeId, $blockerId)
+            ->all()->first();
+        if ($reverseRelationship)
+            $reverseRelationship->delete();
+
         return Response::dataResponse(true, ['relationship' => $relationship]);
     }
 
