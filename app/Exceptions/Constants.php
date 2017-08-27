@@ -61,7 +61,7 @@ define("ACCOUNT_VERIFIED", "Your account has been verified");
 /* RelationshipController */
 define("NO_PENDING_REQUEST", "No pending request");
 
-define("IGNORED_FOLLOWER_REQUEST", "Friend request ignored");
+define("IGNORED_FOLLOWER_REQUEST", "Follower request ignored");
 
 define("INVALID_REQUEST_TO_SELF", "Cannot send this request to yourself");
 
