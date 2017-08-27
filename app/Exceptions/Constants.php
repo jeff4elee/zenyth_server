@@ -43,6 +43,8 @@ define("CLIENT_ID_REQUIRED", "A client ID is required to access API");
 
 define("INVALID_CLIENT_ID", "The client ID provided is invalid");
 
+define("THUMBNAIL_NOT_FOUND", "No thumbnail was found");
+
 /* LoginController */
 define("LOGIN_INVALID_CREDENTIAL", "The login credential you provide is invalid");
 

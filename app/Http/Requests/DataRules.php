@@ -89,14 +89,14 @@ class DataRules
     static public function uploadImageRules()
     {
         return [
-            'image' => 'required|image'
+            'image' => 'required|image',
+            'thumbnail' => 'image'
         ];
     }
 
     static public function updatePinpostRules()
     {
         return [
-            'image' => 'image',
             'latitude' => 'numeric',
             'longitude' => 'numeric',
             'privacy' => 'in:self,friends,public'
@@ -169,6 +169,13 @@ class DataRules
         return [
             'platform' => 'required|in:android,ios,web',
             'product_name' => 'required'
+        ];
+    }
+
+    static public function showImageRules()
+    {
+        return [
+            'size' => 'in:small,medium,large'
         ];
     }
 
