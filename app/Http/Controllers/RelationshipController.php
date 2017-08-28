@@ -47,12 +47,20 @@ class RelationshipController extends Controller
         if ($relationship)
             Exceptions::invalidRequestException(EXISTED_RELATIONSHIP);
 
+        $requestee = $relationship->getRequestee;
+        $userPrivacy = $requestee->userPrivacy;
+        if ($userPrivacy->follow_privacy == 'public')
+            $status = true;
+        else
+            $status = false;
+
         $request->merge([
             'requester' => $userId,
-            'requestee' => $requesteeId
+            'requestee' => $requesteeId,
+            'status' => $status
         ]);
 
-        $request = $request->except(['status', 'blocked']);
+        $request = $request->except(['blocked']);
 
         $relationship = $this->relationshipRepo->create($request);
 

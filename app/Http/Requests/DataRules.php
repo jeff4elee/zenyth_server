@@ -49,7 +49,8 @@ class DataRules
             'birthday' => 'date_format:Y-m-d',
             'email_privacy' => 'in:self,followers,public',
             'gender_privacy' => 'in:self,followers,public',
-            'birthday_privacy' => 'in:self,followers,public'
+            'birthday_privacy' => 'in:self,followers,public',
+            'follow_privacy' => 'in:public,private'
         ];
     }
 
