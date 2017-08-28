@@ -129,8 +129,11 @@ class PinpostController extends Controller
         if ($pin == null)
             Exceptions::notFoundException(sprintf(OBJECT_NOT_FOUND, PINPOST));
 
+        $pin_response = $pin->toArray();
+        $pin_response['comments'] = $pin->comments;
+
         return Response::dataResponse(true, [
-            'pinpost' => $pin
+            'pinpost' => $pin_response
         ]);
     }
 
@@ -254,15 +257,15 @@ class PinpostController extends Controller
     }
 
     /**
-     * Fetch all pinposts of friends ordered by latest first
+     * Fetch all pinposts of followings ordered by latest first
      * @param Request $request
      * @return JsonResponse
      */
     public function fetch(Request $request)
     {
         // Fetch based on scope
-        // Example GET request: /api/pinpost/fetch?type=radius&center=lat,long&radius=100&unit=mi|km&scope=self|friends|public
-        // Example GET request: /api/pinpost/fetch?type=frame&top_left=lat,long&bottom_right=lat,long&unit=mi|km&scope=self|friends|public
+        // Example GET request: /api/pinpost/fetch?type=radius&center=lat,long&radius=100&unit=mi|km&scope=self|following|public
+        // Example GET request: /api/pinpost/fetch?type=frame&top_left=lat,long&bottom_right=lat,long&unit=mi|km&scope=self|following|public
         $type = strtolower($request->input('type'));
         $user = $request->get('user');
         $scope = $request->input('scope');
@@ -278,13 +281,28 @@ class PinpostController extends Controller
         $this->pinpostRepo->pinpostsWithScope($scope, $user);
         $this->pinpostRepo->latest();
 
-        // FriendsScope is either not provided or public. Return all pinposts in the
+        // Followers Scope is either not provided or public. Return all pinposts in the
         // area
         $pinposts = $this->pinpostRepo->all();
         $pinposts = $this->pinpostRepo->filterByPrivacy($user, $pinposts);
+        $this->hideInformation(['comments', 'likes', 'creator'], $pinposts);
         return Response::dataResponse(true, [
             'pinposts' => $pinposts // get all the pinposts
         ]);
+    }
+
+    /**
+     * Hide unnecessary information so we don't eager load everything
+     * @param array $fields
+     * @param $pinposts
+     */
+    public function hideInformation(array $fields, $pinposts)
+    {
+        foreach($pinposts as $pinpost) {
+            foreach($fields as $field) {
+                $pinpost->makeHidden($field);
+            }
+        }
     }
 
     /**
@@ -294,13 +312,13 @@ class PinpostController extends Controller
      */
     public function fetchFeed(Request $request){
 
-        // Example GET request: /api/pinpost/feed?paginate=count&scope=self|friends|public
+        // Example GET request: /api/pinpost/feed?paginate=count&scope=self|following|public
         $user = $request->get('user');
 
         if($request->has('scope')){
             $scope = $request->input('scope');
         } else {
-            $scope = 'friends';
+            $scope = 'following';
         }
 
         if($request->has('paginate')) {
@@ -330,7 +348,7 @@ class PinpostController extends Controller
         if ($nextPageUrl)
             $pinposts['next_page_url'] = $nextPageUrl . '&scope=' . $scope . '&paginate=' . $paginate;
         if ($prevPageUrl)
-            $pinposts['prev_page_url'] = $prevPageUrl . '&scope=' . $scope . '&paginate=' . $paginate;;
+            $pinposts['prev_page_url'] = $prevPageUrl . '&scope=' . $scope . '&paginate=' . $paginate;
 
         return Response::dataResponse(true, $pinposts); // get all the pinposts
     }

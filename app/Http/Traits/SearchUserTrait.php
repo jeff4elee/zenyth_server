@@ -17,26 +17,14 @@ trait SearchUserTrait
      * @param $user
      * @return mixed , id of friends
      */
-    public function getAllFriendsId($user)
+    public function getAllFollowerIds($user)
     {
-        return array_values($user->friendsId());
+        return array_values($user->followerIds());
     }
 
-    /**
-     * Get id of users that are mutual friends to the input user
-     * @param $friendsId
-     * @return mixed , id of mutual friends
-     */
-    public function getAllMutualFriendsId($friendsId)
+    public function getAllFollowingIds($user)
     {
-        $mutualFriends1 = Relationship::select('requestee as user_id')
-            ->whereIn('requester', $friendsId);
-
-        $mutualFriends2 = Relationship::select('requester as user_id')
-            ->whereIn('requestee', $friendsId);
-
-        return $mutualFriends1->union($mutualFriends2)->get()->pluck('user_id')
-            ->all();
+        return array_values($user->followingIds());
     }
 
     /**
@@ -70,32 +58,31 @@ trait SearchUserTrait
     /**
      * Return an array containing the users'id that resulted from the search
      * @param $allResultsId
-     * @param $friendsId
+     * @param $followingIds
      * @return array containing users' id's
      */
-    public function inclusionExclusion(array $allResultsId, array $friendsId,
-                                       array $mutualFriendsId)
+    public function inclusionExclusion(array $allResultsId, array $followingIds,
+                                       array $followerIds)
     {
-        /* Retain only friends'id that have names similar to the name
+        /* Retain only following ids that have names similar to the name
         searched */
-        $friendsId = array_filter($friendsId, function ($id)
+        $followingIds = array_filter($followingIds, function ($id)
                                                 use ($allResultsId) {
             return in_array($id, $allResultsId);
         });
 
-        /* Retain only mutual friends'id that have names similar to the name
+        /* Retain only follower ids that have names similar to the name
          searched */
-        $mutualFriendsId = array_filter($mutualFriendsId, function ($id)
+        $followerIds = array_filter($followerIds, function ($id)
                                                 use ($allResultsId) {
             return in_array($id, $allResultsId);
         });
 
-        /* Sort the array in the order friends_id, mutual_friends_id, all
+        /* Sort the array in the order following ids, follower ids, all
         the rest */
-        $resultArr = array_merge($friendsId, $mutualFriendsId);
+        $resultArr = array_merge($followingIds, $followerIds);
 
-        /* Get the rest of the id's that are not in the group friends and
-        mutual friends */
+        /* Get the rest of the id's that are not in the group following/follower */
         $restSimilarNames = array_diff($allResultsId, $resultArr);
 
         $resultArr = array_merge($resultArr, $restSimilarNames);

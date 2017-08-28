@@ -86,23 +86,23 @@ class ProfileController extends Controller
         // Only query for friends if any of the privacy settings has
         // friends scope. This way we save a query if none of the scopes
         // are friends
-        if($userPrivacy->email_privacy == 'friends' ||
-            $userPrivacy->gender_privacy == 'friends' ||
-            $userPrivacy->birthday_privacy == 'friends') {
+        if($userPrivacy->email_privacy == 'followers' ||
+            $userPrivacy->gender_privacy == 'followers' ||
+            $userPrivacy->birthday_privacy == 'followers') {
 
-            $isFriend = $this->relationshipRepo->isFriend(
-                $userBeingRead->id, $currentUser->id);
+            $isFollower = $this->relationshipRepo->getFollowRelationship(
+                $currentUser->id, $userBeingRead->id)->all()->first();
 
-            // If the user making the request is not friends with this user,
+            // If the user making the request is not a follower of this user,
             // hide the attributes where privacy is friends only
-            if(!$isFriend) {
-                if ($userPrivacy->email_privacy == 'friends')
+            if(!$isFollower) {
+                if ($userPrivacy->email_privacy == 'followers')
                     $userBeingRead->makeHidden('email');
 
-                if ($userPrivacy->gender_privacy == 'friends')
+                if ($userPrivacy->gender_privacy == 'followers')
                     $userBeingRead->makeHidden('gender');
 
-                if ($userPrivacy->birthday_privacy == 'friends')
+                if ($userPrivacy->birthday_privacy == 'followers')
                     $userBeingRead->makeHidden('birthday');
             }
         }

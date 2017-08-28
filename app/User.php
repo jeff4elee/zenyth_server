@@ -101,8 +101,8 @@ class User extends Model
         $picture = $profile->profilePicture;
         $response['picture'] = $picture;
 
-        if(!in_array('friends', $this->hidden))
-            $response['friends'] = $this->friendsCount();
+        if(!in_array('followers', $this->hidden))
+            $response['followers'] = $this->followersCount();
 
         return $response;
     }
@@ -131,33 +131,42 @@ class User extends Model
     }
 
     /**
-     * Get the array containing all the ids of friends
+     * Get the array containing all the ids of all the users followers
      * @return array
      */
-    public function friendsId()
+    public function followingIds()
     {
-
         $requesterRelationships = $this->requesterRelationships;
-        $requesteeRelationships = $this->requesteeRelationships;
         $idArray = array();
 
         foreach($requesterRelationships as $relationship) {
             if($relationship->status)
                 array_push($idArray, $relationship->requestee);
         }
+
+        return $idArray;
+    }
+
+    /**
+     * Get the array containing all the ids of users this user is following
+     * @return array
+     */
+    public function followersIds()
+    {
+        $requesteeRelationships = $this->requesteeRelationships;
+        $idArray = array();
+
         foreach($requesteeRelationships as $relationship) {
             if($relationship->status)
                 array_push($idArray, $relationship->requester);
         }
+
         return $idArray;
     }
 
-    public function friendsCount()
+    public function followersCount()
     {
         return Relationship::where([
-            ['requester', '=', $this->id],
-            ['status', '=', true]
-        ])->orWhere([
             ['requestee', '=', $this->id],
             ['status', '=', true]
         ])->count();
@@ -176,7 +185,7 @@ class User extends Model
         return $idArray;
     }
 
-    public function friendRequestsUsersId()
+    public function followRequestsUsersIds()
     {
         $requesteeRelationships = $this->requesteeRelationships;
         $idArray = array();

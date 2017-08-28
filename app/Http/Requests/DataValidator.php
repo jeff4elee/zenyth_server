@@ -72,13 +72,17 @@ class DataValidator
             return Validator::make($request->all(), Rules::fetchPinpostRules(),
                 $messages);
         }
+
+        else if($request->is('api/pinpost/feed'))
+            return Validator::make($request->all(), Rules::fetchFeedRules());
+
         else if($request->is('api/tag/search') || $request->is('api/tag/info'))
             return Validator::make($request->all(), Rules::searchTagRules());
 
         else if($request->is('api/relationship/friend_request'))
             return Validator::make($request->all(), Rules::friendRequestRules());
 
-        else if($request->is('api/relationship/response/*'))
+        else if($request->is('api/relationship/response'))
             return Validator::make($request->all(), Rules::responseToFriendRequestRules());
 
         else if($request->is('api/relationship/block_user'))
