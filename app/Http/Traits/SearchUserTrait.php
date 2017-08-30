@@ -19,12 +19,12 @@ trait SearchUserTrait
      */
     public function getAllFollowerIds($user)
     {
-        return array_values($user->followerIds());
+        return array_values($user->followerIds);
     }
 
     public function getAllFollowingIds($user)
     {
-        return array_values($user->followingIds());
+        return array_values($user->followingIds);
     }
 
     /**

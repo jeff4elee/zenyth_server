@@ -50,7 +50,7 @@ class UserController extends Controller
     /**
      * Get user's followers
      * @param $user_id , id of user to be looked up
-     * @return mixed Users who are followers of input user
+     * @return mixed Users who are followersw\ of input user
      */
     public function getFollowers($user_id)
     {
