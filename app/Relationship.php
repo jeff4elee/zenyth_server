@@ -28,6 +28,8 @@ class Relationship extends Model
         $response = parent::toArray();
         $response['requester'] = $this->getRequester;
         $response['requestee'] = $this->getRequestee;
+        $response['status'] = (bool) $this->status;
+        $response['blocked'] = (bool) $this->blocked;
         return $response;
     }
 
