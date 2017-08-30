@@ -178,7 +178,7 @@ class PinpostController extends Controller
             Exceptions::invalidTokenException(sprintf(NOT_USERS_OBJECT,
                 PINPOST));
 
-        $request->except(['user_id']);
+        $request = $request->except(['user_id']);
         $this->pinpostRepo->update($request, $pin);
 
         return Response::dataResponse(true, ['pinpost' => $pin]);
