@@ -19,7 +19,7 @@ trait SearchUserTrait
      */
     public function getAllFollowerIds($user)
     {
-        if($user->followerIds === NULL){
+        if($user->followerIds() === NULL){
             return array();
         }
 
@@ -28,10 +28,10 @@ trait SearchUserTrait
 
     public function getAllFollowingIds($user)
     {
-        if($user->followingIds === NULL){
+        if($user->followingIds() === NULL){
             return array();
         }
-        
+
         return array_values($user->followingIds);
     }
 
