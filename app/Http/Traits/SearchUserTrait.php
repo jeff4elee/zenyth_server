@@ -19,11 +19,19 @@ trait SearchUserTrait
      */
     public function getAllFollowerIds($user)
     {
+        if($user->followerIds === NULL){
+            return array();
+        }
+
         return array_values($user->followerIds);
     }
 
     public function getAllFollowingIds($user)
     {
+        if($user->followingIds === NULL){
+            return array();
+        }
+        
         return array_values($user->followingIds);
     }
 
