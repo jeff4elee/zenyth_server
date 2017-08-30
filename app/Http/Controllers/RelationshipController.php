@@ -47,7 +47,7 @@ class RelationshipController extends Controller
         if ($relationship)
             Exceptions::invalidRequestException(EXISTED_RELATIONSHIP);
 
-        $requestee = $relationship->getRequestee;
+        $requestee = $this->userRepo->read($requesteeId);
         $userPrivacy = $requestee->userPrivacy;
         if ($userPrivacy->follow_privacy == 'public')
             $status = true;
