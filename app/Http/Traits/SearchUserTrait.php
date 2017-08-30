@@ -23,7 +23,7 @@ trait SearchUserTrait
             return array();
         }
 
-        return array_values($user->followerIds);
+        return array_values($user->followerIds());
     }
 
     public function getAllFollowingIds($user)
@@ -32,7 +32,7 @@ trait SearchUserTrait
             return array();
         }
 
-        return array_values($user->followingIds);
+        return array_values($user->followingIds());
     }
 
     /**
