@@ -59,7 +59,7 @@ class UserController extends Controller
         if ($user == null)
             Exceptions::notFoundException(INVALID_USER_ID);
 
-        $followerIds = $user->followersId();
+        $followerIds = $user->followersIds();
         $followers = $this->userRepo
             ->allUsersInIdArray($followerIds)->all();
 
@@ -90,15 +90,25 @@ class UserController extends Controller
     {
         $user = $request->get('user');
 
-        $followerRequestsIds = $user->followerRequestsUsersId();
-        $followerRequests = $this->userRepo->allUsersInIdArray($followerRequestsIds);
+        $followerRequestsIds = $user->followRequestsUsersIds();
+
+        $followerRequests = $this->userRepo->allUsersInIdArray
+            ($followerRequestsIds)->all();
 
         return Response::dataResponse(true, ['users' => $followerRequests]);
     }
 
-    public function checkFollowerStatus($user_one_id, $user_two_id)
+    /**
+     * Get relationship between two users
+     * @param $requestee_id
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function checkFollowerStatus(Request $request, $requestee_id)
     {
-        $relationship = $this->relationshipRepo->getFollowRelationship($user_one_id, $user_two_id)->all()->first();
+        $user = $request->get('user');
+        $requesterId = $user->id;
+        $relationship = $this->relationshipRepo->getRelationship($requesterId,
+            $requestee_id)->all()->first();
         return Response::dataResponse(true, ['relationship' => $relationship]);
     }
 

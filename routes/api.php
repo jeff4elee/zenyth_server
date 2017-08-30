@@ -24,7 +24,7 @@ Route::group(['middleware' => 'client_authorization'], function() {
             Route::get('user/get_followers/{user_id}', 'UserController@getFollowers');
             Route::get('user/blocked_users', 'UserController@blockedUsers');
             Route::get('user/follower_requests', 'UserController@getFollowerRequests');
-            Route::get('user/{user_one_id}/{user_two_id}', 'UserController@checkFollowerStatus');
+            Route::get('user/relationship/{requestee_id}', 'UserController@checkFollowerStatus');
             Route::delete('user/{username}', 'UserController@delete');
 
 
@@ -36,8 +36,10 @@ Route::group(['middleware' => 'client_authorization'], function() {
                 'RelationshipController@followRequest');
             Route::post('relationship/response',
                 'RelationshipController@respondToRequest');
-            Route::delete('relationship/delete/{user_id}',
+            Route::delete('relationship/delete_follower/{follower_id}',
                 'RelationshipController@deleteFollower');
+            Route::delete('relationship/unfollow/{followee_id}',
+                'RelationshipController@unfollow');
             Route::post('relationship/block',
                 'RelationshipController@blockUser');
 

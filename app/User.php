@@ -151,7 +151,7 @@ class User extends Model
      * Get the array containing all the ids of users this user is following
      * @return array
      */
-    public function followerIds()
+    public function followersIds()
     {
         $requesteeRelationships = $this->requesteeRelationships;
         $idArray = array();
@@ -185,7 +185,7 @@ class User extends Model
         return $idArray;
     }
 
-    public function followRequestsUserIds()
+    public function followRequestsUsersIds()
     {
         $requesteeRelationships = $this->requesteeRelationships;
         $idArray = array();

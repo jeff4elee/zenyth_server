@@ -47,9 +47,10 @@ class DataRules
     {
         return [
             'birthday' => 'date_format:Y-m-d',
-            'email_privacy' => 'in:self,friends,public',
-            'gender_privacy' => 'in:self,friends,public',
-            'birthday_privacy' => 'in:self,friends,public'
+            'email_privacy' => 'in:self,followers,public',
+            'gender_privacy' => 'in:self,followers,public',
+            'birthday_privacy' => 'in:self,followers,public',
+            'follow_privacy' => 'in:public,private'
         ];
     }
 
@@ -82,24 +83,24 @@ class DataRules
             'description' => 'required',
             'latitude' => 'required',
             'longitude' => 'required',
-            'privacy' => 'in:self,friends,public'
+            'privacy' => 'in:self,followers,public'
         ];
     }
 
     static public function uploadImageRules()
     {
         return [
-            'image' => 'required|image'
+            'image' => 'required|image',
+            'thumbnail' => 'image'
         ];
     }
 
     static public function updatePinpostRules()
     {
         return [
-            'image' => 'image',
             'latitude' => 'numeric',
             'longitude' => 'numeric',
-            'privacy' => 'in:self,friends,public'
+            'privacy' => 'in:self,followers,public'
         ];
     }
 
@@ -112,7 +113,15 @@ class DataRules
             'top_left' => 'required_if:type,frame|valid_coord',
             'bottom_right' => 'required_if:type,frame|valid_coord',
             'unit' => 'in:km,mi',
-            'scope' => 'in:self,friends,public'
+            'scope' => 'in:self,following,public'
+        ];
+    }
+
+    static public function fetchFeedRules()
+    {
+        return [
+            'scope' => 'in:self,following,public',
+            'paginate' => 'integer'
         ];
     }
 
@@ -169,6 +178,13 @@ class DataRules
         return [
             'platform' => 'required|in:android,ios,web',
             'product_name' => 'required'
+        ];
+    }
+
+    static public function showImageRules()
+    {
+        return [
+            'size' => 'in:small,medium,large'
         ];
     }
 

@@ -26,6 +26,8 @@ class CreateUserPrivaciesTable extends Migration
                 ->default('public');
             $table->string('birthday_privacy')
                 ->default('public');
+            $table->string('follow_privacy')
+                ->default('public');
         });
     }
 

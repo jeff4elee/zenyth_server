@@ -43,6 +43,8 @@ define("CLIENT_ID_REQUIRED", "A client ID is required to access API");
 
 define("INVALID_CLIENT_ID", "The client ID provided is invalid");
 
+define("THUMBNAIL_NOT_FOUND", "No thumbnail was found");
+
 /* LoginController */
 define("LOGIN_INVALID_CREDENTIAL", "The login credential you provide is invalid");
 
@@ -59,7 +61,7 @@ define("ACCOUNT_VERIFIED", "Your account has been verified");
 /* RelationshipController */
 define("NO_PENDING_REQUEST", "No pending request");
 
-define("IGNORED_FOLLOWER_REQUEST", "Friend request ignored");
+define("IGNORED_FOLLOWER_REQUEST", "Follower request ignored");
 
 define("INVALID_REQUEST_TO_SELF", "Cannot send this request to yourself");
 
@@ -68,6 +70,8 @@ define("EXISTED_RELATIONSHIP", "This relationship already exists");
 define("USER_BLOCKING_NOT_EXIST", "The user being blocked does not exist");
 
 define("USER_DELETING_NOT_EXIST", "The user being deleted does not exist");
+
+define("USER_BLOCKED", "Cannot delete a follower that is blocked");
 
 /* LikeController */
 define("ALREADY_LIKED_ENTITY", "Entity has already been liked by this user");
