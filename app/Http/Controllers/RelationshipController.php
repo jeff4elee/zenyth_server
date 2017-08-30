@@ -141,7 +141,7 @@ class RelationshipController extends Controller
 
     /**
      * Unfollow a user. The person unfollowing is also the person following
-     * the user
+     * the user. This request also cancels a follow request.
      * @param Request $request
      * @param $followee_id
      * @return JsonResponse
