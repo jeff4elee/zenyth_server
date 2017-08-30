@@ -47,12 +47,20 @@ class RelationshipController extends Controller
         if ($relationship)
             Exceptions::invalidRequestException(EXISTED_RELATIONSHIP);
 
+        $requestee = $this->userRepo->read($requesteeId);
+        $userPrivacy = $requestee->userPrivacy;
+        if ($userPrivacy->follow_privacy == 'public')
+            $status = true;
+        else
+            $status = false;
+
         $request->merge([
             'requester' => $userId,
-            'requestee' => $requesteeId
+            'requestee' => $requesteeId,
+            'status' => $status
         ]);
 
-        $request = $request->except(['status', 'blocked']);
+        $request = $request->except(['blocked']);
 
         $relationship = $this->relationshipRepo->create($request);
 
@@ -133,7 +141,7 @@ class RelationshipController extends Controller
 
     /**
      * Unfollow a user. The person unfollowing is also the person following
-     * the user
+     * the user. This request also cancels a follow request.
      * @param Request $request
      * @param $followee_id
      * @return JsonResponse

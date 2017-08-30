@@ -140,7 +140,8 @@ class ProfileController extends Controller
 
         if($request->has('email_privacy') ||
             $request->has('gender_privacy') ||
-            $request->has('birthday_privacy')) {
+            $request->has('birthday_privacy') ||
+            $request->has('follow_privacy')) {
             $this->userPrivacyRepo->update($request, $user->id, 'user_id');
 
             // This will show the userPrivacy in the response if it's being
