@@ -50,7 +50,7 @@ class Reply extends Model
     {
         $this->creator;
         $response = parent::toArray();
-        $response['likes'] = $this->likesCount();
+        $response['likes'] = $this->likes;
         $response['images'] = $this->images;
         return $response;
     }

@@ -22,7 +22,7 @@ class User extends Model
 
     protected $hidden = [
         'password', 'token_expired_on', 'api_token', 'confirmation_code',
-        'remember_token'
+        'remember_token', 'profile'
     ];
 
     public $timestamps = false;

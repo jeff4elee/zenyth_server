@@ -129,11 +129,12 @@ class PinpostController extends Controller
         if ($pin == null)
             Exceptions::notFoundException(sprintf(OBJECT_NOT_FOUND, PINPOST));
 
-        $pin_response = $pin->toArray();
-        $pin_response['comments'] = $pin->comments;
+        $pin->makeHidden(['comments_count', 'likes_count']);
+        $pin->addVisible(['comments', 'likes']);
+
 
         return Response::dataResponse(true, [
-            'pinpost' => $pin_response
+            'pinpost' => $pin
         ]);
     }
 
@@ -299,9 +300,7 @@ class PinpostController extends Controller
     public function hideInformation(array $fields, $pinposts)
     {
         foreach($pinposts as $pinpost) {
-            foreach($fields as $field) {
-                $pinpost->makeHidden($field);
-            }
+            $pinpost->makeHidden($fields);
         }
     }
 

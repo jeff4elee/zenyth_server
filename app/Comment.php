@@ -62,8 +62,9 @@ class Comment extends Model
         $response = parent::toArray();
         $commentableType = substr($this->commentable_type, 4);
         $response['commentable_type'] = $commentableType;
-        $response['replies'] = $this->repliesCount();
-        $response['likes'] = $this->likesCount();
+
+        $response['replies'] = $this->replies;
+        $response['likes'] = $this->likes;
         $response['images'] = $this->images;
         $response['creator'] = $this->creator;
         return $response;
