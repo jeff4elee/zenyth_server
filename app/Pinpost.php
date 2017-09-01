@@ -9,7 +9,7 @@ class Pinpost extends Model
     protected $fillable = ['title', 'description', 'latitude', 'longitude',
         'updated_at', 'user_id', 'privacy'];
 
-    protected $visible = ['title', 'description', 'latitude', 'longitude',
+    protected $visible = ['id', 'title', 'description', 'latitude', 'longitude',
         'updated_at', 'user_id', 'privacy', 'creator'];
     protected $table = 'pinposts';
 
