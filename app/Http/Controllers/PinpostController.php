@@ -265,7 +265,7 @@ class PinpostController extends Controller
     public function fetch(Request $request)
     {
         // Fetch based on scope
-        // Example GET request: /api/pinpost/fetch?type=radius&center=lat,long&radius=100&unit=mi|km&scope=self|following|public
+        // Example GET request: /api/pinpost/fetch?type=radius&center=lat,long&radius=100&unit=mi|km&scope=self|following|public&include_self=true|false
         // Example GET request: /api/pinpost/fetch?type=frame&top_left=lat,long&bottom_right=lat,long&unit=mi|km&scope=self|following|public
         $type = strtolower($request->input('type'));
         $user = $request->get('user');
@@ -279,12 +279,19 @@ class PinpostController extends Controller
         else
             $this->pinpostRepo->pinpostsInFrame($request->all());
 
-        $this->pinpostRepo->pinpostsWithScope($scope, $user);
+        if($request->has('include_self')) {
+            $includeSelf = (bool)$request->input('include_self');
+        } else {
+            $includeSelf = true;
+        }
+
+        $this->pinpostRepo->pinpostsWithScope($scope, $user, $includeSelf);
         $this->pinpostRepo->latest();
 
         // Followers Scope is either not provided or public. Return all pinposts in the
         // area
         $pinposts = $this->pinpostRepo->all();
+
         $pinposts = $this->pinpostRepo->filterByPrivacy($user, $pinposts);
         $this->hideInformation(['comments', 'likes', 'creator'], $pinposts);
         return Response::dataResponse(true, [
