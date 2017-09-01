@@ -116,13 +116,13 @@ class ProfileController extends Controller
         array_pull($userInfoArray, 'requestee_relationships');
 
         $pinposts = $userBeingRead->pinposts;
-
+        $userInfoArray['number_of_pinposts'] = $pinposts->count();
         $pinposts = $this->pinpostRepo->filterByPrivacy($currentUser,
             $pinposts);
         // Remove creator data from pinpost
         $this->filterPinpostData($pinposts);
         $userInfoArray['pinposts'] = $pinposts;
-        $userInfoArray['number_of_pinposts'] = $pinposts->count();
+
         $likes = 0;
         foreach($pinposts as $pinpost) {
             $likes += $pinpost->likesCount();
