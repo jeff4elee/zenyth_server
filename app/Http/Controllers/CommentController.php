@@ -81,6 +81,8 @@ class CommentController extends Controller
         if ($comment == null)
             Exceptions::notFoundException(sprintf(OBJECT_NOT_FOUND, COMMENT));
 
+        $comment->makeHidden('replies_count');
+        $comment->addVisible('replies');
         return Response::dataResponse(true, ['comment' => $comment]);
     }
 

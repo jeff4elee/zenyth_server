@@ -8,6 +8,7 @@ class Reply extends Model
 {
     protected $table = 'replies';
     protected $fillable = ['text', 'user_id', 'comment_id'];
+    protected $visible = ['id', 'text', 'user_id', 'comment_id'];
 
     protected static function boot()
     {
@@ -50,7 +51,12 @@ class Reply extends Model
     {
         $this->creator;
         $response = parent::toArray();
-        $response['likes'] = $this->likes;
+        if(in_array('likes_count', $this->hidden))
+            $response['likes_count'] = $this->likesCount();
+
+        if(in_array('likes', $this->visible))
+            $response['likes'] = $this->likes;
+
         $response['images'] = $this->images;
         return $response;
     }

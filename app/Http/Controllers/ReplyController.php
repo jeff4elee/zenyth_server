@@ -67,7 +67,7 @@ class ReplyController extends Controller
 
         if ($reply == null)
             Exceptions::notFoundException(sprintf(OBJECT_NOT_FOUND, REPLY));
-
+        
         return Response::dataResponse(true, ['reply' => $reply]);
     }
 
