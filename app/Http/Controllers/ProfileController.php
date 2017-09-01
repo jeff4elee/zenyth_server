@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Exceptions\Exceptions;
 use App\Exceptions\ResponseHandler as Response;
 use App\Repositories\ImageRepository;
+use App\Repositories\PinpostRepository;
 use App\Repositories\ProfileRepository;
 use App\Repositories\RelationshipRepository;
 use App\Repositories\UserPrivacyRepository;
@@ -23,18 +24,21 @@ class ProfileController extends Controller
     private $userRepo;
     private $userPrivacyRepo;
     private $relationshipRepo;
+    private $pinpostRepo;
 
     function __construct(ProfileRepository $profileRepo,
                         ImageRepository $imageRepo,
                         UserRepository $userRepo,
                         UserPrivacyRepository $userPrivacyRepo,
-                        RelationshipRepository $relationshipRepo)
+                        RelationshipRepository $relationshipRepo,
+                        PinpostRepository $pinpostRepo)
     {
         $this->profileRepo = $profileRepo;
         $this->imageRepo = $imageRepo;
         $this->userRepo = $userRepo;
         $this->userPrivacyRepo = $userPrivacyRepo;
         $this->relationshipRepo = $relationshipRepo;
+        $this->pinpostRepo = $pinpostRepo;
     }
 
     /**
@@ -112,7 +116,8 @@ class ProfileController extends Controller
         array_pull($userInfoArray, 'requestee_relationships');
 
         $pinposts = $userBeingRead->pinposts;
-
+        
+        $this->pinpostRepo->filterByPrivacy($currentUser, $pinposts);
         // Remove creator data from pinpost
         $this->filterPinpostData($pinposts);
         $userInfoArray['pinposts'] = $pinposts;
