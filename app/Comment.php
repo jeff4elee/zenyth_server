@@ -10,7 +10,7 @@ class Comment extends Model
         'commentable_type'];
     protected $table = 'comments';
     protected $visible = ['id', 'text', 'commentable_id', 'commentable_type',
-        'user_id'];
+        'user_id', 'creator'];
 
     protected static function boot()
     {
