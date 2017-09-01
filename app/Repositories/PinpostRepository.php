@@ -128,6 +128,7 @@ class PinpostRepository extends Repository
         $filteredPinposts = new Collection();
 
         $userFollowingIds = $user->followingIds();
+        dd($userFollowingIds);
 
         foreach($pinposts as $pinpost) {
 
