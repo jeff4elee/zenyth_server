@@ -50,7 +50,7 @@ class Reply extends Model
     public function toArray()
     {
         $response = parent::toArray();
-        if(in_array('likes_count', $this->hidden))
+        if(!in_array('likes_count', $this->hidden))
             $response['likes_count'] = $this->likesCount();
 
         if(in_array('likes', $this->visible))
