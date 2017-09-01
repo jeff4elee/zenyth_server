@@ -136,13 +136,12 @@ class User extends Model
      */
     public function followerIds()
     {
-        $requesterRelationships = $this->requesterRelationships;
-        dd($requesterRelationships);
+        $requesteeRelationships = $this->requesteeRelationships;
         $idArray = array();
 
-        foreach($requesterRelationships as $relationship) {
+        foreach($requesteeRelationships as $relationship) {
             if($relationship->status)
-                array_push($idArray, $relationship->requestee);
+                array_push($idArray, $relationship->requester);
         }
 
         return $idArray;
@@ -154,12 +153,12 @@ class User extends Model
      */
     public function followingIds()
     {
-        $requesteeRelationships = $this->requesteeRelationships;
+        $requesterRelationships = $this->requesterRelationships;
         $idArray = array();
 
-        foreach($requesteeRelationships as $relationship) {
+        foreach($requesterRelationships as $relationship) {
             if($relationship->status)
-                array_push($idArray, $relationship->requester);
+                array_push($idArray, $relationship->requestee);
         }
 
         return $idArray;
