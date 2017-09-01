@@ -116,8 +116,9 @@ class ProfileController extends Controller
         array_pull($userInfoArray, 'requestee_relationships');
 
         $pinposts = $userBeingRead->pinposts;
-        
-        $this->pinpostRepo->filterByPrivacy($currentUser, $pinposts);
+
+        $pinposts = $this->pinpostRepo->filterByPrivacy($currentUser,
+            $pinposts);
         // Remove creator data from pinpost
         $this->filterPinpostData($pinposts);
         $userInfoArray['pinposts'] = $pinposts;
