@@ -57,7 +57,8 @@ class Reply extends Model
             $response['likes'] = $this->likes;
 
         $response['images'] = $this->images;
-        $response['creator'] = $this->creator;
+        if(!in_array('creator', $this->hidden))
+            $response['creator'] = $this->creator;
         return $response;
     }
 }
