@@ -8,9 +8,9 @@ Route::post('password/reset/{token}',
     'Auth\ForgotPasswordController@restorePassword')->name('api_pw_reset');
 
 Route::group(['middleware' => 'throttle:500,1'], function() {
-//    Route::group(['middleware' => ['caching']], function () {
+    Route::group(['middleware' => ['caching']], function () {
         Route::get('image/{filename}', 'ImageController@showImage');
-//    });
+    });
 });
 
 Route::group(['middleware' => ['client_authorization', 'throttle:60,1']], function () {
