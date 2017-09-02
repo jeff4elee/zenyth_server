@@ -11,7 +11,7 @@ Route::group(['middleware' => 'throttle:500'], function() {
     Route::get('image/{filename}', 'ImageController@showImage');
 });
 
-Route::group(['middleware' => 'client_authorization'], function() {
+Route::group(['middleware' => ['client_authorization', 'throttle:60']], function () {
     Route::get('email_taken/{email}', 'Auth\RegisterController@emailTaken');
     Route::get('username_taken/{username}', 'Auth\RegisterController@usernameTaken');
 
