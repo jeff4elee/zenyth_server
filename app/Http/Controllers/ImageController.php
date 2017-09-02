@@ -154,7 +154,7 @@ class ImageController extends Controller
                     File::get($thumbnail));
 
                 // Save different sizes of the thumbnail
-                $this->saveDifferentSizes($img->directory,
+                self::saveDifferentSizes($img->directory,
                     $thumbnailFilename);
             }
 
@@ -192,7 +192,7 @@ class ImageController extends Controller
                         File::get($thumbnail));
 
                     // Save different sizes of the thumbnail
-                    $this->saveDifferentSizes($img->directory,
+                    self::saveDifferentSizes($img->directory,
                         $thumbnailFilename);
                 }
             }
@@ -208,7 +208,7 @@ class ImageController extends Controller
      * @param $directory
      * @param $filename
      */
-    public function saveDifferentSizes($directory, $filename)
+    static public function saveDifferentSizes($directory, $filename)
     {
         $path = 'app/' . $directory . '/' . $filename;
         $directoryPath = storage_path('app/' . $directory);
@@ -310,7 +310,10 @@ class ImageController extends Controller
             }
 
             // Look if the resized image is in storage
-            $filename = $prefix . 'thumbnail_' . $image->filename;
+            if ($image->directory == 'profile_pictures')
+                $filename = $prefix . $image->filename;
+            else
+                $filename = $prefix . 'thumbnail_' . $image->filename;
             $pathToImage = 'app/' . $image->directory . '/' . $filename;
             $absolutePath = storage_path($pathToImage);
             if(file_exists($absolutePath))

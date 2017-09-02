@@ -192,6 +192,7 @@ class ProfileController extends Controller
         $profile->picture_id = $image->id;
         $profile->update();
 
+        ImageController::saveDifferentSizes($image->directory, $image->filename);
 
         return Response::dataResponse(true, [
             'user' => $user
