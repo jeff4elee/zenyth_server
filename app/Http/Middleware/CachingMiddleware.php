@@ -14,14 +14,10 @@ class CachingMiddleware
      * @param  \Closure  $next
      * @return mixed
      */
-    public function handle($request, Closure $next, $minutes)
+    public function handle($request, Closure $next, $minutes = 1)
     {
 
         $url = request()->url();
-
-        if($minutes === NULL){
-            $minutes = 1;
-        }
 
         $queryParams = request()->query();
 
