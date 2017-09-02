@@ -35,10 +35,10 @@ class Kernel extends HttpKernel
             \Illuminate\Routing\Middleware\SubstituteBindings::class,
         ],
 
-//        'api' => [
+        'api' => [
 //            'throttle:500,1',
-//            'bindings',
-//        ],
+            'bindings',
+        ],
 
         'authenticated' => [
             \App\Http\Middleware\AuthenticatedMiddleware::class
