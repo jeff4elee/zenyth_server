@@ -102,7 +102,7 @@ Route::group(['middleware' => ['client_authorization', 'throttle:60,1']], functi
     Route::get('like/read/{like_id}', 'LikeController@read');
     Route::get('comment/read/{comment_id}', 'CommentController@read');
 
-    Route::group(['middleware' => ['caching:10']], function () {
+    Route::group(['middleware' => ['caching:1']], function () {
         Route::get('pinpost/read/{pinpost_id}', 'PinpostController@read');
     });
 
