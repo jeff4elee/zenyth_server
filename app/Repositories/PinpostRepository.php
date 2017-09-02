@@ -37,16 +37,16 @@ class PinpostRepository extends Repository
         // where the left is positive and the right is negative
         if($long1 > $long2) {
             $query = $this->model->where([
-                ['latitude', '>=', $lat1],
-                ['latitude', '<=', $lat2],
+                ['latitude', '<=', $lat1],
+                ['latitude', '>=', $lat2],
                 ['longitude', '<=', $long1],
                 ['longitude', '>=', $long2]
             ]);
         }
         else {
             $query = $this->model->where([
-                ['latitude', '>=', $lat1],
-                ['latitude', '<=', $lat2],
+                ['latitude', '<=', $lat1],
+                ['latitude', '>=', $lat2],
                 ['longitude', '>=', $long1],
                 ['longitude', '<=', $long2]
             ]);

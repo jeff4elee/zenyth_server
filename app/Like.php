@@ -22,6 +22,7 @@ class Like extends Model
 
     public function toArray()
     {
+        // Add user to the response
         $this->user;
         $response = parent::toArray();
         $likeableType = substr($this->likeable_type, 4);

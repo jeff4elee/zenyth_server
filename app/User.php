@@ -22,7 +22,7 @@ class User extends Model
 
     protected $hidden = [
         'password', 'token_expired_on', 'api_token', 'confirmation_code',
-        'remember_token'
+        'remember_token', 'profile'
     ];
 
     public $timestamps = false;
@@ -134,14 +134,14 @@ class User extends Model
      * Get the array containing all the ids of all the users followers
      * @return array
      */
-    public function followingIds()
+    public function followerIds()
     {
-        $requesterRelationships = $this->requesterRelationships;
+        $requesteeRelationships = $this->requesteeRelationships;
         $idArray = array();
 
-        foreach($requesterRelationships as $relationship) {
+        foreach($requesteeRelationships as $relationship) {
             if($relationship->status)
-                array_push($idArray, $relationship->requestee);
+                array_push($idArray, $relationship->requester);
         }
 
         return $idArray;
@@ -151,14 +151,14 @@ class User extends Model
      * Get the array containing all the ids of users this user is following
      * @return array
      */
-    public function followersIds()
+    public function followingIds()
     {
-        $requesteeRelationships = $this->requesteeRelationships;
+        $requesterRelationships = $this->requesterRelationships;
         $idArray = array();
 
-        foreach($requesteeRelationships as $relationship) {
+        foreach($requesterRelationships as $relationship) {
             if($relationship->status)
-                array_push($idArray, $relationship->requester);
+                array_push($idArray, $relationship->requestee);
         }
 
         return $idArray;

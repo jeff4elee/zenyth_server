@@ -9,6 +9,8 @@ class Comment extends Model
     protected $fillable = ['text', 'user_id', 'commentable_id',
         'commentable_type'];
     protected $table = 'comments';
+    protected $visible = ['id', 'text', 'commentable_id', 'commentable_type',
+        'user_id', 'creator'];
 
     protected static function boot()
     {
@@ -62,8 +64,18 @@ class Comment extends Model
         $response = parent::toArray();
         $commentableType = substr($this->commentable_type, 4);
         $response['commentable_type'] = $commentableType;
-        $response['replies'] = $this->repliesCount();
-        $response['likes'] = $this->likesCount();
+
+        if(!in_array('replies_count', $this->hidden))
+            $response['replies_count'] = $this->repliesCount();
+
+        if(in_array('replies', $this->visible))
+            $response['replies'] = $this->replies;
+
+        if(!in_array('likes_count', $this->hidden))
+            $response['likes_count'] = $this->likesCount();
+
+        if(in_array('likes', $this->visible))
+            $response['likes'] = $this->likes;
         $response['images'] = $this->images;
         $response['creator'] = $this->creator;
         return $response;

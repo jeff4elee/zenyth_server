@@ -9,6 +9,8 @@ class Pinpost extends Model
     protected $fillable = ['title', 'description', 'latitude', 'longitude',
         'updated_at', 'user_id', 'privacy'];
 
+    protected $visible = ['id', 'title', 'description', 'latitude', 'longitude',
+        'updated_at', 'user_id', 'privacy', 'creator'];
     protected $table = 'pinposts';
 
     protected static function boot()
@@ -62,11 +64,17 @@ class Pinpost extends Model
 
         $response = parent::toArray();
 
-        if(!in_array('comments', $this->hidden))
-            $response['commentCount'] = $this->commentsCount();
+        if(!in_array('comments_count', $this->hidden))
+            $response['comments_count'] = $this->commentsCount();
 
-        if(!in_array('likes', $this->hidden))
-            $response['likes'] = $this->likesCount();
+        if(in_array('comments', $this->visible))
+            $response['comments'] = $this->comments;
+
+        if(!in_array('likes_count', $this->hidden))
+            $response['likes_count'] = $this->likesCount();
+
+        if(in_array('likes', $this->visible))
+            $response['likes'] = $this->likes;
 
         if(!in_array('images', $this->hidden))
             $response['images'] = $this->images;

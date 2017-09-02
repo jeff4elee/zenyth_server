@@ -76,7 +76,7 @@ class RelationshipRepository extends Repository
     }
 
     /**
-     * All relationships between two users
+     * Get relationship if it exists where requester is a follower of requestee
      * @param $userOneId
      * @param $userTwoId
      * @return mixed

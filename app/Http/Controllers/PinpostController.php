@@ -129,11 +129,12 @@ class PinpostController extends Controller
         if ($pin == null)
             Exceptions::notFoundException(sprintf(OBJECT_NOT_FOUND, PINPOST));
 
-        $pin_response = $pin->toArray();
-        $pin_response['comments'] = $pin->comments;
+        $pin->makeHidden(['comments_count']);
+        $pin->addVisible(['comments']);
+
 
         return Response::dataResponse(true, [
-            'pinpost' => $pin_response
+            'pinpost' => $pin
         ]);
     }
 
@@ -177,7 +178,7 @@ class PinpostController extends Controller
             Exceptions::invalidTokenException(sprintf(NOT_USERS_OBJECT,
                 PINPOST));
 
-        $request->except(['user_id']);
+        $request = $request->except(['user_id']);
         $this->pinpostRepo->update($request, $pin);
 
         return Response::dataResponse(true, ['pinpost' => $pin]);
@@ -264,7 +265,7 @@ class PinpostController extends Controller
     public function fetch(Request $request)
     {
         // Fetch based on scope
-        // Example GET request: /api/pinpost/fetch?type=radius&center=lat,long&radius=100&unit=mi|km&scope=self|following|public
+        // Example GET request: /api/pinpost/fetch?type=radius&center=lat,long&radius=100&unit=mi|km&scope=self|following|public&include_self=true|false
         // Example GET request: /api/pinpost/fetch?type=frame&top_left=lat,long&bottom_right=lat,long&unit=mi|km&scope=self|following|public
         $type = strtolower($request->input('type'));
         $user = $request->get('user');
@@ -278,12 +279,19 @@ class PinpostController extends Controller
         else
             $this->pinpostRepo->pinpostsInFrame($request->all());
 
-        $this->pinpostRepo->pinpostsWithScope($scope, $user);
+        if($request->has('include_self')) {
+            $includeSelf = (bool)$request->input('include_self');
+        } else {
+            $includeSelf = true;
+        }
+
+        $this->pinpostRepo->pinpostsWithScope($scope, $user, $includeSelf);
         $this->pinpostRepo->latest();
 
         // Followers Scope is either not provided or public. Return all pinposts in the
         // area
         $pinposts = $this->pinpostRepo->all();
+
         $pinposts = $this->pinpostRepo->filterByPrivacy($user, $pinposts);
         $this->hideInformation(['comments', 'likes', 'creator'], $pinposts);
         return Response::dataResponse(true, [
@@ -299,9 +307,7 @@ class PinpostController extends Controller
     public function hideInformation(array $fields, $pinposts)
     {
         foreach($pinposts as $pinpost) {
-            foreach($fields as $field) {
-                $pinpost->makeHidden($field);
-            }
+            $pinpost->makeHidden($fields);
         }
     }
 
