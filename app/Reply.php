@@ -8,7 +8,8 @@ class Reply extends Model
 {
     protected $table = 'replies';
     protected $fillable = ['text', 'user_id', 'comment_id'];
-    protected $visible = ['id', 'text', 'user_id', 'comment_id', 'creator'];
+    protected $visible = ['id', 'text', 'user_id', 'comment_id', 'creator',
+        'updated_at', 'created_at'];
 
     protected static function boot()
     {
