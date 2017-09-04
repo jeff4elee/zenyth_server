@@ -10,7 +10,8 @@ class Comment extends Model
         'commentable_type'];
     protected $table = 'comments';
     protected $visible = ['id', 'text', 'commentable_id', 'commentable_type',
-        'user_id', 'creator'];
+        'user_id', 'creator', 'likes_count', 'replies_count',
+        'updated_at', 'created_at'];
 
     protected static function boot()
     {
@@ -77,7 +78,9 @@ class Comment extends Model
         if(in_array('likes', $this->visible))
             $response['likes'] = $this->likes;
         $response['images'] = $this->images;
-        $response['creator'] = $this->creator;
+
+        if(!in_array('creator', $this->hidden))
+            $response['creator'] = $this->creator;
         return $response;
     }
 }
