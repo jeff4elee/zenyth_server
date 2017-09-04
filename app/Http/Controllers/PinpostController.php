@@ -131,6 +131,7 @@ class PinpostController extends Controller
 
 //        $pin->makeHidden(['comments_count']);
         $pin->addVisible(['comments']);
+        $pin->addVisible(['likes']);
 
         return Response::dataResponse(true, [
             'pinpost' => $pin
