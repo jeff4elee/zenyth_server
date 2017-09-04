@@ -8,7 +8,9 @@ Route::post('password/reset/{token}',
     'Auth\ForgotPasswordController@restorePassword')->name('api_pw_reset');
 
 Route::group(['middleware' => 'throttle:500,1'], function() {
-    Route::get('image/{filename}', 'ImageController@showImage');
+    Route::group(['middleware' => ['caching']], function () {
+        Route::get('image/{filename}', 'ImageController@showImage');
+    });
 });
 
 Route::group(['middleware' => ['client_authorization', 'throttle:60,1']], function () {
@@ -17,9 +19,6 @@ Route::group(['middleware' => ['client_authorization', 'throttle:60,1']], functi
 
     Route::get('/profile/profile_picture/{user_id}', 'ProfileController@showProfileImage');
 
-    Route::group(['middleware' => ['caching']], function () {
-
-    });
 
     Route::group(['middleware' => 'validation'], function () {
         Route::group(['middleware' => 'authenticated'], function () {
@@ -102,6 +101,10 @@ Route::group(['middleware' => ['client_authorization', 'throttle:60,1']], functi
     Route::get('reply/images/{reply_id}', 'ReplyController@readImages');
     Route::get('like/read/{like_id}', 'LikeController@read');
     Route::get('comment/read/{comment_id}', 'CommentController@read');
-    Route::get('pinpost/read/{pinpost_id}', 'PinpostController@read');
+
+    Route::group(['middleware' => ['caching:1']], function () {
+        Route::get('pinpost/read/{pinpost_id}', 'PinpostController@read');
+    });
+
     Route::get('reply/read/{reply_id}', 'ReplyController@read');
 });

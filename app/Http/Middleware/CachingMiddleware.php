@@ -14,7 +14,7 @@ class CachingMiddleware
      * @param  \Closure  $next
      * @return mixed
      */
-    public function handle($request, Closure $next)
+    public function handle($request, Closure $next, $minutes = 1)
     {
 
         $url = request()->url();
@@ -33,7 +33,7 @@ class CachingMiddleware
             return Cache::get($key);
         } else {
             $response = $next($request);
-            Cache::put($key, $response, 60);
+            Cache::put($key, $response, $minutes);
             return $response;
         }
 
