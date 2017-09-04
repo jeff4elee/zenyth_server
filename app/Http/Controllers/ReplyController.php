@@ -45,6 +45,7 @@ class ReplyController extends Controller
             'comment_id' => (int)$comment_id
         ];
         $reply = $this->replyRepo->create($data);
+        $reply->makeHidden(['creator', 'likes_count']);
         return Response::dataResponse(true, ['reply' => $reply]);
     }
 

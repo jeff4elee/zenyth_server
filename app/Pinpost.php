@@ -10,7 +10,8 @@ class Pinpost extends Model
         'updated_at', 'user_id', 'privacy'];
 
     protected $visible = ['id', 'title', 'description', 'latitude', 'longitude',
-        'updated_at', 'user_id', 'privacy', 'creator'];
+        'updated_at', 'user_id', 'privacy', 'creator', 'updated_at',
+        'created_at'];
     protected $table = 'pinposts';
 
     protected static function boot()
