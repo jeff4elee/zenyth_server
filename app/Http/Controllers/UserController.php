@@ -59,7 +59,7 @@ class UserController extends Controller
         if ($user == null)
             Exceptions::notFoundException(INVALID_USER_ID);
 
-        $followerIds = $user->followersIds();
+        $followerIds = $user->followerIds();
         $followers = $this->userRepo
             ->allUsersInIdArray($followerIds)->all();
 
