@@ -20,7 +20,6 @@ class ClientMiddleware
 
     public function handle(Request $request, Closure $next)
     {
-        return $next($request);
         $clientId = $request->header('Client-ID');
 
         if($clientId) {
